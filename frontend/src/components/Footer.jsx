@@ -9,9 +9,21 @@ const Footer = () => {
         &copy; 2024 DevGo. All Rights Reserved. | Powered by Innovation.
       </p>
       <div className="flex gap-2.5">
-        <img src={assets.facebook_icon} alt="fbimg" width={35} />
-        <img src={assets.twitter_icon} alt="fbimg" width={35} />
-        <img src={assets.instagram_icon} alt="fbimg" width={35} />
+        <img src={assets.facebook_icon} alt="fbimg" width={35} 
+          onClick={() => {
+            window.open("https://www.facebook.com/", "_blank");
+          }}
+        />
+        <img src={assets.twitter_icon} alt="fbimg" width={35} 
+          onClick={() => {
+            window.open("https://www.twitter.com/", "_blank");
+          }}
+        />
+        <img src={assets.instagram_icon} alt="fbimg" width={35} 
+          onClick={() => {
+            window.open("https://www.instagram.com/", "_blank");
+          }}
+        />
       </div>
     </footer>
   );
