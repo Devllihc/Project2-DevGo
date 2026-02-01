@@ -1,5 +1,5 @@
 // controllers/tourController.js
-import Tour from "../models/Tour.js";
+import Tour from "../models/tour.js";
 
 // [GET] /api/tours
 export const getAllTours = async (req, res) => {

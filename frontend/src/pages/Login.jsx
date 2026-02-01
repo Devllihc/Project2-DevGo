@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const { backendUrl, setToken, setUser, user } = useContext(AppContext);
@@ -13,6 +13,8 @@ const LoginPage = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   useEffect(() => {
     if (user?.role === "admin") {
@@ -51,7 +53,7 @@ const LoginPage = () => {
           name,
           email,
           password,
-          phone, // ✅ Gửi phone lên backend
+          phone,
         });
       }
 
@@ -67,7 +69,7 @@ const LoginPage = () => {
           isLogin ? "Logged in successfully!" : "Registered successfully!"
         );
 
-        navigate("/");
+        navigate(from, { replace: true });
       } else {
         toast.error(response.data.message || "Something went wrong!");
       }

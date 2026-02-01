@@ -12,10 +12,14 @@ import Booking from "./pages/Booking";
 import Invoice from "./pages/Invoice";
 import About from "./pages/About";
 import AdminRoute from "./components/PrivateRoute";
+import UserRoute from "./components/UserRoute";
 import AdminUserList from "./pages/admin/AdminUserList";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminBookingList from "./pages/admin/AdminBookingList";
 import AdminTourManagement from "./pages/admin/AdminTourManagement";
+import Planning from "./components/Planning";
+import MyTrips from "./components/MyTrips";
+import TripDetail from "./components/TripDetail";
 const App = () => {
   return (
     <div className="flex flex-col min-h-screen px-4 sm:px-8 md:px-10 lg:px-22 bg-gradient-to-b from-sky-100 to-indigo-100">
@@ -55,8 +59,26 @@ const App = () => {
             />
           </Route>
 
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/invoice" element={<Invoice />} />
+          <Route
+            path="/booking"
+            element={
+              <UserRoute>
+                <Booking />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/invoice"
+            element={
+              <UserRoute>
+                <Invoice />
+              </UserRoute>
+            }
+          />
+
+          <Route path="/my-trips" element={<MyTrips />} />
+          <Route path="/generate" element={<Planning />} />
+          <Route path="/trip/:id" element={<TripDetail />} />
         </Routes>
       </main>
       <Footer />
