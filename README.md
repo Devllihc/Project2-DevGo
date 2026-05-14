@@ -54,6 +54,10 @@ Ensure that you have the following installed:
 - Node.js
 - MongoDB
 
+### Setup server AI
+
+https://huggingface.co/buihoang/AI_Planner
+
 ### Frontend Setup
 1. Clone the repository:
    ```bash
