@@ -45,7 +45,7 @@ const Tour = () => {
       >
         <div className="absolute inset-0 bg-black opacity-40"></div>
         <motion.h1
-          className="text-3xl sm:text-4xl font-semibold mb-4 text-center text-gray-100 absolute inset-0 flex items-center justify-center"
+          className="text-3xl sm:text-4xl font-semibold mb-4 text-center text-stone-100 absolute inset-0 flex items-center justify-center"
           initial={{ opacity: 0, y: -30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -62,7 +62,7 @@ const Tour = () => {
         variants={fadeIn}
       >
         {loading ? (
-          <div className="text-center col-span-full text-lg text-gray-600">
+          <div className="text-center col-span-full text-lg text-stone-600 dark:text-stone-400">
             Loading tours...
           </div>
         ) : tours.length === 0 ? (

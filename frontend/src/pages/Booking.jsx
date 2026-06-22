@@ -86,48 +86,48 @@ const Booking = () => {
 
   return user ? (
     <motion.div
-      className="max-w-4xl mx-auto p-6 bg-white/20 rounded-lg shadow-lg"
+      className="max-w-4xl mx-auto p-6 bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800"
       variants={formVariants}
       initial="hidden"
       animate="visible"
     >
-      <h2 className="text-3xl font-bold mb-6">Book Your Tour: {title}</h2>
+      <h2 className="text-3xl font-bold mb-6 text-stone-900 dark:text-stone-100">Book Your Tour: {title}</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-lg font-semibold">Name</label>
+          <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">Name</label>
           <motion.input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg bg-inherit"
+            className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
             required
           />
         </div>
         <div>
-          <label className="block text-lg font-semibold">Email</label>
+          <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">Email</label>
           <motion.input
             type="email"
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg bg-inherit"
+            className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
             required
           />
         </div>
         <div>
-          <label className="block text-lg font-semibold">Phone Number</label>
+          <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">Phone Number</label>
           <motion.input
             type="tel"
             name="phone"
             value={formData.phone}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg bg-inherit"
+            className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
             required
           />
         </div>
         <div>
-          <label className="block text-lg font-semibold">
+          <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">
             Number of Travelers
           </label>
           <motion.input
@@ -136,33 +136,33 @@ const Booking = () => {
             min="1"
             value={formData.travelers}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg bg-inherit"
+            className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
           />
         </div>
         <div>
-          <label className="block text-lg font-semibold">
+          <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">
             Special Requests (Optional)
           </label>
           <motion.textarea
             name="specialRequests"
             value={formData.specialRequests}
             onChange={handleChange}
-            className="w-full p-3 border rounded-lg bg-inherit"
+            className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
           />
         </div>
         <div>
-          <h3 className="text-lg font-semibold">Total Price: ₹{totalPrice}</h3>
+          <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100">Total Price: ₹{totalPrice}</h3>
         </div>
         <motion.button
           type="submit"
-          className="w-full bg-gradient-to-b from-sky-500 to-blue-500 text-white hover:from-sky-800 hover:to-blue-700 p-3 rounded-lg"
+          className="w-full bg-accent-500 hover:bg-accent-600 text-white p-3 rounded-2xl transition duration-300"
         >
           Confirm Booking
         </motion.button>
       </form>
     </motion.div>
   ) : (
-    <div className="text-center mt-20">Please log in to make a booking.</div>
+    <div className="text-center mt-20 text-stone-600 dark:text-stone-400">Please log in to make a booking.</div>
   );
 };
 

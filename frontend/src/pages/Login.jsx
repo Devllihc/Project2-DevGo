@@ -81,18 +81,18 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center">
-      <h1 className="text-4xl max-w-[300px] sm:text-7xl sm:max-w-[590px] mx-auto mt-[-70px] text-center mb-10">
-        Welcome to <span className="text-blue-500">DevGo</span>
+      <h1 className="text-4xl max-w-[300px] sm:text-7xl sm:max-w-[590px] mx-auto mt-[-70px] text-center mb-10 text-stone-900 dark:text-stone-100">
+        Welcome to <span className="text-accent-500">DevGo</span>
       </h1>
-      <div className="bg-white/20 p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-3xl font-semibold text-center text-black">
+      <div className="bg-white dark:bg-stone-900 p-8 border border-stone-200 dark:border-stone-800 rounded-3xl max-w-md w-full">
+        <h2 className="text-3xl font-semibold text-center text-stone-900 dark:text-stone-100">
           {isLogin ? "Login" : "Register"}
         </h2>
         <form onSubmit={onSubmitHandler} className="space-y-4 mt-6">
           {!isLogin && (
             <>
               <div>
-                <label htmlFor="name" className="block text-md font-medium">
+                <label htmlFor="name" className="block text-md font-medium text-stone-900 dark:text-stone-100">
                   Full Name
                 </label>
                 <input
@@ -101,12 +101,12 @@ const LoginPage = () => {
                   name="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
                   placeholder="Enter your full name"
                 />
               </div>
               <div>
-                <label htmlFor="phone" className="block text-md font-medium">
+                <label htmlFor="phone" className="block text-md font-medium text-stone-900 dark:text-stone-100">
                   Phone
                 </label>
                 <input
@@ -115,7 +115,7 @@ const LoginPage = () => {
                   name="phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
                   placeholder="Enter your phone number"
                 />
               </div>
@@ -123,7 +123,7 @@ const LoginPage = () => {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-md font-medium">
+            <label htmlFor="email" className="block text-md font-medium text-stone-900 dark:text-stone-100">
               Email
             </label>
             <input
@@ -132,12 +132,12 @@ const LoginPage = () => {
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
               placeholder="Enter your email"
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-md font-medium">
+            <label htmlFor="password" className="block text-md font-medium text-stone-900 dark:text-stone-100">
               Password
             </label>
             <input
@@ -146,13 +146,13 @@ const LoginPage = () => {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 mt-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
               placeholder="Enter your password"
             />
           </div>
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 mt-4 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full bg-accent-500 text-white py-2 mt-4 rounded-2xl hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500 transition duration-300"
           >
             {isLogin ? "Login" : "Register"}
           </button>
@@ -163,7 +163,7 @@ const LoginPage = () => {
               <>
                 Don't have an account?{" "}
                 <span
-                  className="text-blue-500 cursor-pointer"
+                  className="text-accent-500 cursor-pointer"
                   onClick={handleToggle}
                 >
                   Register here
@@ -173,7 +173,7 @@ const LoginPage = () => {
               <>
                 Already have an account?{" "}
                 <span
-                  className="text-blue-500 cursor-pointer"
+                  className="text-accent-500 cursor-pointer"
                   onClick={handleToggle}
                 >
                   Login here

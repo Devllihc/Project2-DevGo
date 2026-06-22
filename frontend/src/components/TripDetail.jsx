@@ -132,21 +132,21 @@ const TripDetail = () => {
 
   if (loading)
     return (
-      <div className="min-h-screen flex justify-center items-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen flex justify-center items-center bg-stone-50 dark:bg-stone-950">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-500"></div>
       </div>
     );
 
   if (!trip)
     return (
-      <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+      <div className="min-h-screen flex flex-col justify-center items-center bg-stone-50 dark:bg-stone-950">
         <AlertCircle size={48} className="text-red-400 mb-4" />
-        <p className="text-gray-600 font-medium">
+        <p className="text-stone-600 dark:text-stone-400 font-medium">
           Không tìm thấy dữ liệu chuyến đi.
         </p>
         <button
           onClick={() => navigate(-1)}
-          className="mt-4 text-blue-600 hover:underline"
+          className="mt-4 text-accent-500 hover:underline"
         >
           Quay lại trang chủ
         </button>
@@ -157,27 +157,27 @@ const TripDetail = () => {
   const totalCost = trip.total_cost || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 font-sans">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 pb-20 font-sans">
       {/* 1. HEADER SECTION */}
-      <div className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+      <div className="bg-white dark:bg-stone-900 shadow-sm border-b border-stone-200 dark:border-stone-800 sticky top-0 z-50">
         {/* Top bar */}
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center text-gray-600 hover:text-blue-600 transition font-medium"
+            className="flex items-center text-stone-600 dark:text-stone-400 hover:text-accent-500 transition font-medium"
           >
             <ArrowLeft size={20} className="mr-1" /> Quay lại
           </button>
           <div className="flex gap-2">
             <button
-              className="p-2.5 bg-gray-100 rounded-full hover:bg-gray-200 text-gray-600 transition"
+              className="p-2.5 bg-stone-100 dark:bg-stone-800 rounded-full hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-600 dark:text-stone-400 transition"
               title="Chia sẻ"
             >
               <Share2 size={18} />
             </button>
             <button
               onClick={handleDownloadExcel}
-              className="p-2.5 bg-blue-50 rounded-full hover:bg-blue-100 text-blue-600 transition flex items-center gap-2"
+              className="p-2.5 bg-accent-50 dark:bg-accent-950/20 rounded-full hover:bg-accent-100 dark:hover:bg-accent-900/40 text-accent-500 transition flex items-center gap-2"
               title="Tải Excel"
             >
               <Download size={18} />{" "}
@@ -188,14 +188,14 @@ const TripDetail = () => {
 
         {/* Title & Summary */}
         <div className="max-w-7xl mx-auto px-4 pb-6">
-          <h1 className="text-2xl md:text-4xl font-extrabold text-slate-800 mb-4 leading-tight">
+          <h1 className="text-2xl md:text-4xl font-extrabold text-stone-800 dark:text-stone-100 mb-4 leading-tight">
             {trip.trip_name}
           </h1>
           <div className="flex flex-wrap gap-4 text-sm font-medium">
-            <div className="flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-2 rounded-lg border border-blue-100 shadow-sm">
+            <div className="flex items-center gap-2 bg-accent-50 dark:bg-accent-950/20 text-accent-700 dark:text-accent-400 px-4 py-2 rounded-lg border border-accent-100 dark:border-accent-900/30 shadow-sm">
               <Calendar size={18} /> {trip.total_days} Ngày
             </div>
-            <div className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-lg border border-green-100 shadow-sm">
+            <div className="flex items-center gap-2 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-400 px-4 py-2 rounded-lg border border-green-100 dark:border-green-900/30 shadow-sm">
               <Banknote size={18} /> {formatCurrency(totalCost)}
             </div>
           </div>
@@ -206,8 +206,8 @@ const TripDetail = () => {
       <div className="max-w-6xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* LEFT COLUMN: DAY NAVIGATOR (Sticky Sidebar) */}
         <div className="lg:col-span-3">
-          <div className="sticky top-40 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="p-4 bg-gray-50 border-b border-gray-100 font-bold text-gray-700 uppercase text-xs tracking-wider">
+          <div className="sticky top-40 bg-white dark:bg-stone-900 rounded-2xl shadow-sm border border-stone-100 dark:border-stone-800 overflow-hidden">
+            <div className="p-4 bg-stone-50 dark:bg-stone-800 border-b border-stone-100 dark:border-stone-800 font-bold text-stone-700 dark:text-stone-300 uppercase text-xs tracking-wider">
               Mục lục ngày
             </div>
             <div className="flex flex-col max-h-[60vh] overflow-y-auto custom-scrollbar">
@@ -221,13 +221,13 @@ const TripDetail = () => {
                   }}
                   className={`text-left px-5 py-4 border-l-4 transition-all flex justify-between items-center ${
                     activeDay === dayItem.day
-                      ? "border-blue-500 bg-blue-50/50 text-blue-700 font-bold"
-                      : "border-transparent hover:bg-gray-50 text-gray-500 hover:text-gray-800"
+                      ? "border-accent-500 bg-accent-50/50 dark:bg-accent-950/20 text-accent-700 dark:text-accent-400 font-bold"
+                      : "border-transparent hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200"
                   }`}
                 >
                   <span>Ngày {dayItem.day}</span>
                   {activeDay === dayItem.day && (
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div className="w-2 h-2 rounded-full bg-accent-500"></div>
                   )}
                 </button>
               ))}
@@ -246,15 +246,15 @@ const TripDetail = () => {
             >
               {/* Day Header */}
               <div className="mb-8 flex items-center gap-4">
-                <div className="bg-blue-600 text-white w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold shadow-lg shadow-blue-200">
+                <div className="bg-accent-500 text-white w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold">
                   {dayItem.day}
                 </div>
-                <h2 className="text-2xl font-bold text-slate-800">
+                <h2 className="text-2xl font-bold text-stone-800 dark:text-stone-100">
                   Lịch trình chi tiết Ngày {dayItem.day}
                 </h2>
               </div>
 
-              <div className="relative border-l-2 border-dashed border-gray-200 ml-6 space-y-10 pb-10">
+              <div className="relative border-l-2 border-dashed border-stone-200 dark:border-stone-800 ml-6 space-y-10 pb-10">
                 {dayItem.activities?.map((activity, index) => {
                   // Xử lý hiển thị thời gian linh hoạt (quan trọng)
                   const displayTime =
@@ -264,47 +264,47 @@ const TripDetail = () => {
                   return (
                     <div key={index} className="relative pl-10 group">
                       {/* Timeline Dot */}
-                      <div className="absolute -left-[11px] top-6 w-5 h-5 rounded-full bg-white border-4 border-blue-500 group-hover:scale-125 transition-transform duration-300"></div>
+                      <div className="absolute -left-[11px] top-6 w-5 h-5 rounded-full bg-white dark:bg-stone-900 border-4 border-accent-500 group-hover:scale-125 transition-transform duration-300"></div>
 
                       {/* Content Card */}
-                      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+                      <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-100 dark:border-stone-800 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
                         {/* Time Badge */}
-                        <div className="inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold mb-3">
+                        <div className="inline-flex items-center gap-1.5 bg-accent-50 dark:bg-accent-950/20 text-accent-700 dark:text-accent-400 px-3 py-1 rounded-full text-xs font-bold mb-3">
                           <Clock size={14} />
                           {displayTime}
                         </div>
 
                         {/* Activity Name */}
-                        <h3 className="text-xl font-bold text-slate-800 mb-3 leading-snug">
+                        <h3 className="text-xl font-bold text-stone-800 dark:text-stone-100 mb-3 leading-snug">
                           {activity.activity_name}
                         </h3>
 
                         {/* Description / Notes (Nếu có) */}
                         {activity.notes && (
-                          <p className="text-gray-500 text-sm mb-4 italic">
+                          <p className="text-stone-500 dark:text-stone-400 text-sm mb-4 italic">
                             "{activity.notes}"
                           </p>
                         )}
 
-                        <div className="h-px bg-gray-100 my-4"></div>
+                        <div className="h-px bg-stone-100 dark:bg-stone-800 my-4"></div>
 
                         {/* Info Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-sm">
                           {/* Address */}
                           {activity.address && (
-                            <div className="flex items-start gap-2 text-gray-600 col-span-1 sm:col-span-2">
+                            <div className="flex items-start gap-2 text-stone-600 dark:text-stone-400 col-span-1 sm:col-span-2">
                               <MapPin
                                 size={18}
                                 className="mt-0.5 text-red-500 shrink-0"
                               />
-                              <span className="font-medium text-gray-700">
+                              <span className="font-medium text-stone-700 dark:text-stone-300">
                                 {activity.address}
                               </span>
                             </div>
                           )}
 
                           {/* Transport */}
-                          <div className="flex items-center gap-2 text-gray-600">
+                          <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400">
                             {activity.transport
                               ?.toLowerCase()
                               .includes("bộ") ? (
@@ -315,7 +315,7 @@ const TripDetail = () => {
                             ) : (
                               <Car
                                 size={18}
-                                className="text-blue-500 shrink-0"
+                                className="text-accent-500 shrink-0"
                               />
                             )}
                             <span>
@@ -327,7 +327,7 @@ const TripDetail = () => {
                           </div>
 
                           {/* Cost */}
-                          <div className="flex items-center gap-2 text-gray-600 justify-end">
+                          <div className="flex items-center gap-2 text-stone-600 dark:text-stone-400 justify-end">
                             <Banknote
                               size={18}
                               className="text-green-600 shrink-0"
@@ -335,8 +335,8 @@ const TripDetail = () => {
                             <span
                               className={
                                 activity.cost_vnd > 0
-                                  ? "font-bold text-green-700"
-                                  : "text-gray-500 font-medium"
+                                  ? "font-bold text-green-700 dark:text-green-400"
+                                  : "text-stone-500 dark:text-stone-400 font-medium"
                               }
                             >
                               {activity.cost_vnd > 0

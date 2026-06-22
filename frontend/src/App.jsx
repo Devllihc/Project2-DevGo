@@ -22,7 +22,7 @@ import MyTrips from "./components/MyTrips";
 import TripDetail from "./components/TripDetail";
 const App = () => {
   return (
-    <div className="flex flex-col min-h-screen px-4 sm:px-8 md:px-10 lg:px-22 bg-gradient-to-b from-sky-100 to-indigo-100">
+    <div className="flex flex-col min-h-screen px-4 sm:px-8 md:px-10 lg:px-22">
       <ToastContainer theme="dark" position="bottom-right" autoClose={1000} />
       <Navbar />
       <main className="flex-1">

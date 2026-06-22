@@ -106,15 +106,15 @@ const MyTrips = () => {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-gray-50 font-sans">
+    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-stone-50 dark:bg-stone-950 font-sans">
       {/* --- HEADER SECTION --- */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
         {/* Title */}
         <div>
-          <h2 className="text-3xl font-bold text-slate-800 flex items-center gap-2">
-            <Sparkles className="text-yellow-500" /> Chuyến đi của tôi
+          <h2 className="text-3xl font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
+            <Sparkles className="text-amber-500" /> Chuyến đi của tôi
           </h2>
-          <p className="text-gray-500 text-sm mt-1">
+          <p className="text-stone-500 dark:text-stone-400 text-sm mt-1">
             Quản lý và xem lại các lịch trình đã tạo
           </p>
         </div>
@@ -124,18 +124,18 @@ const MyTrips = () => {
           
           {/* Thanh Tìm Kiếm */}
           <div className="relative group w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-blue-500 transition-colors" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500 group-focus-within:text-accent-500 transition-colors" size={18} />
             <input 
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               placeholder="Tìm theo tên..."
-              className="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm font-medium shadow-sm"
+              className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-full focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500 transition-all text-sm font-medium shadow-sm text-stone-900 dark:text-stone-100"
             />
             {keyword && (
               <button 
                 onClick={() => setKeyword("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 p-1"
               >
                 <X size={14} />
               </button>
@@ -145,7 +145,7 @@ const MyTrips = () => {
           {/* Nút Tạo */}
           <button
             onClick={() => navigate("/generate")}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full flex items-center justify-center gap-2 transition shadow-lg hover:shadow-blue-500/30 font-medium whitespace-nowrap"
+            className="bg-accent-500 hover:bg-accent-600 text-white px-5 py-2.5 rounded-full flex items-center justify-center gap-2 transition hover:-translate-y-0.5 font-medium whitespace-nowrap"
           >
             <Plus size={20} /> Tạo lịch trình mới
           </button>
@@ -157,23 +157,23 @@ const MyTrips = () => {
         // Loading Skeleton
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-64 bg-gray-200 rounded-2xl animate-pulse"></div>
+            <div key={i} className="h-64 bg-stone-200 dark:bg-stone-800 rounded-3xl animate-pulse border border-stone-200 dark:border-stone-800"></div>
           ))}
         </div>
       ) : trips.length === 0 ? (
         // Empty State (Xử lý 2 trường hợp)
-        <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-gray-100 border-dashed">
+        <div className="text-center py-20 bg-white dark:bg-stone-900 rounded-3xl shadow-sm border border-stone-200 dark:border-stone-800 border-dashed">
           {keyword ? (
              // Case 1: Tìm kiếm nhưng không thấy kết quả
              <>
-               <Search size={64} className="mx-auto text-gray-300 mb-4" />
-               <h3 className="text-xl font-semibold text-gray-700">Không tìm thấy kết quả</h3>
-               <p className="text-gray-500 mb-6 mt-2">
+               <Search size={64} className="mx-auto text-stone-300 dark:text-stone-600 mb-4" />
+               <h3 className="text-xl font-semibold text-stone-700 dark:text-stone-200">Không tìm thấy kết quả</h3>
+               <p className="text-stone-500 dark:text-stone-400 mb-6 mt-2">
                  Không có chuyến đi nào khớp với từ khóa "{keyword}"
                </p>
                <button 
                  onClick={() => setKeyword("")} 
-                 className="text-blue-600 font-medium hover:underline px-4 py-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                 className="text-accent-500 font-medium hover:underline px-4 py-2 bg-accent-50 dark:bg-accent-950/20 rounded-lg hover:bg-accent-100 dark:hover:bg-accent-900/40 transition-colors"
                >
                  Xóa bộ lọc tìm kiếm
                </button>
@@ -181,12 +181,12 @@ const MyTrips = () => {
           ) : (
              // Case 2: Chưa có dữ liệu nào
              <>
-                <MapPin size={64} className="mx-auto text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700">Bạn chưa có chuyến đi nào</h3>
-                <p className="text-gray-500 mb-6 mt-2">Hãy thử tạo một lịch trình du lịch ngay bây giờ!</p>
+                <MapPin size={64} className="mx-auto text-stone-300 dark:text-stone-600 mb-4" />
+                <h3 className="text-xl font-semibold text-stone-700 dark:text-stone-200">Bạn chưa có chuyến đi nào</h3>
+                <p className="text-stone-500 dark:text-stone-400 mb-6 mt-2">Hãy thử tạo một lịch trình du lịch ngay bây giờ!</p>
                 <button
                   onClick={() => navigate("/generate")}
-                  className="text-blue-600 font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
+                  className="text-accent-500 font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
                 >
                   Bắt đầu khám phá <ArrowRight size={16} />
                 </button>
@@ -200,11 +200,11 @@ const MyTrips = () => {
             {trips.map((trip) => (
               <div
                 key={trip._id}
-                className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col overflow-hidden cursor-pointer relative"
+                className="group bg-white dark:bg-stone-900 rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-200 dark:border-stone-800 flex flex-col overflow-hidden cursor-pointer relative hover:-translate-y-1"
                 onClick={() => navigate(`/trip/${trip._id}`)}
               >
                 {/* Decorative Gradient Header */}
-                <div className="h-36 bg-gradient-to-r from-blue-600 to-indigo-600 p-5 flex flex-col justify-between relative overflow-hidden">
+                <div className="h-36 bg-accent-500 p-5 flex flex-col justify-between relative overflow-hidden">
                   <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 rounded-full bg-white/10 blur-2xl"></div>
 
                   <div className="flex justify-between items-start z-10">
@@ -222,7 +222,7 @@ const MyTrips = () => {
                 <div className="p-5 flex-grow flex flex-col justify-between">
                   <div>
                     {/* Prompt Summary */}
-                    <p className="text-gray-500 text-sm line-clamp-2 mb-4 h-10">
+                    <p className="text-stone-500 dark:text-stone-400 text-sm line-clamp-2 mb-4 h-10">
                       {trip.prompt
                         ? trip.prompt.replace("Đi ", "Du lịch đến ")
                         : "Không có mô tả thêm."}
@@ -230,25 +230,25 @@ const MyTrips = () => {
 
                     {/* Stats Grid */}
                     <div className="grid grid-cols-2 gap-3 mb-4">
-                      <div className="bg-blue-50 p-3 rounded-xl">
-                        <div className="flex items-center gap-1 text-blue-600 mb-1">
+                      <div className="bg-accent-50 dark:bg-accent-950/20 p-3 rounded-xl border border-accent-100 dark:border-accent-900/30">
+                        <div className="flex items-center gap-1 text-accent-600 dark:text-accent-400 mb-1">
                           <Clock size={16} />
                           <span className="text-xs font-semibold uppercase">
                             Thời gian
                           </span>
                         </div>
-                        <span className="text-slate-700 font-bold">
+                        <span className="text-stone-700 dark:text-stone-200 font-bold">
                           {trip.total_days} Ngày
                         </span>
                       </div>
-                      <div className="bg-green-50 p-3 rounded-xl">
-                        <div className="flex items-center gap-1 text-green-600 mb-1">
+                      <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-xl border border-green-100 dark:border-green-900/30">
+                        <div className="flex items-center gap-1 text-green-600 dark:text-green-500 mb-1">
                           <Banknote size={16} />
                           <span className="text-xs font-semibold uppercase">
                             Chi phí
                           </span>
                         </div>
-                        <span className="text-slate-700 font-bold text-sm">
+                        <span className="text-stone-700 dark:text-stone-200 font-bold text-sm">
                           {trip.total_cost
                             ? formatCurrency(trip.total_cost)
                             : "N/A"}
@@ -258,11 +258,11 @@ const MyTrips = () => {
                   </div>
 
                   {/* Footer Action */}
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-4 mt-2">
-                    <span className="text-xs text-gray-400">
+                  <div className="flex items-center justify-between border-t border-stone-100 dark:border-stone-800 pt-4 mt-2">
+                    <span className="text-xs text-stone-400 dark:text-stone-500">
                       Đã lưu thành công
                     </span>
-                    <div className="flex items-center text-blue-600 font-semibold text-sm group-hover:translate-x-1 transition-transform">
+                    <div className="flex items-center text-accent-500 font-semibold text-sm group-hover:translate-x-1 transition-transform">
                       Xem chi tiết <ArrowRight size={16} className="ml-1" />
                     </div>
                   </div>
@@ -279,16 +279,16 @@ const MyTrips = () => {
                 disabled={currentPage === 1}
                 className={`p-2 rounded-full border transition ${
                   currentPage === 1
-                    ? "bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed"
-                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-blue-600"
+                    ? "bg-stone-100 dark:bg-stone-800 text-stone-300 dark:text-stone-600 border-stone-200 dark:border-stone-700 cursor-not-allowed"
+                    : "bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 border-stone-300 dark:border-stone-600 hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-accent-500"
                 }`}
               >
                 <ChevronLeft size={20} />
               </button>
 
-              <span className="text-sm font-medium text-gray-600">
+              <span className="text-sm font-medium text-stone-600 dark:text-stone-300">
                 Trang{" "}
-                <span className="text-blue-600 font-bold">{currentPage}</span> /{" "}
+                <span className="text-accent-500 font-bold">{currentPage}</span> /{" "}
                 {totalPages}
               </span>
 
@@ -297,8 +297,8 @@ const MyTrips = () => {
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-full border transition ${
                   currentPage === totalPages
-                    ? "bg-gray-100 text-gray-300 border-gray-200 cursor-not-allowed"
-                    : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-blue-600"
+                    ? "bg-stone-100 dark:bg-stone-800 text-stone-300 dark:text-stone-600 border-stone-200 dark:border-stone-700 cursor-not-allowed"
+                    : "bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 border-stone-300 dark:border-stone-600 hover:bg-stone-50 dark:hover:bg-stone-800 hover:text-accent-500"
                 }`}
               >
                 <ChevronRight size={20} />

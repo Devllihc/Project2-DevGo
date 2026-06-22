@@ -24,7 +24,7 @@ const About = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          Welcome to <span className="text-blue-400">DevGo</span>
+          Welcome to <span className="text-accent-500">DevGo</span>
         </motion.h1>
         <motion.p
           className="text-white mt-4 text-lg relative z-10"
@@ -36,7 +36,7 @@ const About = () => {
         </motion.p>
       </section>
 
-      <section className="about-intro py-16 px-4 bg-light-gray">
+      <section className="about-intro py-16 px-4 bg-stone-50 dark:bg-stone-900">
         <motion.div
           className="container mx-auto text-center"
           initial={{ opacity: 0 }}
@@ -44,15 +44,15 @@ const About = () => {
           transition={{ duration: 0.8 }}
         >
           <motion.h2
-            className="text-3xl font-bold mb-4"
+            className="text-3xl font-bold mb-4 text-stone-900 dark:text-stone-100"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            About <span className="text-blue-500">DevGo</span>
+            About <span className="text-accent-500">DevGo</span>
           </motion.h2>
           <motion.p
-            className="text-lg"
+            className="text-lg text-stone-600 dark:text-stone-400"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -73,15 +73,15 @@ const About = () => {
           transition={{ duration: 0.8 }}
         >
           <motion.h2
-            className="text-3xl font-bold mb-4"
+            className="text-3xl font-bold mb-4 text-stone-900 dark:text-stone-100"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Our <span className="text-blue-500">Mission</span>
+            Our <span className="text-accent-500">Mission</span>
           </motion.h2>
           <motion.p
-            className="text-lg"
+            className="text-lg text-stone-600 dark:text-stone-400"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
@@ -94,7 +94,7 @@ const About = () => {
         </motion.div>
       </section>
 
-      <section className="why-choose-us py-16 bg-light-gray">
+      <section className="why-choose-us py-16 bg-stone-50 dark:bg-stone-900">
         <motion.div
           className="container mx-auto text-center"
           initial={{ opacity: 0 }}
@@ -102,12 +102,12 @@ const About = () => {
           transition={{ duration: 0.8 }}
         >
           <motion.h2
-            className="text-3xl font-bold mb-4"
+            className="text-3xl font-bold mb-4 text-stone-900 dark:text-stone-100"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Why Choose <span className="text-blue-500">Us?</span>
+            Why Choose <span className="text-accent-500">Us?</span>
           </motion.h2>
           <div className="flex flex-wrap justify-center gap-6">
             {[
@@ -135,19 +135,19 @@ const About = () => {
                 transition={{ delay: 0.5 + index * 0.3, duration: 0.8 }}
               >
                 <img
-                  className="rounded-lg mb-4"
+                  className="rounded-2xl mb-4 border border-stone-200 dark:border-stone-800"
                   src={item.img}
                   alt={item.title}
                 />
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p>{item.desc}</p>
+                <h3 className="text-xl font-semibold mb-2 text-stone-900 dark:text-stone-100">{item.title}</h3>
+                <p className="text-stone-600 dark:text-stone-400">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </motion.div>
       </section>
 
-      <section className="our-team py-16 bg-white/20">
+      <section className="our-team py-16 bg-white dark:bg-stone-950">
         <motion.div
           className="container mx-auto text-center"
           initial={{ opacity: 0 }}
@@ -155,14 +155,14 @@ const About = () => {
           transition={{ duration: 0.8 }}
         >
           <motion.h2
-            className="text-3xl font-bold mb-4"
+            className="text-3xl font-bold mb-4 text-stone-900 dark:text-stone-100"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Meet Our <span className="text-blue-500">Team</span>
+            Meet Our <span className="text-accent-500">Team</span>
           </motion.h2>
-          <p className="text-lg mb-8">
+          <p className="text-lg mb-8 text-stone-600 dark:text-stone-400">
             Our team is dedicated to making your travel experiences
             unforgettable. We are experts in travel planning and passionate
             about helping you discover the best destinations.
@@ -183,19 +183,19 @@ const About = () => {
                 transition={{ delay: 0.6 + index * 0.3, duration: 0.8 }}
               >
                 <img
-                  className="rounded-full mb-4"
+                  className="rounded-full mb-4 border border-stone-200 dark:border-stone-800"
                   src={item.img}
                   alt={item.name}
                 />
-                <h3 className="text-xl font-semibold">{item.name}</h3>
-                <p>{item.title}</p>
+                <h3 className="text-xl font-semibold text-stone-900 dark:text-stone-100">{item.name}</h3>
+                <p className="text-stone-600 dark:text-stone-400">{item.title}</p>
               </motion.div>
             ))}
           </div>
         </motion.div>
       </section>
 
-      <section className="contact-info py-16 bg-light-gray text-center">
+      <section className="contact-info py-16 bg-stone-50 dark:bg-stone-900 text-center">
         <motion.div
           className="container mx-auto"
           initial={{ opacity: 0 }}
@@ -203,14 +203,14 @@ const About = () => {
           transition={{ duration: 0.8 }}
         >
           <motion.h2
-            className="text-3xl font-bold mb-4"
+            className="text-3xl font-bold mb-4 text-stone-900 dark:text-stone-100"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
-            Get in <span className="text-blue-500">Touch</span>
+            Get in <span className="text-accent-500">Touch</span>
           </motion.h2>
-          <p className="text-lg mb-4">
+          <p className="text-lg mb-4 text-stone-600 dark:text-stone-400">
             Have any questions or need help with your booking? We're here to
             assist you.
           </p>
@@ -240,16 +240,16 @@ const About = () => {
                 variants={fadeIn}
                 transition={{ delay: index * 0.2 }}
               >
-                <div className="flex justify-center">{item.icon}</div>
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p>{item.content}</p>
+                <div className="flex justify-center text-accent-500">{item.icon}</div>
+                <h3 className="text-xl font-semibold mb-2 text-stone-900 dark:text-stone-100">{item.title}</h3>
+                <p className="text-stone-600 dark:text-stone-400">{item.content}</p>
               </motion.div>
             ))}
           </div>
           <div className="mt-12 text-center">
             <a
               href="mailto:contact@devgo.com"
-              className="inline-block px-8 py-3 bg-white text-blue-500 rounded-full font-semibold hover:bg-blue-100 transition duration-300"
+              className="inline-block px-8 py-3 bg-white dark:bg-stone-950 text-accent-500 border border-stone-200 dark:border-stone-800 rounded-full font-semibold hover:bg-stone-100 dark:hover:bg-stone-800 transition duration-300"
             >
               Contact Us
             </a>

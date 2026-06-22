@@ -4,32 +4,35 @@ import TourList from "./TourList";
 
 const AllTours = () => {
   return (
-    <motion.div
-      className="flex flex-col justify-center items-center my-24 p-6 md:px-28"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, ease: "easeInOut" }}
-      viewport={{ once: true }}
-    >
-      <motion.h1
-        className="text-3xl sm:text-4xl font-semibold mb-4 text-center text-gray-800"
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.8 }}
+    <section className="py-24 px-6 md:px-12 lg:px-0 max-w-7xl mx-auto w-full">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div className="max-w-2xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-stone-900 dark:text-white mb-4">
+              Our Featured <span className="text-accent-500">Tours</span>
+            </h2>
+            <p className="text-lg text-stone-600 dark:text-stone-400">
+              Unforgettable journeys tailored to your interests. Explore the world in
+              the most beautiful and luxurious ways possible.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+      
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-100px" }}
+        transition={{ duration: 0.8 }}
       >
-        Our Featured <span className="text-blue-500">Tours</span>
-      </motion.h1>
-      <motion.p
-        className="text-lg text-gray-600 mb-12 text-center max-w-2xl"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8 }}
-      >
-        Unforgettable Journeys Tailored to Your Interests. Explore the world in
-        the most beautiful and luxurious ways possible.
-      </motion.p>
-      <TourList />
-    </motion.div>
+        <TourList />
+      </motion.div>
+    </section>
   );
 };
 

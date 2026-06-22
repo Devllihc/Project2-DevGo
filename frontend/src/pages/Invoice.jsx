@@ -42,9 +42,9 @@ const Invoice = () => {
 
   if (!booking) {
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
-        <h2 className="text-3xl font-bold mb-6">Error: No Booking Data</h2>
-        <p>
+      <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl">
+        <h2 className="text-3xl font-bold mb-6 text-stone-900 dark:text-stone-100">Error: No Booking Data</h2>
+        <p className="text-stone-600 dark:text-stone-400">
           There was an error retrieving your booking information. Please try
           again or contact customer support.
         </p>
@@ -53,12 +53,12 @@ const Invoice = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white/40 rounded-lg shadow-lg mt-[150px] sm:mt-24 mb-[220px] sm:mb-0">
-      <h2 className="text-3xl font-bold mb-6">
-        Booking <span className="text-blue-500">Invoice</span>{" "}
+    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl mt-[150px] sm:mt-24 mb-[220px] sm:mb-0 text-stone-600 dark:text-stone-400">
+      <h2 className="text-3xl font-bold mb-6 text-stone-900 dark:text-stone-100">
+        Booking <span className="text-accent-500">Invoice</span>{" "}
       </h2>
       <div>
-        <h3 className="text-2xl font-semibold mb-5">Customer Details</h3>
+        <h3 className="text-2xl font-semibold mb-5 text-stone-900 dark:text-stone-100">Customer Details</h3>
         <p>
           <strong>Name:</strong> {booking.name}
         </p>
@@ -70,7 +70,7 @@ const Invoice = () => {
         </p>
       </div>
       <div className="mt-6">
-        <h3 className="text-2xl font-semibold mb-5">Package Details</h3>
+        <h3 className="text-2xl font-semibold mb-5 text-stone-900 dark:text-stone-100">Package Details</h3>
         <p>
           <strong>Tour:</strong> {booking.tourTitle}
         </p>
@@ -90,11 +90,11 @@ const Invoice = () => {
           >
             {({ blob, url, loading, error }) =>
               loading ? (
-                <button className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-300">
+                <button className="px-6 py-3 bg-accent-500 text-white font-semibold rounded-2xl hover:bg-accent-600 transition duration-300">
                   Loading document...
                 </button>
               ) : (
-                <button className="px-6 py-3 bg-gradient-to-b from-sky-500 to-blue-500 text-white font-semibold rounded-lg hover:from-sky-800 hover:to-blue-700 transition duration-300 ">
+                <button className="px-6 py-3 bg-accent-500 text-white font-semibold rounded-2xl hover:bg-accent-600 transition duration-300">
                   Download Invoice PDF
                 </button>
               )

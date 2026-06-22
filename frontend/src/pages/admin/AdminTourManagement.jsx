@@ -136,14 +136,14 @@ const AdminTourManagement = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <h2 className="text-3xl font-bold mb-4">
+      <h2 className="text-3xl font-bold mb-6 text-stone-900 dark:text-stone-100">
         {editId ? "Edit Tour" : "Add New Tour"}
       </h2>
 
       {/* Add/Edit Tour Form */}
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 bg-white p-6 rounded shadow"
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm"
         encType="multipart/form-data"
       >
         {[
@@ -155,13 +155,13 @@ const AdminTourManagement = () => {
           { name: "maxGroupSize", label: "Max Group Size", type: "number" },
         ].map(({ name, label, type = "text" }) => (
           <div key={name} className="col-span-1">
-            <label className="block text-sm font-medium mb-1">{label}</label>
+            <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-2">{label}</label>
             <input
               type={type}
               name={name}
               value={formData[name]}
               onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded"
+              className="w-full p-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:ring-2 focus:ring-accent-500 outline-none text-stone-900 dark:text-stone-100"
               required
             />
           </div>
@@ -169,7 +169,7 @@ const AdminTourManagement = () => {
 
         {/* Available Dates */}
         <div className="col-span-1">
-          <label className="block text-sm font-medium mb-1">
+          <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-2">
             Available Dates (comma-separated)
           </label>
           <input
@@ -177,141 +177,149 @@ const AdminTourManagement = () => {
             name="availableDates"
             value={formData.availableDates}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded"
+            className="w-full p-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:ring-2 focus:ring-accent-500 outline-none text-stone-900 dark:text-stone-100"
             placeholder="e.g. 5-1-2025, 10-2-2025"
           />
         </div>
 
         {/* Featured */}
         <div className="col-span-1">
-          <label className="block text-sm font-medium mb-1">Featured Tour</label>
+          <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-2">Featured Tour</label>
           <input
             type="checkbox"
             name="featured"
             checked={formData.featured}
             onChange={handleChange}
-            className="h-5 w-5 text-blue-600"
+            className="h-5 w-5 text-accent-600 rounded border-stone-300 focus:ring-accent-500"
           />
         </div>
 
         {/* Photo Upload */}
         <div className="col-span-1 md:col-span-2">
-          <label className="block text-sm font-medium mb-1">Photo</label>
+          <label className="block text-sm font-semibold text-stone-700 dark:text-stone-300 mb-2">Photo</label>
           <input
             type="file"
             name="photo"
             accept="image/*"
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded"
+            className="w-full p-3 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-xl focus:ring-2 focus:ring-accent-500 outline-none text-stone-900 dark:text-stone-100"
             {...(!editId && { required: true })}
           />
         </div>
 
-        <div className="col-span-1 md:col-span-2">
-          <button type="submit" className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700">
+        <div className="col-span-1 md:col-span-2 mt-4">
+          <button type="submit" className="w-full bg-accent-500 text-white p-3 rounded-xl font-bold hover:bg-accent-600 transition-colors">
             {editId ? "Update Tour" : "Add Tour"}
           </button>
         </div>
 
         {editId && (
           <div className="col-span-1 md:col-span-2">
-            <button
-              type="button"
-              onClick={() => {
-                setEditId(null);
-                setFormData({
-                  title: "",
-                  desc: "",
-                  price: "",
-                  city: "",
-                  distance: "",
-                  maxGroupSize: "",
-                  photo: null,
-                  availableDates: "",
-                  featured: false,
-                });
-              }}
-              className="w-full bg-gray-500 text-white p-2 rounded hover:bg-gray-600 mt-2"
-            >
-              Cancel Edit
-            </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditId(null);
+                  setFormData({
+                    title: "",
+                    desc: "",
+                    price: "",
+                    city: "",
+                    distance: "",
+                    maxGroupSize: "",
+                    photo: null,
+                    availableDates: "",
+                    featured: false,
+                  });
+                }}
+                className="w-full bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-bold p-3 rounded-xl hover:bg-stone-300 dark:hover:bg-stone-700 mt-2 transition-colors"
+              >
+                Cancel Edit
+              </button>
           </div>
         )}
       </form>
 
       {/* Search Bar */}
-      <div className="mb-4">
+      <div className="mb-6">
         <input
           type="text"
           placeholder="Search by title, city, or description..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-sm p-2 border border-gray-300 rounded shadow-sm"
+          className="w-full max-w-sm p-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-2xl shadow-sm focus:ring-2 focus:ring-accent-500 outline-none text-stone-900 dark:text-stone-100"
         />
       </div>
 
       {/* Tour List */}
-      <table className="w-full border-collapse border border-gray-300 bg-white shadow rounded overflow-hidden">
-        <thead>
-          <tr className="bg-indigo-100 text-left">
-            <th className="p-2 border">Title</th>
-            <th className="p-2 border">City</th>
-            <th className="p-2 border">Price</th>
-            <th className="p-2 border">Distance</th>
-            <th className="p-2 border">Group Size</th>
-            <th className="p-2 border">Featured</th>
-            <th className="p-2 border">Available Dates</th>
-            <th className="p-2 border">Image</th>
-            <th className="p-2 border">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredTours.length > 0 ? (
-            filteredTours.map((tour) => (
-              <tr key={tour._id} className="hover:bg-gray-50 border">
-                <td className="p-2 border">{tour.title}</td>
-                <td className="p-2 border">{tour.city}</td>
-                <td className="p-2 border">${tour.price}</td>
-                <td className="p-2 border">{tour.distance} km</td>
-                <td className="p-2 border">{tour.maxGroupSize}</td>
-                <td className="p-2 border">{tour.featured ? "Yes" : "No"}</td>
-                <td className="p-2 border">{tour.availableDates?.join(", ")}</td>
-                <td className="p-2 border">
-                  {tour.photo ? (
-                    <img
-                      src={`${import.meta.env.VITE_BACKEND_URL}${tour.photo}`}
-                      alt={tour.title}
-                      className="w-16 h-12 object-cover rounded"
-                    />
-                  ) : (
-                    <span className="text-gray-400 italic">No image</span>
-                  )}
-                </td>
-                <td className="p-2 border flex gap-2">
-                  <button
-                    onClick={() => handleEdit(tour)}
-                    className="bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(tour._id)}
-                    className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700"
-                  >
-                    Delete
-                  </button>
+      <div className="overflow-x-auto bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm">
+        <table className="w-full border-collapse text-stone-700 dark:text-stone-300">
+          <thead>
+            <tr className="bg-accent-50 dark:bg-accent-950/20 text-left text-accent-800 dark:text-accent-300 border-b border-stone-200 dark:border-stone-800">
+              <th className="p-4 font-semibold">Title</th>
+              <th className="p-4 font-semibold">City</th>
+              <th className="p-4 font-semibold">Price</th>
+              <th className="p-4 font-semibold">Distance</th>
+              <th className="p-4 font-semibold">Group Size</th>
+              <th className="p-4 font-semibold">Featured</th>
+              <th className="p-4 font-semibold">Available Dates</th>
+              <th className="p-4 font-semibold">Image</th>
+              <th className="p-4 font-semibold">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredTours.length > 0 ? (
+              filteredTours.map((tour) => (
+                <tr key={tour._id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors last:border-0">
+                  <td className="p-4 font-medium">{tour.title}</td>
+                  <td className="p-4">{tour.city}</td>
+                  <td className="p-4">${tour.price}</td>
+                  <td className="p-4">{tour.distance} km</td>
+                  <td className="p-4">{tour.maxGroupSize}</td>
+                  <td className="p-4">
+                    {tour.featured ? (
+                      <span className="bg-accent-100 dark:bg-accent-900/40 text-accent-700 dark:text-accent-400 px-2 py-1 rounded-md text-xs font-bold">Yes</span>
+                    ) : (
+                      <span className="bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 px-2 py-1 rounded-md text-xs font-bold">No</span>
+                    )}
+                  </td>
+                  <td className="p-4">{tour.availableDates?.join(", ")}</td>
+                  <td className="p-4">
+                    {tour.photo ? (
+                      <img
+                        src={`${import.meta.env.VITE_BACKEND_URL}${tour.photo}`}
+                        alt={tour.title}
+                        className="w-16 h-12 object-cover rounded-lg"
+                      />
+                    ) : (
+                      <span className="text-stone-400 dark:text-stone-500 italic text-sm">No image</span>
+                    )}
+                  </td>
+                  <td className="p-4 flex gap-2">
+                    <button
+                      onClick={() => handleEdit(tour)}
+                      className="bg-amber-50 text-amber-600 dark:bg-amber-950/30 dark:text-amber-500 px-3 py-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors font-medium text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(tour._id)}
+                      className="bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors font-medium text-sm"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="9" className="text-center p-8 text-stone-500 dark:text-stone-400">
+                  No tours found.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="9" className="text-center p-4 text-gray-500">
-                No tours found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -134,13 +134,13 @@ const Planning = () => {
     <div className="max-w-7xl mx-auto px-4 py-10 font-sans min-h-screen">
       {/* HEADER SECTION */}
       <div className="text-center mb-12 animate-in fade-in slide-in-from-top-4 duration-700">
-        <h2 className="text-4xl font-black text-slate-900 flex items-center justify-center gap-3 mb-2">
-          <Plane className="text-blue-600 transform -rotate-12" size={40} />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">
+        <h2 className="text-4xl font-black text-stone-900 dark:text-stone-100 flex items-center justify-center gap-3 mb-2">
+          <Plane className="text-accent-500 transform -rotate-12" size={40} />
+          <span className="text-accent-500">
             AI Travel Planner
           </span>
         </h2>
-        <p className="text-slate-500 text-lg max-w-2xl mx-auto">
+        <p className="text-stone-500 dark:text-stone-400 text-lg max-w-2xl mx-auto">
           Tạo lịch trình cho riêng mình
         </p>
       </div>
@@ -148,8 +148,8 @@ const Planning = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
         {/* --- CỘT TRÁI: FORM NHẬP LIỆU --- */}
         <div className="lg:col-span-4 sticky top-28 z-10">
-          <div className="bg-white p-8 rounded-3xl shadow-xl border border-slate-100 shadow-blue-100/50">
-            <h3 className="font-bold text-slate-800 text-xl mb-6 flex items-center gap-2 border-b border-slate-100 pb-4">
+          <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800">
+            <h3 className="font-bold text-stone-800 dark:text-stone-200 text-xl mb-6 flex items-center gap-2 border-b border-stone-200 dark:border-stone-800 pb-4">
               <Sparkles className="text-amber-500" size={22} /> Thiết lập hành
               trình
             </h3>
@@ -158,12 +158,12 @@ const Planning = () => {
               {/* Điểm đến */}
               <div className="group relative">
                 {" "}
-                <label className="block text-sm font-bold text-slate-700 mb-2">
+                <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
                   Điểm đến <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <MapPin
-                    className="absolute left-3 top-3.5 text-slate-400 group-focus-within:text-blue-500 transition-colors"
+                    className="absolute left-3 top-3.5 text-stone-400 dark:text-stone-500 group-focus-within:text-accent-500 transition-colors"
                     size={18}
                   />
                   <input
@@ -174,21 +174,21 @@ const Planning = () => {
                       if (formData.destination) setShowSuggestions(true);
                     }}
                     placeholder="Nhập tên tỉnh/thành phố..."
-                    className="w-full pl-10 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition-all font-medium"
+                    className="w-full pl-10 p-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl focus:bg-white dark:focus:bg-stone-900 text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-accent-500 outline-none transition-all font-medium"
                     required
                     autoComplete="off"
                   />
 
                   {/* Dropdown Gợi ý */}
                   {showSuggestions && filteredProvinces.length > 0 && (
-                    <ul className="absolute z-50 w-full bg-white mt-2 rounded-xl shadow-xl border border-slate-100 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+                    <ul className="absolute z-50 w-full bg-white dark:bg-stone-900 mt-2 rounded-xl shadow-sm border border-stone-200 dark:border-stone-800 max-h-60 overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
                       {filteredProvinces.map((province, index) => (
                         <li
                           key={index}
                           onClick={() => selectSuggestion(province)}
-                          className="px-4 py-3 hover:bg-blue-50 cursor-pointer text-slate-700 font-medium border-b border-slate-50 last:border-0 flex items-center gap-2 transition-colors"
+                          className="px-4 py-3 hover:bg-stone-50 dark:hover:bg-stone-800 cursor-pointer text-stone-700 dark:text-stone-300 font-medium border-b border-stone-50 dark:border-stone-800 last:border-0 flex items-center gap-2 transition-colors"
                         >
-                          <MapPin size={14} className="text-slate-400" />
+                          <MapPin size={14} className="text-stone-400 dark:text-stone-500" />
                           {province}
                         </li>
                       ))}
@@ -200,7 +200,7 @@ const Planning = () => {
               {/* Thời gian & Ngân sách */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">
+                  <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
                     Thời gian
                   </label>
                   <div className="relative">
@@ -208,7 +208,7 @@ const Planning = () => {
                       name="duration"
                       value={formData.duration}
                       onChange={handleInputChange}
-                      className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer font-medium appearance-none"
+                      className="w-full p-3.5 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-2xl focus:ring-2 focus:ring-accent-500 outline-none cursor-pointer font-medium appearance-none"
                     >
                       {durationOptions.map((opt) => (
                         <option key={opt} value={opt}>
@@ -217,13 +217,13 @@ const Planning = () => {
                       ))}
                     </select>
                     <Calendar
-                      className="absolute right-3 top-3.5 text-slate-400 pointer-events-none"
+                      className="absolute right-3 top-3.5 text-stone-400 dark:text-stone-500 pointer-events-none"
                       size={18}
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-bold text-slate-700 mb-2">
+                  <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
                     Ngân sách
                   </label>
                   <div className="relative">
@@ -231,7 +231,7 @@ const Planning = () => {
                       name="budget"
                       value={formData.budget}
                       onChange={handleInputChange}
-                      className="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer font-medium appearance-none"
+                      className="w-full p-3.5 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-2xl focus:ring-2 focus:ring-accent-500 outline-none cursor-pointer font-medium appearance-none"
                     >
                       {budgetOptions.map((opt) => (
                         <option key={opt} value={opt}>
@@ -240,7 +240,7 @@ const Planning = () => {
                       ))}
                     </select>
                     <Banknote
-                      className="absolute right-3 top-3.5 text-slate-400 pointer-events-none"
+                      className="absolute right-3 top-3.5 text-stone-400 dark:text-stone-500 pointer-events-none"
                       size={18}
                     />
                   </div>
@@ -249,12 +249,12 @@ const Planning = () => {
 
               {/* Yêu cầu đặc biệt */}
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2">
+                <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
                   Yêu cầu đặc biệt
                 </label>
                 <div className="relative">
                   <FileEdit
-                    className="absolute left-3 top-3.5 text-slate-400"
+                    className="absolute left-3 top-3.5 text-stone-400 dark:text-stone-500"
                     size={18}
                   />
                   <textarea
@@ -262,7 +262,7 @@ const Planning = () => {
                     value={formData.requirements}
                     onChange={handleInputChange}
                     placeholder="VD: Thích chụp ảnh, ăn chay, đi cùng trẻ nhỏ..."
-                    className="w-full pl-10 p-4 bg-slate-50 border border-slate-200 rounded-2xl h-28 focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none resize-none transition-all"
+                    className="w-full pl-10 p-4 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-2xl h-28 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-accent-500 outline-none resize-none transition-all"
                   />
                 </div>
               </div>
@@ -270,11 +270,11 @@ const Planning = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full py-4 rounded-2xl font-bold text-lg shadow-lg shadow-blue-200 transition-all flex justify-center items-center gap-3 
+                className={`w-full py-4 rounded-2xl font-bold text-lg transition-all flex justify-center items-center gap-3 
                   ${
                     loading
-                      ? "bg-slate-300 cursor-not-allowed text-slate-500"
-                      : "bg-blue-600 hover:bg-blue-700 text-white hover:-translate-y-1"
+                      ? "bg-stone-300 dark:bg-stone-700 cursor-not-allowed text-stone-500 dark:text-stone-400"
+                      : "bg-accent-500 hover:bg-accent-600 text-white hover:-translate-y-1"
                   }`}
               >
                 {loading ? (
@@ -292,27 +292,27 @@ const Planning = () => {
         <div className="lg:col-span-8">
           {!result ? (
             // EMPTY STATE
-            <div className="h-[600px] flex flex-col items-center justify-center text-slate-400 bg-white rounded-[2.5rem] border-2 border-dashed border-slate-200">
+            <div className="h-[600px] flex flex-col items-center justify-center text-stone-400 dark:text-stone-500 bg-white dark:bg-stone-900 rounded-[2.5rem] border border-stone-200 dark:border-stone-800">
               <div
-                className={`w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6 transition-all ${
+                className={`w-24 h-24 bg-accent-500/10 rounded-full flex items-center justify-center mb-6 transition-all ${
                   loading ? "scale-110" : ""
                 }`}
               >
                 {loading ? (
-                  <Loader2 size={48} className="text-blue-500 animate-spin" />
+                  <Loader2 size={48} className="text-accent-500 animate-spin" />
                 ) : (
                   <Navigation
                     size={48}
-                    className="text-blue-300 animate-bounce"
+                    className="text-accent-300 animate-bounce"
                   />
                 )}
               </div>
-              <h4 className="text-xl font-bold text-slate-600">
+              <h4 className="text-xl font-bold text-stone-600 dark:text-stone-300">
                 {loading
                   ? "Đang kết nối tới chuyên gia AI..."
                   : "Sẵn sàng khám phá?"}
               </h4>
-              <p className="mt-2 text-slate-400 text-center max-w-sm">
+              <p className="mt-2 text-stone-400 dark:text-stone-500 text-center max-w-sm">
                 {loading
                   ? "Vui lòng đợi trong giây lát, chúng tôi đang tìm kiếm các địa điểm tốt nhất từ Google."
                   : "Điền thông tin bên trái và nhấn nút để nhận lịch trình chi tiết."}
@@ -320,9 +320,9 @@ const Planning = () => {
             </div>
           ) : (
             // RESULT CONTENT
-            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
+            <div className="bg-white dark:bg-stone-900 rounded-[2.5rem] border border-stone-200 dark:border-stone-800 overflow-hidden animate-in fade-in slide-in-from-bottom-8 duration-700">
               {/* Result Header */}
-              <div className="bg-slate-900 p-8 md:p-10 text-white relative overflow-hidden">
+              <div className="bg-stone-900 p-8 md:p-10 text-white relative overflow-hidden">
                 <div className="absolute -top-10 -right-10 p-10 opacity-5 uppercase font-black text-9xl pointer-events-none select-none">
                   TRIP
                 </div>
@@ -332,7 +332,7 @@ const Planning = () => {
                   </h2>
                   <div className="flex flex-wrap gap-4">
                     <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-xl border border-white/10 flex items-center gap-2 hover:bg-white/20 transition">
-                      <Calendar size={18} className="text-blue-400" />
+                      <Calendar size={18} className="text-accent-400" />
                       <span className="font-bold">
                         {result.total_days} Ngày
                       </span>
@@ -348,42 +348,42 @@ const Planning = () => {
               </div>
 
               {/* Timeline Body */}
-              <div className="p-6 md:p-10 bg-slate-50/50">
+              <div className="p-6 md:p-10 bg-stone-50 dark:bg-stone-950">
                 {result.itinerary_details &&
                 result.itinerary_details.length > 0 ? (
                   result.itinerary_details.map((dayData, dIdx) => (
                     <div key={dIdx} className="mb-12 last:mb-0">
                       {/* Day Marker */}
-                      <div className="flex items-center gap-4 mb-8 sticky top-0 bg-slate-50/95 py-4 z-10 backdrop-blur-sm">
-                        <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-lg shadow-blue-200 transform rotate-3">
+                      <div className="flex items-center gap-4 mb-8 sticky top-0 bg-stone-50/95 dark:bg-stone-950/95 py-4 z-10 backdrop-blur-sm">
+                        <div className="w-12 h-12 bg-accent-500 rounded-2xl flex items-center justify-center text-white font-black text-xl transform rotate-3">
                           {dayData.day}
                         </div>
-                        <h3 className="text-2xl font-black text-slate-800">
+                        <h3 className="text-2xl font-black text-stone-800 dark:text-stone-100">
                           Ngày {dayData.day}
                         </h3>
                       </div>
 
                       {/* Activities List */}
-                      <div className="ml-6 border-l-2 border-dashed border-slate-300 pl-8 md:pl-12 space-y-8 pb-4">
+                      <div className="ml-6 border-l border-dashed border-stone-300 dark:border-stone-700 pl-8 md:pl-12 space-y-8 pb-4">
                         {dayData.activities?.map((act, aIdx) => (
                           <div key={aIdx} className="relative group">
                             {/* Timeline Dot */}
-                            <div className="absolute -left-[45px] md:-left-[61px] top-0 w-6 h-6 bg-white border-4 border-blue-600 rounded-full group-hover:scale-125 transition-transform shadow-sm" />
+                            <div className="absolute -left-[41px] md:-left-[57px] top-0 w-6 h-6 bg-white dark:bg-stone-900 border-4 border-accent-500 rounded-full group-hover:scale-125 transition-transform" />
 
                             {/* Card */}
-                            <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
+                            <div className="bg-white dark:bg-stone-900 p-6 rounded-3xl border border-stone-200 dark:border-stone-800 hover:shadow-xl transition-all duration-300 group-hover:-translate-y-1">
                               {/* Activity Header */}
                               <div className="flex flex-col md:flex-row justify-between items-start gap-4 mb-4">
-                                <h4 className="text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors leading-snug">
+                                <h4 className="text-xl font-bold text-stone-800 dark:text-stone-100 group-hover:text-accent-500 transition-colors leading-snug">
                                   {act.activity_name}
                                 </h4>
                                 <div className="flex flex-col items-end shrink-0">
-                                  <div className="flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-full text-slate-600 font-bold text-xs border border-slate-200">
+                                  <div className="flex items-center gap-2 bg-stone-100 dark:bg-stone-800 px-3 py-1.5 rounded-full text-stone-600 dark:text-stone-300 font-bold text-xs border border-stone-200 dark:border-stone-700">
                                     <Clock size={14} /> {act.start_time} -{" "}
                                     {act.end_time}
                                   </div>
                                   {act.duration_hours && (
-                                    <span className="text-[10px] text-slate-400 mt-1 uppercase tracking-wider font-bold flex items-center gap-1">
+                                    <span className="text-[10px] text-stone-400 mt-1 uppercase tracking-wider font-bold flex items-center gap-1">
                                       <Clock size={10} /> ~{act.duration_hours}{" "}
                                       tiếng
                                     </span>
@@ -394,7 +394,7 @@ const Planning = () => {
                               {/* Details Grid */}
                               <div className="space-y-4">
                                 {/* Address */}
-                                <div className="flex items-start gap-3 text-slate-600 bg-red-50/50 p-3 rounded-xl border border-red-50">
+                                <div className="flex items-start gap-3 text-stone-600 dark:text-stone-400 bg-red-50 dark:bg-red-950/20 p-3 rounded-xl border border-red-50 dark:border-red-900/30">
                                   <MapPin
                                     size={18}
                                     className="text-rose-500 shrink-0 mt-0.5"
@@ -406,7 +406,7 @@ const Planning = () => {
 
                                 {/* Meta Info */}
                                 <div className="flex flex-wrap gap-4 text-sm">
-                                  <div className="flex items-center gap-2 text-slate-700 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                  <div className="flex items-center gap-2 text-stone-700 dark:text-stone-300 bg-stone-50 dark:bg-stone-800 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700">
                                     <Banknote
                                       size={16}
                                       className="text-emerald-500"
@@ -417,7 +417,7 @@ const Planning = () => {
                                         : "Miễn phí"}
                                     </span>
                                   </div>
-                                  <div className="flex items-center gap-2 text-slate-700 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+                                  <div className="flex items-center gap-2 text-stone-700 dark:text-stone-300 bg-stone-50 dark:bg-stone-800 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700">
                                     {act.transport
                                       ?.toLowerCase()
                                       .includes("bộ") ? (
@@ -428,7 +428,7 @@ const Planning = () => {
                                     ) : (
                                       <Car
                                         size={16}
-                                        className="text-blue-500"
+                                        className="text-accent-500"
                                       />
                                     )}
                                     <span className="font-medium">
@@ -442,12 +442,12 @@ const Planning = () => {
 
                                 {/* Description */}
                                 {act.description && (
-                                  <div className="mt-2 flex gap-3 items-start p-3 rounded-xl bg-blue-50/30 border border-blue-50">
+                                  <div className="mt-2 flex gap-3 items-start p-3 rounded-xl bg-accent-50/30 border border-accent-100">
                                     <Info
                                       size={16}
-                                      className="text-blue-500 mt-0.5 shrink-0"
+                                      className="text-accent-500 mt-0.5 shrink-0"
                                     />
-                                    <p className="text-sm text-slate-600 leading-relaxed italic">
+                                    <p className="text-sm text-stone-600 dark:text-stone-400 leading-relaxed italic">
                                       {act.description}
                                     </p>
                                   </div>

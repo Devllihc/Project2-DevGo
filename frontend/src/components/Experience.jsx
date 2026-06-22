@@ -1,69 +1,51 @@
 import React from "react";
-import { TrendingUp, UserCheck, Award } from "lucide-react";
 import { motion } from "framer-motion";
 
 const Experience = () => {
   return (
-    <motion.div
-      className="py-16"
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 1, ease: "easeInOut" }}
-      viewport={{ once: true }}
-    >
-      <motion.h1
-        className="text-3xl sm:text-4xl font-semibold mb-6 text-center text-gray-800"
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.8 }}
-      >
-        Experience our <span className="text-blue-500">DevGo</span>
-      </motion.h1>
-      <motion.p
-        className="text-lg text-gray-600 mb-12 text-center max-w-2xl mx-auto"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.8 }}
-      >
-        With our all experience, <br />
-        we will provide you the best services.
-      </motion.p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+    <section className="py-24 px-6 md:px-12 lg:px-0 max-w-7xl mx-auto w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <motion.div
-          className="flex flex-col items-center bg-white/20 p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
+          initial={{ opacity: 0, x: -30 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-xl"
         >
-          <TrendingUp className="text-blue-500 mb-4 text-4xl" />
-          <span className="text-2xl font-semibold text-gray-800">12k+</span>
-          <h6 className="text-lg text-gray-600">Successful Trips</h6>
+          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight text-stone-900 dark:text-white mb-6">
+            Experience the <span className="text-accent-500">DevGo</span> Difference
+          </h2>
+          <p className="text-lg text-stone-600 dark:text-stone-400 leading-relaxed">
+            With years of experience in curating unforgettable journeys, we provide the highest quality services to ensure your travel is seamless, safe, and truly exceptional.
+          </p>
         </motion.div>
 
-        <motion.div
-          className="flex flex-col items-center bg-white/20 p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          <UserCheck className="text-green-500 mb-4 text-4xl" />
-          <span className="text-2xl font-semibold text-gray-800">2k+</span>
-          <h6 className="text-lg text-gray-600">Regular Clients</h6>
-        </motion.div>
-
-        <motion.div
-          className="flex flex-col items-center bg-white/20 p-6 rounded-lg shadow-lg hover:shadow-2xl transition-shadow duration-300"
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          <Award className="text-yellow-500 mb-4 text-4xl" />
-          <span className="text-2xl font-semibold text-gray-800">10k+</span>
-          <h6 className="text-lg text-gray-600">Experience</h6>
-        </motion.div>
+        <div className="grid grid-cols-2 gap-8 lg:gap-12">
+          {[
+            { number: "12k+", label: "Successful Trips" },
+            { number: "2k+", label: "Regular Clients" },
+            { number: "10+", label: "Years Experience" },
+            { number: "4.9", label: "Average Rating" }
+          ].map((stat, i) => (
+            <motion.div
+              key={i}
+              className="flex flex-col border-l-2 border-accent-200 pl-6"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <span className="text-4xl sm:text-5xl font-bold tracking-tighter text-stone-900 dark:text-white mb-2">
+                {stat.number}
+              </span>
+              <span className="text-sm sm:text-base font-medium text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                {stat.label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </motion.div>
+    </section>
   );
 };
 
