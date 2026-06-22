@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { List, X } from "@phosphor-icons/react";
 import { AppContext } from "../context/AppContext.jsx";
 import { assets } from "../assets/assets.js";
 import ThemeToggle from "./ThemeToggle.jsx";
@@ -13,160 +13,89 @@ const Navbar = () => {
   const toggleMenu = () => setMenuOpen(!menuOpen);
 
   const isActive = (path) =>
-    location.pathname === path ? "text-accent-600 dark:text-accent-400 font-semibold" : "text-stone-600 dark:text-stone-300 hover:text-accent-500 dark:hover:text-accent-400";
+    location.pathname === path 
+      ? "text-accent-600 dark:text-accent-400 font-semibold" 
+      : "text-stone-500 dark:text-stone-400 hover:text-accent-500 dark:hover:text-accent-400 transition-colors duration-300";
 
   return (
-    <div
-      className="w-full flex justify-between items-center py-4 px-6 sm:px-12 lg:px-20 top-0 sticky z-50 bg-stone-50/80 dark:bg-stone-950/80 backdrop-blur-lg border-b border-stone-200/50 dark:border-stone-800/50 transition-colors duration-300"
-    >
-      <Link to="/">
-        <img
-          src="/logoTravel.png"
-          className="w-[120px] sm:w-[150px] md:w-[180px] drop-shadow-sm"
-          alt="DevGo Logo"
-        />
-      </Link>
+    <div className="fixed top-0 inset-x-0 z-50 flex justify-center w-full px-4 sm:px-6 pt-6 pointer-events-none">
+      <nav className="pointer-events-auto flex items-center justify-between px-4 sm:px-6 py-3 bg-white/70 dark:bg-stone-950/70 backdrop-blur-2xl border border-stone-200/50 dark:border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] w-full max-w-[1200px]">
+        
+        {/* Brand */}
+        <Link to="/" className="flex items-center gap-2 group ml-2">
+          <img src="/logoTravel.png" className="w-[100px] sm:w-[120px] drop-shadow-sm group-hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]" alt="DevGo Logo" />
+        </Link>
 
-      {/* Mobile buttons */}
-      <div className="flex items-center gap-4 sm:hidden">
-        <ThemeToggle />
-        {user && (
-          <div className="relative group">
-            <img
-              src={assets.user}
-              alt="profile"
-              className="w-10 drop-shadow rounded-full"
-            />
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-12 p-2 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-              Hi, {user.name}
-            </div>
-          </div>
-        )}
-        <button onClick={toggleMenu} className="text-2xl text-stone-800 dark:text-stone-200">
-          {menuOpen ? <X /> : <Menu />}
-        </button>
-      </div>
-
-      {/* Desktop Menu */}
-      <div className="hidden sm:flex items-center gap-8">
-        <ul className="flex gap-8 items-center font-medium">
-          <li>
-            <Link to="/" className={`transition-colors ${isActive("/")}`}>
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link to="/about" className={`transition-colors ${isActive("/about")}`}>
-              About
-            </Link>
-          </li>
-          <li>
-            <Link to="/tours" className={`transition-colors ${isActive("/tours")}`}>
-              Tours
-            </Link>
-          </li>
-          <li>
-            <Link to="/my-trips" className={`transition-colors ${isActive("/my-trips")}`}>
-              Trips
-            </Link>
-          </li>
+        {/* Desktop Links */}
+        <ul className="hidden md:flex items-center gap-8 text-sm tracking-wide">
+          <li><Link to="/" className={isActive("/")}>Home</Link></li>
+          <li><Link to="/about" className={isActive("/about")}>About</Link></li>
+          <li><Link to="/tours" className={isActive("/tours")}>Tours</Link></li>
+          <li><Link to="/my-trips" className={isActive("/my-trips")}>Trips</Link></li>
           {user?.role === "admin" && (
-            <li>
-              <Link to="/admin" className={`transition-colors ${isActive("/admin")}`}>
-                Dashboard
-              </Link>
-            </li>
+            <li><Link to="/admin" className={isActive("/admin")}>Dashboard</Link></li>
           )}
         </ul>
 
-        <div className="flex items-center gap-5 pl-6 border-l border-stone-300 dark:border-stone-700">
-          <ThemeToggle />
+        {/* Controls */}
+        <div className="flex items-center gap-3 sm:gap-4 mr-1 sm:mr-2">
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
+          
           {user ? (
-            <>
-              <div className="relative group flex items-center gap-3">
-                <span className="text-sm font-medium text-stone-700 dark:text-stone-300 hidden lg:block">Hi, {user.name}</span>
-                <img
-                  src={assets.user}
-                  alt="profile"
-                  width={40}
-                  className="cursor-pointer shadow-sm rounded-full"
-                />
+            <div className="hidden md:flex items-center gap-4 border-l border-stone-200 dark:border-white/10 pl-4">
+              <div className="flex items-center gap-2">
+                <img src={assets.user} alt="profile" className="w-8 h-8 rounded-full border border-stone-200 dark:border-stone-800" />
+                <span className="text-sm font-medium text-stone-700 dark:text-stone-300 hidden lg:block">{user.name}</span>
               </div>
-              <button
+              <button 
                 onClick={logout}
-                className="px-5 py-2.5 bg-stone-900 dark:bg-white text-white dark:text-stone-900 text-sm font-medium rounded-full hover:bg-stone-800 dark:hover:bg-stone-200 transition-colors shadow-sm"
+                className="group relative flex items-center justify-center px-5 py-2 rounded-full bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-white text-sm font-medium active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-stone-200 dark:hover:bg-stone-800"
               >
                 Logout
               </button>
-            </>
+            </div>
           ) : (
-            <Link to="/login">
-              <button className="px-6 py-2.5 bg-accent-500 text-white text-sm font-medium rounded-full hover:bg-accent-600 transition-colors shadow-md shadow-accent-500/20">
-                Login
-              </button>
-            </Link>
+            <div className="hidden md:flex border-l border-stone-200 dark:border-white/10 pl-4">
+              <Link to="/login">
+                <button className="group relative flex items-center justify-center px-6 py-2.5 rounded-full bg-accent-500 text-white text-sm font-medium active:scale-[0.98] hover:bg-accent-600 hover:shadow-lg hover:shadow-accent-500/20 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]">
+                  Login
+                </button>
+              </Link>
+            </div>
+          )}
+
+          {/* Mobile Toggle */}
+          <button onClick={toggleMenu} className="md:hidden text-stone-800 dark:text-stone-200 p-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full transition-colors">
+            {menuOpen ? <X size={24} weight="light" /> : <List size={24} weight="light" />}
+          </button>
+        </div>
+      </nav>
+
+      {/* Fullscreen Mobile Menu morph */}
+      <div 
+        className={`fixed inset-0 z-[-1] bg-white/95 dark:bg-stone-950/95 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] flex flex-col pt-32 px-8 ${menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none translate-y-8'}`}
+      >
+        <ul className="flex flex-col gap-6 text-3xl font-light tracking-tight text-stone-900 dark:text-white">
+          <li><Link to="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
+          <li><Link to="/about" onClick={() => setMenuOpen(false)}>About</Link></li>
+          <li><Link to="/tours" onClick={() => setMenuOpen(false)}>Tours</Link></li>
+          <li><Link to="/my-trips" onClick={() => setMenuOpen(false)}>Trips</Link></li>
+          {user?.role === "admin" && (
+            <li><Link to="/admin" onClick={() => setMenuOpen(false)}>Dashboard</Link></li>
+          )}
+        </ul>
+
+        <div className="mt-auto pb-12 flex flex-col gap-6">
+          <ThemeToggle />
+          {user ? (
+            <button onClick={() => { logout(); setMenuOpen(false); }} className="w-full py-4 rounded-full bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-white font-medium text-lg">Logout</button>
+          ) : (
+            <Link to="/login" onClick={() => setMenuOpen(false)} className="w-full py-4 rounded-full bg-accent-500 text-white font-medium text-lg text-center shadow-lg shadow-accent-500/20">Login</Link>
           )}
         </div>
       </div>
-
-      {/* Mobile Menu */}
-      {menuOpen && (
-        <div className="sm:hidden absolute top-[72px] left-0 w-full bg-stone-50/95 dark:bg-stone-900/95 backdrop-blur-md p-6 shadow-xl border-t border-stone-200 dark:border-stone-800 transition-colors duration-300">
-          <ul className="flex flex-col items-center gap-6 font-medium">
-            <li>
-              <Link to="/" className={isActive("/")} onClick={() => setMenuOpen(false)}>
-                Home
-              </Link>
-            </li>
-            <li>
-              <Link to="/about" className={isActive("/about")} onClick={() => setMenuOpen(false)}>
-                About
-              </Link>
-            </li>
-            <li>
-              <Link to="/tours" className={isActive("/tours")} onClick={() => setMenuOpen(false)}>
-                Tours
-              </Link>
-            </li>
-            <li>
-              <Link to="/my-trips" className={isActive("/my-trips")} onClick={() => setMenuOpen(false)}>
-                Trips
-              </Link>
-            </li>
-            {user?.role === "admin" && (
-              <li>
-                <Link to="/admin" className={isActive("/admin")} onClick={() => setMenuOpen(false)}>
-                  Dashboard
-                </Link>
-              </li>
-            )}
-            {user ? (
-              <li className="w-full pt-4 border-t border-stone-200 dark:border-stone-700">
-                <button
-                  onClick={() => {
-                    logout();
-                    setMenuOpen(false);
-                  }}
-                  className="w-full px-6 py-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 rounded-xl hover:bg-stone-800 dark:hover:bg-stone-200 transition-colors"
-                >
-                  Logout
-                </button>
-              </li>
-            ) : (
-              <li className="w-full pt-4 border-t border-stone-200 dark:border-stone-700">
-                <Link to="/login">
-                  <button
-                    onClick={() => setMenuOpen(false)}
-                    className="w-full px-6 py-3 bg-accent-500 text-white rounded-xl hover:bg-accent-600 shadow-md shadow-accent-500/20 transition-colors"
-                  >
-                    Login
-                  </button>
-                </Link>
-              </li>
-            )}
-          </ul>
-        </div>
-      )}
     </div>
   );
 };
