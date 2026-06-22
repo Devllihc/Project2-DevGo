@@ -90,7 +90,7 @@ const MyTrips = () => {
         setTotalPages(res.data.pagination.pages);
       }
     } catch (error) {
-      console.error("Lỗi tải danh sách:", error);
+      console.error("Error loading list:", error);
     } finally {
       setLoading(false);
     }
@@ -112,10 +112,10 @@ const MyTrips = () => {
         {/* Title */}
         <div>
           <h2 className="text-3xl font-bold text-stone-800 dark:text-stone-100 flex items-center gap-2">
-            <Sparkles className="text-amber-500" /> Chuyến đi của tôi
+            <Sparkles className="text-amber-500" /> My Trips
           </h2>
           <p className="text-stone-500 dark:text-stone-400 text-sm mt-1">
-            Quản lý và xem lại các lịch trình đã tạo
+            Manage and review generated itineraries
           </p>
         </div>
 
@@ -129,7 +129,7 @@ const MyTrips = () => {
               type="text"
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
-              placeholder="Tìm theo tên..."
+              placeholder="Search by name..."
               className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-full focus:outline-none focus:ring-2 focus:ring-accent-500/20 focus:border-accent-500 transition-all text-sm font-medium shadow-sm text-stone-900 dark:text-stone-100"
             />
             {keyword && (
@@ -147,7 +147,7 @@ const MyTrips = () => {
             onClick={() => navigate("/generate")}
             className="bg-accent-500 hover:bg-accent-600 text-white px-5 py-2.5 rounded-full flex items-center justify-center gap-2 transition hover:-translate-y-0.5 font-medium whitespace-nowrap"
           >
-            <Plus size={20} /> Tạo lịch trình mới
+            <Plus size={20} /> Create new itinerary
           </button>
         </div>
       </div>
@@ -167,28 +167,28 @@ const MyTrips = () => {
              // Case 1: Tìm kiếm nhưng không thấy kết quả
              <>
                <Search size={64} className="mx-auto text-stone-300 dark:text-stone-600 mb-4" />
-               <h3 className="text-xl font-semibold text-stone-700 dark:text-stone-200">Không tìm thấy kết quả</h3>
+               <h3 className="text-xl font-semibold text-stone-700 dark:text-stone-200">No results found</h3>
                <p className="text-stone-500 dark:text-stone-400 mb-6 mt-2">
-                 Không có chuyến đi nào khớp với từ khóa "{keyword}"
+                 No trips matching the keyword "{keyword}"
                </p>
                <button 
                  onClick={() => setKeyword("")} 
                  className="text-accent-500 font-medium hover:underline px-4 py-2 bg-accent-50 dark:bg-accent-950/20 rounded-lg hover:bg-accent-100 dark:hover:bg-accent-900/40 transition-colors"
                >
-                 Xóa bộ lọc tìm kiếm
+                 Clear search filter
                </button>
              </>
           ) : (
              // Case 2: Chưa có dữ liệu nào
              <>
                 <MapPin size={64} className="mx-auto text-stone-300 dark:text-stone-600 mb-4" />
-                <h3 className="text-xl font-semibold text-stone-700 dark:text-stone-200">Bạn chưa có chuyến đi nào</h3>
-                <p className="text-stone-500 dark:text-stone-400 mb-6 mt-2">Hãy thử tạo một lịch trình du lịch ngay bây giờ!</p>
+                <h3 className="text-xl font-semibold text-stone-700 dark:text-stone-200">You don't have any trips yet</h3>
+                <p className="text-stone-500 dark:text-stone-400 mb-6 mt-2">Try creating a travel itinerary right now!</p>
                 <button
                   onClick={() => navigate("/generate")}
                   className="text-accent-500 font-medium hover:underline flex items-center justify-center gap-1 mx-auto"
                 >
-                  Bắt đầu khám phá <ArrowRight size={16} />
+                  Start exploring <ArrowRight size={16} />
                 </button>
              </>
           )}
@@ -214,7 +214,7 @@ const MyTrips = () => {
                   </div>
 
                   <h3 className="text-white font-bold text-xl drop-shadow-sm line-clamp-2 z-10">
-                    {trip.trip_name || "Chuyến đi chưa đặt tên"}
+                    {trip.trip_name || "Unnamed trip"}
                   </h3>
                 </div>
 
@@ -223,9 +223,7 @@ const MyTrips = () => {
                   <div>
                     {/* Prompt Summary */}
                     <p className="text-stone-500 dark:text-stone-400 text-sm line-clamp-2 mb-4 h-10">
-                      {trip.prompt
-                        ? trip.prompt.replace("Đi ", "Du lịch đến ")
-                        : "Không có mô tả thêm."}
+                      {trip.prompt || "No additional description."}
                     </p>
 
                     {/* Stats Grid */}
@@ -234,18 +232,18 @@ const MyTrips = () => {
                         <div className="flex items-center gap-1 text-accent-600 dark:text-accent-400 mb-1">
                           <Clock size={16} />
                           <span className="text-xs font-semibold uppercase">
-                            Thời gian
+                            Duration
                           </span>
                         </div>
                         <span className="text-stone-700 dark:text-stone-200 font-bold">
-                          {trip.total_days} Ngày
+                          {trip.total_days} Days
                         </span>
                       </div>
                       <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-xl border border-green-100 dark:border-green-900/30">
                         <div className="flex items-center gap-1 text-green-600 dark:text-green-500 mb-1">
                           <Banknote size={16} />
                           <span className="text-xs font-semibold uppercase">
-                            Chi phí
+                            Cost
                           </span>
                         </div>
                         <span className="text-stone-700 dark:text-stone-200 font-bold text-sm">
@@ -260,10 +258,10 @@ const MyTrips = () => {
                   {/* Footer Action */}
                   <div className="flex items-center justify-between border-t border-stone-100 dark:border-stone-800 pt-4 mt-2">
                     <span className="text-xs text-stone-400 dark:text-stone-500">
-                      Đã lưu thành công
+                      Saved successfully
                     </span>
                     <div className="flex items-center text-accent-500 font-semibold text-sm group-hover:translate-x-1 transition-transform">
-                      Xem chi tiết <ArrowRight size={16} className="ml-1" />
+                      View details <ArrowRight size={16} className="ml-1" />
                     </div>
                   </div>
                 </div>
@@ -287,7 +285,7 @@ const MyTrips = () => {
               </button>
 
               <span className="text-sm font-medium text-stone-600 dark:text-stone-300">
-                Trang{" "}
+                Page{" "}
                 <span className="text-accent-500 font-bold">{currentPage}</span> /{" "}
                 {totalPages}
               </span>

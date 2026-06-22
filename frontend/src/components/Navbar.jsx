@@ -22,7 +22,7 @@ const Navbar = () => {
       <Link to="/">
         <img
           src="/logoTravel.png"
-          className="w-[120px] sm:w-[150px] md:w-[180px] drop-shadow-sm dark:brightness-200 dark:grayscale"
+          className="w-[120px] sm:w-[150px] md:w-[180px] drop-shadow-sm"
           alt="DevGo Logo"
         />
       </Link>

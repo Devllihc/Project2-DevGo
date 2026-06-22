@@ -50,8 +50,8 @@ const Planning = () => {
 
   const [formData, setFormData] = useState({
     destination: "",
-    duration: "3 ngày 2 đêm",
-    budget: "Trung bình",
+    duration: "3 days 2 nights",
+    budget: "Medium",
     requirements: "",
   });
 
@@ -59,14 +59,14 @@ const Planning = () => {
   const [result, setResult] = useState(null);
 
   const durationOptions = [
-    "1 ngày",
-    "2 ngày 1 đêm",
-    "3 ngày 2 đêm",
-    "4 ngày 3 đêm",
-    "5 ngày 4 đêm",
-    "Trên 5 ngày",
+    "1 day",
+    "2 days 1 night",
+    "3 days 2 nights",
+    "4 days 3 nights",
+    "5 days 4 nights",
+    "More than 5 days",
   ];
-  const budgetOptions = ["Tiết kiệm", "Trung bình", "Sang chảnh"];
+  const budgetOptions = ["Budget", "Medium", "Luxury"];
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat("vi-VN", {
@@ -84,14 +84,14 @@ const Planning = () => {
 
     // Kiểm tra đăng nhập
     if (!token) {
-      toast.info("Vui lòng đăng nhập để sử dụng tính năng này.");
+      toast.info("Please login to use this feature.");
 
       navigate("/login", { state: { from: location } });
       return
     }
 
     if (!formData.destination.trim()) {
-      return toast.warning("Bạn định đi đâu thế? Hãy nhập điểm đến nhé!");
+      return toast.warning("Where are you going? Please enter a destination!");
     }
 
     setLoading(true);
@@ -114,16 +114,16 @@ const Planning = () => {
       );
 
       if (res.data.success) {
-        toast.success("Tuyệt vời! Lịch trình đã sẵn sàng.");
+        toast.success("Great! Your itinerary is ready.");
         setResult(res.data.data);
       } else {
-        toast.error(res.data.message || "Có lỗi xảy ra khi tạo lịch trình.");
+        toast.error(res.data.message || "An error occurred while generating the itinerary.");
       }
     } catch (err) {
       console.error("Lỗi API:", err);
       const errorMsg =
         err.response?.data?.message ||
-        "Hệ thống AI đang bận, vui lòng thử lại sau ít phút.";
+        "AI system is busy, please try again later.";
       toast.error(errorMsg);
     } finally {
       setLoading(false);
@@ -141,7 +141,7 @@ const Planning = () => {
           </span>
         </h2>
         <p className="text-stone-500 dark:text-stone-400 text-lg max-w-2xl mx-auto">
-          Tạo lịch trình cho riêng mình
+          Create your own itinerary
         </p>
       </div>
 
@@ -150,8 +150,7 @@ const Planning = () => {
         <div className="lg:col-span-4 sticky top-28 z-10">
           <div className="bg-white dark:bg-stone-900 p-8 rounded-3xl border border-stone-200 dark:border-stone-800">
             <h3 className="font-bold text-stone-800 dark:text-stone-200 text-xl mb-6 flex items-center gap-2 border-b border-stone-200 dark:border-stone-800 pb-4">
-              <Sparkles className="text-amber-500" size={22} /> Thiết lập hành
-              trình
+              <Sparkles className="text-amber-500" size={22} /> Setup Itinerary
             </h3>
 
             <form onSubmit={handleGenerate} className="space-y-6">
@@ -159,7 +158,7 @@ const Planning = () => {
               <div className="group relative">
                 {" "}
                 <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
-                  Điểm đến <span className="text-red-500">*</span>
+                  Destination <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <MapPin
@@ -173,7 +172,7 @@ const Planning = () => {
                     onFocus={() => {
                       if (formData.destination) setShowSuggestions(true);
                     }}
-                    placeholder="Nhập tên tỉnh/thành phố..."
+                    placeholder="Enter province/city name..."
                     className="w-full pl-10 p-3.5 bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-2xl focus:bg-white dark:focus:bg-stone-900 text-stone-900 dark:text-stone-100 focus:ring-2 focus:ring-accent-500 outline-none transition-all font-medium"
                     required
                     autoComplete="off"
@@ -201,7 +200,7 @@ const Planning = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
-                    Thời gian
+                    Duration
                   </label>
                   <div className="relative">
                     <select
@@ -224,7 +223,7 @@ const Planning = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
-                    Ngân sách
+                    Budget
                   </label>
                   <div className="relative">
                     <select
@@ -250,7 +249,7 @@ const Planning = () => {
               {/* Yêu cầu đặc biệt */}
               <div>
                 <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">
-                  Yêu cầu đặc biệt
+                  Special Requirements
                 </label>
                 <div className="relative">
                   <FileEdit
@@ -261,7 +260,7 @@ const Planning = () => {
                     name="requirements"
                     value={formData.requirements}
                     onChange={handleInputChange}
-                    placeholder="VD: Thích chụp ảnh, ăn chay, đi cùng trẻ nhỏ..."
+                    placeholder="Ex: Love photography, vegetarian, traveling with kids..."
                     className="w-full pl-10 p-4 bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700 rounded-2xl h-28 focus:bg-white dark:focus:bg-stone-900 focus:ring-2 focus:ring-accent-500 outline-none resize-none transition-all"
                   />
                 </div>
@@ -282,7 +281,7 @@ const Planning = () => {
                 ) : (
                   <Send size={20} />
                 )}
-                {loading ? "AI đang suy nghĩ..." : "Tạo Lịch Trình"}
+                {loading ? "AI is thinking..." : "Generate Itinerary"}
               </button>
             </form>
           </div>
@@ -309,13 +308,13 @@ const Planning = () => {
               </div>
               <h4 className="text-xl font-bold text-stone-600 dark:text-stone-300">
                 {loading
-                  ? "Đang kết nối tới chuyên gia AI..."
-                  : "Sẵn sàng khám phá?"}
+                  ? "Connecting to AI expert..."
+                  : "Ready to explore?"}
               </h4>
               <p className="mt-2 text-stone-400 dark:text-stone-500 text-center max-w-sm">
                 {loading
-                  ? "Vui lòng đợi trong giây lát, chúng tôi đang tìm kiếm các địa điểm tốt nhất từ Google."
-                  : "Điền thông tin bên trái và nhấn nút để nhận lịch trình chi tiết."}
+                  ? "Please wait a moment, we are searching for the best places from Google."
+                  : "Fill in the information on the left and click the button to get a detailed itinerary."}
               </p>
             </div>
           ) : (
@@ -334,13 +333,13 @@ const Planning = () => {
                     <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-xl border border-white/10 flex items-center gap-2 hover:bg-white/20 transition">
                       <Calendar size={18} className="text-accent-400" />
                       <span className="font-bold">
-                        {result.total_days} Ngày
+                        {result.total_days} Days
                       </span>
                     </div>
                     <div className="px-5 py-2.5 bg-white/10 backdrop-blur-md rounded-xl border border-white/10 flex items-center gap-2 hover:bg-white/20 transition">
                       <Banknote size={18} className="text-emerald-400" />
                       <span className="font-bold">
-                        {formatCurrency(result.total_cost)} / người
+                        {formatCurrency(result.total_cost)} / person
                       </span>
                     </div>
                   </div>
@@ -359,7 +358,7 @@ const Planning = () => {
                           {dayData.day}
                         </div>
                         <h3 className="text-2xl font-black text-stone-800 dark:text-stone-100">
-                          Ngày {dayData.day}
+                          Day {dayData.day}
                         </h3>
                       </div>
 
@@ -385,7 +384,7 @@ const Planning = () => {
                                   {act.duration_hours && (
                                     <span className="text-[10px] text-stone-400 mt-1 uppercase tracking-wider font-bold flex items-center gap-1">
                                       <Clock size={10} /> ~{act.duration_hours}{" "}
-                                      tiếng
+                                      hours
                                     </span>
                                   )}
                                 </div>
@@ -400,7 +399,7 @@ const Planning = () => {
                                     className="text-rose-500 shrink-0 mt-0.5"
                                   />
                                   <p className="text-sm font-medium leading-relaxed">
-                                    {act.address || "Chưa có địa chỉ cụ thể"}
+                                    {act.address || "No specific address"}
                                   </p>
                                 </div>
 
@@ -414,13 +413,13 @@ const Planning = () => {
                                     <span className="font-bold">
                                       {act.cost_vnd > 0
                                         ? formatCurrency(act.cost_vnd)
-                                        : "Miễn phí"}
+                                        : "Free"}
                                     </span>
                                   </div>
                                   <div className="flex items-center gap-2 text-stone-700 dark:text-stone-300 bg-stone-50 dark:bg-stone-800 px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700">
                                     {act.transport
                                       ?.toLowerCase()
-                                      .includes("bộ") ? (
+                                      .includes("walk") ? (
                                       <Footprints
                                         size={16}
                                         className="text-orange-500"
@@ -432,7 +431,7 @@ const Planning = () => {
                                       />
                                     )}
                                     <span className="font-medium">
-                                      {act.transport || "Tự túc"}
+                                      {act.transport || "Self-arranged"}
                                       {act.distance_km
                                         ? ` • ${act.distance_km}km`
                                         : ""}
@@ -466,7 +465,7 @@ const Planning = () => {
                       size={40}
                     />
                     <p className="text-slate-500">
-                      Không tìm thấy chi tiết lịch trình. Vui lòng thử lại.
+                      No itinerary details found. Please try again.
                     </p>
                   </div>
                 )}

@@ -1,8 +1,20 @@
 import React from "react";
 import { assets } from "../assets/assets";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  const handleExploreTours = () => {
+    const toursSection = document.getElementById("tours");
+    if (toursSection) {
+      toursSection.scrollIntoView({ behavior: "smooth" });
+    } else {
+      navigate("/tours");
+    }
+  };
+
   return (
     <section className="relative w-full min-h-[85vh] flex items-center justify-center my-10 lg:my-0">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center w-full max-w-7xl mx-auto">
@@ -45,10 +57,16 @@ const Header = () => {
             transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto"
           >
-            <button className="px-8 py-4 bg-accent-500 text-white font-medium rounded-full shadow-lg shadow-accent-500/20 hover:bg-accent-600 transition-all hover:scale-105 active:scale-95">
+            <button 
+              onClick={() => navigate("/generate")}
+              className="px-8 py-4 bg-accent-500 text-white font-medium rounded-full shadow-lg shadow-accent-500/20 hover:bg-accent-600 transition-all hover:scale-105 active:scale-95"
+            >
               Start Planning
             </button>
-            <button className="px-8 py-4 bg-white dark:bg-stone-900 text-stone-900 dark:text-white font-medium rounded-full border border-stone-200 dark:border-stone-700 shadow-sm hover:bg-stone-50 dark:hover:bg-stone-800 transition-all hover:scale-105 active:scale-95">
+            <button 
+              onClick={handleExploreTours}
+              className="px-8 py-4 bg-white dark:bg-stone-900 text-stone-900 dark:text-white font-medium rounded-full border border-stone-200 dark:border-stone-700 shadow-sm hover:bg-stone-50 dark:hover:bg-stone-800 transition-all hover:scale-105 active:scale-95"
+            >
               Explore Tours
             </button>
           </motion.div>

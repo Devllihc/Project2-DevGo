@@ -4,7 +4,7 @@ import TourList from "./TourList";
 
 const AllTours = () => {
   return (
-    <section className="py-24 px-6 md:px-12 lg:px-0 max-w-7xl mx-auto w-full">
+    <section id="tours" className="py-24 px-6 md:px-12 lg:px-0 max-w-7xl mx-auto w-full">
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
         <div className="max-w-2xl">
           <motion.div
