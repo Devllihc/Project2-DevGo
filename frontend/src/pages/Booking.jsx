@@ -5,7 +5,7 @@ import { AppContext } from "../context/AppContext";
 import { motion } from "framer-motion";
 
 const Booking = () => {
-  const { user } = useContext(AppContext);
+  const { user, token } = useContext(AppContext);
   const location = useLocation();
   const navigate = useNavigate();
   const tour = location.state?.tour;
@@ -48,6 +48,7 @@ const Booking = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
           },
           body: JSON.stringify({
             ...formData,
