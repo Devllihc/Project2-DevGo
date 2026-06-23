@@ -1,5 +1,7 @@
 // controllers/tourController.js
 import Tour from "../models/tour.js";
+import fs from "fs";
+import path from "path";
 
 // [GET] /api/tours
 export const getAllTours = async (req, res) => {
@@ -87,6 +89,13 @@ export const updateTour = async (req, res) => {
 
     if (req.file) {
       updateData.photo = `/uploads/${req.file.filename}`;
+      const oldTour = await Tour.findById(req.params.id);
+      if (oldTour && oldTour.photo) {
+        const oldPhotoPath = path.join(process.cwd(), oldTour.photo);
+        if (fs.existsSync(oldPhotoPath)) {
+          fs.unlinkSync(oldPhotoPath);
+        }
+      }
     }
 
     const updatedTour = await Tour.findByIdAndUpdate(
@@ -111,6 +120,14 @@ export const deleteTour = async (req, res) => {
   try {
     const deleted = await Tour.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Tour not found" });
+
+    if (deleted.photo) {
+      const photoPath = path.join(process.cwd(), deleted.photo);
+      if (fs.existsSync(photoPath)) {
+        fs.unlinkSync(photoPath);
+      }
+    }
+
     res.status(200).json({ message: "Tour deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });

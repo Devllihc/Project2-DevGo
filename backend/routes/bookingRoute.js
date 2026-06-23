@@ -9,8 +9,8 @@ import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
 
 const bookingRouter = express.Router();
 
-bookingRouter.post("/", createBooking);
-bookingRouter.get("/", getBookings);
+bookingRouter.post("/", verifyToken, createBooking);
+bookingRouter.get("/", verifyToken, getBookings);
 bookingRouter.get("/search", searchBookings);
 bookingRouter.get("/all", verifyToken, isAdmin, getAllBookings);
 

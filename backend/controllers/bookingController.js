@@ -33,8 +33,11 @@ export const createBooking = async (req, res) => {
     // Tính tổng giá
     const totalPrice = tour.price * parseInt(travelers, 10);
 
+    const userId = req.user._id;
+
     // Tạo booking
     const newBooking = new bookingModel({
+      userId,
       name,
       email,
       phone,
@@ -62,11 +65,11 @@ export const createBooking = async (req, res) => {
 // Get all bookings for the logged-in user
 export const getBookings = async (req, res) => {
   try {
-    const userId = req.userId; // Get user ID from the middleware
+    const userId = req.user._id; // Lấy userId từ middleware đã gán
 
     // Fetch only the bookings related to the logged-in user
     const bookings = await bookingModel
-      .find({ email: userId })
+      .find({ userId: userId })
       .sort({ createdAt: -1 });
 
     res.status(200).json({ success: true, bookings });

@@ -21,6 +21,11 @@ const bookingSchema = new mongoose.Schema({
   specialRequests: {
     type: String,
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true,
+  },
   tourId: {
     type: String,
     required: true,

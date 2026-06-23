@@ -32,7 +32,7 @@ export const registerUser = async (req, res) => {
     });
 
     const user = await newUser.save();
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       success: true,
@@ -69,7 +69,7 @@ export const loginUser = async (req, res) => {
       return res.json({ success: false, message: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.json({
       success: true,
