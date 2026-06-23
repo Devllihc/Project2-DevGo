@@ -6,7 +6,6 @@ const Footer = () => {
     <footer className="w-full py-24 mt-24 border-t border-stone-200/50 dark:border-stone-800/50 bg-stone-50 dark:bg-stone-950">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-10 lg:px-22 grid grid-cols-1 md:grid-cols-12 gap-16">
         
-        {/* Brand Col */}
         <div className="md:col-span-5 flex flex-col items-start">
           <img src="/logoTravel.png" width={140} alt="DevGo Logo" className="mb-8 opacity-90 drop-shadow-sm" />
           <p className="text-lg text-stone-500 dark:text-stone-400 max-w-[24ch] leading-relaxed font-light">
@@ -14,7 +13,6 @@ const Footer = () => {
           </p>
         </div>
         
-        {/* Links Col */}
         <div className="md:col-span-4 flex flex-col sm:flex-row gap-12 lg:gap-24">
           <div className="flex flex-col gap-5">
             <h4 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-stone-900 dark:text-white mb-2">Company</h4>
@@ -29,7 +27,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Social Col */}
         <div className="md:col-span-3 flex flex-col items-start md:items-end gap-6">
           <h4 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-stone-900 dark:text-white">Connect</h4>
           <div className="flex gap-4">
@@ -45,7 +42,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom Line */}
         <div className="md:col-span-12 pt-8 mt-8 border-t border-stone-200/50 dark:border-stone-800/50 flex flex-col items-center md:items-start">
           <p className="text-sm font-medium text-stone-400 dark:text-stone-600">
             &copy; {new Date().getFullYear()} DevGo. All Rights Reserved.
