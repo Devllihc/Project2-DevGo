@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import Tour from "./pages/Tour";
 import TourDetails from "./pages/TourDetails";
 import Login from "./pages/Login";
@@ -20,6 +20,7 @@ import AdminTourManagement from "./pages/admin/AdminTourManagement";
 import Planning from "./components/Planning";
 import MyTrips from "./components/MyTrips";
 import TripDetail from "./components/TripDetail";
+
 const App = () => {
   return (
     <div className="flex flex-col min-h-[100dvh] w-full">
@@ -32,7 +33,9 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/tours/:id" element={<TourDetails />} />
           <Route path="/login" element={<Login />} />
+          
           <Route path="/admin" element={<AdminDashboard />}>
+            <Route index element={<Navigate to="users" replace />} />
             <Route
               path="users"
               element={

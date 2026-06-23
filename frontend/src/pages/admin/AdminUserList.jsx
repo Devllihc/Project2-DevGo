@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AppContext } from "../../context/AppContext";
+import { motion } from "framer-motion";
+import { Search, Trash2, Mail, Shield, User } from "lucide-react";
 
 const AdminUserList = () => {
   const { token } = useContext(AppContext);
@@ -40,64 +42,104 @@ const AdminUserList = () => {
   );
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h2 className="text-3xl font-bold mb-6 text-stone-900 dark:text-stone-100">User Management</h2>
-
-      {/* Search input */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search by name, email, or role..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-sm p-3 border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-accent-500 outline-none"
-        />
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-4 max-w-6xl mx-auto"
+    >
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+        <div>
+          <h2 className="text-3xl font-bold text-stone-900 dark:text-stone-100 tracking-tight">User Management</h2>
+          <p className="text-stone-500 dark:text-stone-400 mt-1">Manage all registered users and their roles.</p>
+        </div>
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 w-5 h-5" />
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 bg-white/50 dark:bg-stone-900/50 backdrop-blur-md border border-stone-200 dark:border-stone-800 rounded-2xl shadow-sm focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none transition-all dark:text-stone-100"
+          />
+        </div>
       </div>
 
-      <div className="overflow-x-auto bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm">
-        <table className="w-full border-collapse text-stone-700 dark:text-stone-300">
-          <thead>
-            <tr className="bg-accent-50 dark:bg-accent-950/20 text-left text-accent-800 dark:text-accent-300 border-b border-stone-200 dark:border-stone-800">
-              <th className="p-4 font-semibold">ID</th>
-              <th className="p-4 font-semibold">Name</th>
-              <th className="p-4 font-semibold">Email</th>
-              <th className="p-4 font-semibold">Role</th>
-              <th className="p-4 font-semibold">Actions</th>
-            </tr>
-          </thead>
-        <tbody>
-          {filteredUsers.length > 0 ? (
-            filteredUsers.map((u) => (
-              <tr key={u._id} className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors last:border-0">
-                <td className="p-4">{u._id}</td>
-                <td className="p-4 font-medium">{u.name}</td>
-                <td className="p-4">{u.email}</td>
-                <td className="p-4">
-                  <span className="px-3 py-1 bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 rounded-full text-sm font-medium">
-                    {u.role}
-                  </span>
-                </td>
-                <td className="p-4">
-                  <button
-                    onClick={() => deleteUser(u._id)}
-                    className="bg-red-50 text-red-600 dark:bg-red-950/30 dark:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors font-medium text-sm"
-                  >
-                    Delete
-                  </button>
-                </td>
+      <div className="bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl rounded-3xl border border-stone-200 dark:border-stone-800 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm text-stone-600 dark:text-stone-300">
+            <thead className="bg-stone-50/50 dark:bg-stone-950/50 border-b border-stone-200 dark:border-stone-800 font-medium">
+              <tr>
+                <th className="px-6 py-4">User</th>
+                <th className="px-6 py-4">Role</th>
+                <th className="px-6 py-4">ID</th>
+                <th className="px-6 py-4 text-right">Actions</th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5" className="text-center p-8 text-stone-500 dark:text-stone-400">
-                No users found.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody className="divide-y divide-stone-100 dark:divide-stone-800/50">
+              {filteredUsers.length > 0 ? (
+                filteredUsers.map((u, i) => (
+                  <motion.tr 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    key={u._id} 
+                    className="hover:bg-stone-50/50 dark:hover:bg-stone-800/20 transition-colors group"
+                  >
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-accent-100 dark:bg-accent-900/30 flex items-center justify-center text-accent-600 dark:text-accent-400 font-bold shrink-0">
+                          {u.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <div className="font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                            {u.name}
+                          </div>
+                          <div className="text-stone-500 dark:text-stone-400 flex items-center gap-1.5 mt-0.5">
+                            <Mail className="w-3.5 h-3.5" />
+                            {u.email}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${
+                        u.role === 'admin' 
+                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400'
+                        : 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300'
+                      }`}>
+                        {u.role === 'admin' ? <Shield className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
+                        {u.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-xs font-mono text-stone-400">
+                      {u._id}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => deleteUser(u._id)}
+                        className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        title="Delete User"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </td>
+                  </motion.tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="text-center py-12">
+                    <div className="inline-flex flex-col items-center justify-center text-stone-400">
+                      <Search className="w-12 h-12 mb-3 opacity-20" />
+                      <p>No users found matching "{searchTerm}"</p>
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import TourCard from "../components/TourCard";
+import { Map, Sparkles, Compass } from "lucide-react";
 
 const fadeIn = {
   hidden: { opacity: 0 },
@@ -9,7 +10,7 @@ const fadeIn = {
 
 const slideUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, type: "spring", bounce: 0.4 } },
 };
 
 const Tour = () => {
@@ -34,55 +35,92 @@ const Tour = () => {
   }, [baseUrl]);
 
   return (
-    <div>
-      {/* Header Banner */}
-      <motion.div
-        className="relative bg-cover bg-center bg-no-repeat h-64 sm:h-80 lg:h-96 mb-20"
-        style={{ backgroundImage: "url('/tour.jpg')" }}
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-      >
-        <div className="absolute inset-0 bg-black opacity-40"></div>
-        <motion.h1
-          className="text-3xl sm:text-4xl font-semibold mb-4 text-center text-stone-100 absolute inset-0 flex items-center justify-center"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          All Tours
-        </motion.h1>
-      </motion.div>
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950 font-sans selection:bg-accent-500/30 pb-24">
+      {/* Hero Header */}
+      <div className="relative w-full overflow-hidden bg-stone-900 rounded-b-[3rem] sm:rounded-b-[4rem] shadow-xl mb-16">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50"
+          style={{ backgroundImage: "url('https://img.freepik.com/free-photo/beautiful-girl-standing-boat-looking-mountains-ratchaprapha-dam-khao-sok-national-park-surat-thani-province-thailand_335224-850.jpg?w=1800&t=st=1734459512~exp=1734463112~hmac=956199774261d513cea7b1861f7343dcc4bcdc9298fbcf1c82e3028ab2da7f18')" }}
+        ></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/60 to-transparent"></div>
+        <div className="absolute top-0 right-0 -mr-32 -mt-32 w-96 h-96 bg-accent-500/30 rounded-full blur-3xl pointer-events-none"></div>
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-24 text-center flex flex-col items-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6 }}
+            className="w-16 h-16 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center mb-6 shadow-lg border border-white/20"
+          >
+            <Compass size={32} className="text-white" />
+          </motion.div>
+          <motion.h1
+            className="text-4xl sm:text-6xl font-extrabold text-white mb-6 tracking-tight drop-shadow-md"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            Explore <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-400 to-amber-300">Our Tours</span>
+          </motion.h1>
+          <motion.p
+            className="text-lg sm:text-xl text-stone-300 max-w-2xl"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
+            Discover breathtaking destinations, curated experiences, and unforgettable journeys around the globe.
+          </motion.p>
+        </div>
+      </div>
 
-      {/* Tour Cards */}
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-10 max-w-7xl mx-auto px-4"
-        initial="hidden"
-        animate="visible"
-        variants={fadeIn}
-      >
-        {loading ? (
-          <div className="text-center col-span-full text-lg text-stone-600 dark:text-stone-400">
-            Loading tours...
-          </div>
-        ) : tours.length === 0 ? (
-          <div className="text-center col-span-full text-lg text-red-500">
-            No tours found.
-          </div>
-        ) : (
-          tours.map((tour, index) => (
-            <motion.div
-              key={tour._id || index}
-              initial="hidden"
-              animate="visible"
-              variants={slideUp}
-              transition={{ delay: 0.2 * index, duration: 0.6 }}
-            >
-              <TourCard tour={tour} />
-            </motion.div>
-          ))
-        )}
-      </motion.div>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-6">
+        <motion.div
+          className="flex items-center gap-3 mb-10"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+        >
+          <Sparkles className="text-accent-500" size={28} />
+          <h2 className="text-3xl font-bold text-stone-800 dark:text-stone-100">Featured Destinations</h2>
+        </motion.div>
+
+        {/* Tour Cards Grid */}
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
+          initial="hidden"
+          animate="visible"
+          variants={fadeIn}
+        >
+          {loading ? (
+            Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-96 bg-white/50 dark:bg-stone-900/50 backdrop-blur-md rounded-3xl animate-pulse border border-stone-200/50 dark:border-stone-800/50"></div>
+            ))
+          ) : tours.length === 0 ? (
+            <div className="col-span-full py-20 flex flex-col items-center justify-center bg-white dark:bg-stone-900 rounded-3xl border border-dashed border-stone-300 dark:border-stone-700">
+              <Map size={48} className="text-stone-300 dark:text-stone-600 mb-4" />
+              <p className="text-xl text-stone-600 dark:text-stone-400 font-medium">No tours found.</p>
+            </div>
+          ) : (
+            tours.map((tour, index) => (
+              <motion.div
+                key={tour._id || index}
+                initial="hidden"
+                animate="visible"
+                variants={slideUp}
+                transition={{ delay: 0.1 * index, duration: 0.6 }}
+                className="group relative h-full"
+              >
+                {/* Subtle Glow Effect on Hover */}
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-accent-400 to-amber-400 rounded-3xl blur opacity-0 group-hover:opacity-20 transition duration-500"></div>
+                <div className="relative h-full">
+                  <TourCard tour={tour} />
+                </div>
+              </motion.div>
+            ))
+          )}
+        </motion.div>
+      </div>
     </div>
   );
 };
