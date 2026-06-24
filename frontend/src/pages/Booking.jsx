@@ -21,6 +21,7 @@ const Booking = () => {
     email: "",
     phone: "",
     travelers: 1,
+    startDate: "",
     specialRequests: "",
   });
   const [totalPrice, setTotalPrice] = useState(price);
@@ -36,7 +37,7 @@ const Booking = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.phone) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.startDate) {
       toast.error("Please fill out all required fields.");
       return;
     }
@@ -126,6 +127,32 @@ const Booking = () => {
             className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
             required
           />
+        </div>
+        <div>
+          <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">Start Date</label>
+          {tour.availableDates && tour.availableDates.length > 0 ? (
+            <select
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+              className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent"
+              required
+            >
+              <option value="" disabled>Select an available date</option>
+              {tour.availableDates.map((date, index) => (
+                <option key={index} value={date}>{date}</option>
+              ))}
+            </select>
+          ) : (
+            <motion.input
+              type="date"
+              name="startDate"
+              value={formData.startDate}
+              onChange={handleChange}
+              className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
+              required
+            />
+          )}
         </div>
         <div>
           <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">

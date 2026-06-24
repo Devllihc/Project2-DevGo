@@ -32,6 +32,9 @@ const Navbar = () => {
           <li><Link to="/about" className={isActive("/about")}>About</Link></li>
           <li><Link to="/tours" className={isActive("/tours")}>Tours</Link></li>
           <li><Link to="/my-trips" className={isActive("/my-trips")}>Trips</Link></li>
+          {user && user.role !== "admin" && (
+            <li><Link to="/my-bookings" className={isActive("/my-bookings")}>Bookings</Link></li>
+          )}
           {user?.role === "admin" && (
             <li><Link to="/admin" className={isActive("/admin")}>Dashboard</Link></li>
           )}
@@ -81,7 +84,12 @@ const Navbar = () => {
           <li><Link to="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
           <li><Link to="/about" onClick={() => setMenuOpen(false)}>About</Link></li>
           <li><Link to="/tours" onClick={() => setMenuOpen(false)}>Tours</Link></li>
-          <li><Link to="/my-trips" onClick={() => setMenuOpen(false)}>Trips</Link></li>
+          {user && user.role !== "admin" && (
+            <li><Link to="/my-trips" onClick={() => setMenuOpen(false)}>Trips</Link></li>
+          )}
+          {user && user.role !== "admin" && (
+            <li><Link to="/my-bookings" onClick={() => setMenuOpen(false)}>Bookings</Link></li>
+          )}
           {user?.role === "admin" && (
             <li><Link to="/admin" onClick={() => setMenuOpen(false)}>Dashboard</Link></li>
           )}

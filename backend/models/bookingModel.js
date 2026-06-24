@@ -41,14 +41,28 @@ const bookingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "confirmed"],
+    enum: ["pending", "confirmed", "completed", "cancelled"],
     default: "pending",
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  startDate: {
+    type: String, // Lấy từ ngày người dùng chọn
   },
-});
+  paymentStatus: {
+    type: String,
+    enum: ["unpaid", "paid", "refunded"],
+    default: "unpaid",
+  },
+  cancellationReason: {
+    type: String,
+  },
+  history: [
+    {
+      action: String,
+      details: String,
+      timestamp: { type: Date, default: Date.now },
+    }
+  ]
+}, { timestamps: true });
 
 const bookingModel =
   mongoose.models.booking || mongoose.model("booking", bookingSchema);

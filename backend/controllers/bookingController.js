@@ -10,11 +10,12 @@ export const createBooking = async (req, res) => {
       phone,
       travelers,
       specialRequests,
-      tourId, // <- chỉ cần tourId từ client
+      tourId,
+      startDate,
     } = req.body;
 
     // Kiểm tra trường bắt buộc
-    if (!name || !email || !phone || !tourId) {
+    if (!name || !email || !phone || !tourId || !startDate) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields",
@@ -46,7 +47,9 @@ export const createBooking = async (req, res) => {
       tourId,
       tourTitle: tour.title,
       totalPrice,
-      status: "confirmed",
+      status: "pending",
+      startDate,
+      history: [{ action: "Created", details: "Booking initially created" }],
     });
 
     const savedBooking = await newBooking.save();
@@ -70,9 +73,22 @@ export const getBookings = async (req, res) => {
     // Fetch only the bookings related to the logged-in user
     const bookings = await bookingModel
       .find({ userId: userId })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean(); // Use lean to easily attach properties
 
-    res.status(200).json({ success: true, bookings });
+    const tourIds = bookings.map(b => b.tourId);
+    const tours = await Tour.find({ _id: { $in: tourIds } });
+    
+    // Attach availableDates to bookings
+    const bookingsWithDates = bookings.map(b => {
+      const tour = tours.find(t => t._id.toString() === b.tourId.toString());
+      return {
+        ...b,
+        availableDates: tour ? tour.availableDates : []
+      };
+    });
+
+    res.status(200).json({ success: true, bookings: bookingsWithDates });
   } catch (error) {
     console.error("Error fetching bookings:", error);
     res.status(400).json({ success: false, message: error.message });
@@ -114,5 +130,127 @@ export const getAllBookings = async (req, res) => {
     res.status(200).json({ success: true, bookings });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Cancel booking (User)
+export const cancelBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { cancellationReason } = req.body;
+    const userId = req.user._id;
+
+    const booking = await bookingModel.findById(id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    if (booking.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: "Not authorized to cancel this booking" });
+    }
+
+    if (booking.status === "cancelled" || booking.status === "completed") {
+      return res.status(400).json({ success: false, message: "Cannot cancel this booking" });
+    }
+
+    booking.status = "cancelled";
+    booking.cancellationReason = cancellationReason || "No reason provided";
+    booking.history.push({
+      action: "Cancelled",
+      details: `User cancelled: ${booking.cancellationReason}`,
+    });
+
+    await booking.save();
+    res.status(200).json({ success: true, message: "Booking cancelled successfully", booking });
+  } catch (error) {
+    console.error("Error cancelling booking:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Edit booking (User)
+export const editBooking = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { travelers, startDate } = req.body;
+    const userId = req.user._id;
+
+    const booking = await bookingModel.findById(id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    if (booking.userId.toString() !== userId.toString()) {
+      return res.status(403).json({ success: false, message: "Not authorized to edit this booking" });
+    }
+
+    if (booking.status !== "pending") {
+      return res.status(400).json({ success: false, message: "Can only edit pending bookings" });
+    }
+
+    const tour = await Tour.findById(booking.tourId);
+    let details = [];
+
+    if (travelers && parseInt(travelers, 10) !== booking.travelers) {
+      const newTravelers = parseInt(travelers, 10);
+      booking.travelers = newTravelers;
+      booking.totalPrice = tour.price * newTravelers;
+      details.push(`Travelers changed to ${newTravelers}`);
+    }
+
+    if (startDate && startDate !== booking.startDate) {
+      booking.startDate = startDate;
+      details.push(`Start date changed to ${startDate}`);
+    }
+
+    if (details.length > 0) {
+      booking.history.push({
+        action: "Edited",
+        details: details.join(", "),
+      });
+      await booking.save();
+    }
+
+    res.status(200).json({ success: true, message: "Booking updated successfully", booking });
+  } catch (error) {
+    console.error("Error editing booking:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Update booking status (Admin)
+export const updateBookingStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status, paymentStatus } = req.body;
+
+    const booking = await bookingModel.findById(id);
+    if (!booking) {
+      return res.status(404).json({ success: false, message: "Booking not found" });
+    }
+
+    let details = [];
+    if (status && status !== booking.status) {
+      details.push(`Status changed from ${booking.status} to ${status}`);
+      booking.status = status;
+    }
+
+    if (paymentStatus && paymentStatus !== booking.paymentStatus) {
+      details.push(`Payment status changed from ${booking.paymentStatus} to ${paymentStatus}`);
+      booking.paymentStatus = paymentStatus;
+    }
+
+    if (details.length > 0) {
+      booking.history.push({
+        action: "Admin Update",
+        details: details.join(", "),
+      });
+      await booking.save();
+    }
+
+    res.status(200).json({ success: true, message: "Booking status updated", booking });
+  } catch (error) {
+    console.error("Error updating booking status:", error);
+    res.status(500).json({ success: false, message: error.message });
   }
 };

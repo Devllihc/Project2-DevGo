@@ -20,10 +20,13 @@ import AdminTourManagement from "./pages/admin/AdminTourManagement";
 import Planning from "./components/Planning";
 import MyTrips from "./components/MyTrips";
 import TripDetail from "./components/TripDetail";
+import BookingHistory from "./pages/BookingHistory";
+import ScrollToTop from "./components/ScrollToTop";
 
 const App = () => {
   return (
     <div className="flex flex-col min-h-[100dvh] w-full">
+      <ScrollToTop />
       <ToastContainer theme="dark" position="bottom-right" autoClose={1000} />
       <Navbar />
       <main className="flex-1 pt-28">
@@ -75,6 +78,14 @@ const App = () => {
             element={
               <UserRoute>
                 <Invoice />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/my-bookings"
+            element={
+              <UserRoute>
+                <BookingHistory />
               </UserRoute>
             }
           />
