@@ -28,7 +28,13 @@ const TourList = () => {
   }, []);
 
   if (loading) {
-    return <div className="text-center text-gray-500">Loading tours...</div>;
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="h-96 bg-white/50 dark:bg-stone-900/50 backdrop-blur-md rounded-[2rem] animate-pulse border border-stone-200/50 dark:border-stone-800/50"></div>
+        ))}
+      </div>
+    );
   }
 
   return (
