@@ -5,6 +5,8 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import Tour from "./pages/Tour";
 import TourDetails from "./pages/TourDetails";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import Home from "./pages/Home";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -36,6 +38,8 @@ const App = () => {
           <Route path="/about" element={<About />} />
           <Route path="/tours/:id" element={<TourDetails />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
           
           <Route path="/admin" element={<AdminDashboard />}>
             <Route index element={<Navigate to="users" replace />} />

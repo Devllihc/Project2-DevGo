@@ -150,6 +150,16 @@ const LoginPage = () => {
               placeholder="Enter your password"
             />
           </div>
+          {isLogin && (
+            <div className="flex justify-end">
+              <span 
+                className="text-sm text-accent-500 cursor-pointer hover:underline"
+                onClick={() => navigate("/forgot-password")}
+              >
+                Forgot Password?
+              </span>
+            </div>
+          )}
           <button
             type="submit"
             className="w-full bg-accent-500 text-white py-2 mt-4 rounded-2xl hover:bg-accent-600 focus:outline-none focus:ring-2 focus:ring-accent-500 transition duration-300"
