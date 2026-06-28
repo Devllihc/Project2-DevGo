@@ -1,8 +1,16 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useMemo } from "react";  
 import { toast } from "react-toastify";
 import axios from "axios";
 import { AppContext } from "../context/AppContext";
 import { useLocation, useNavigate } from "react-router-dom";
+
+const PASSWORD_RULES = [
+  { key: "length", label: "At least 8 characters", test: (pw) => pw.length >= 8 },
+  { key: "uppercase", label: "One uppercase letter (A-Z)", test: (pw) => /[A-Z]/.test(pw) },
+  { key: "lowercase", label: "One lowercase letter (a-z)", test: (pw) => /[a-z]/.test(pw) },
+  { key: "number", label: "One number (0-9)", test: (pw) => /[0-9]/.test(pw) },
+  { key: "special", label: "One special character (!@#$...)", test: (pw) => /[^A-Za-z0-9]/.test(pw) },
+];
 
 const LoginPage = () => {
   const { backendUrl, setToken, setUser, user } = useContext(AppContext);
@@ -11,6 +19,27 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [showPasswordRules, setShowPasswordRules] = useState(false);
+
+  const passwordChecks = useMemo(
+    () => PASSWORD_RULES.map((rule) => ({ ...rule, passed: rule.test(password) })),
+    [password]
+  );
+  const allPasswordRulesPassed = passwordChecks.every((r) => r.passed);
+  const passedCount = passwordChecks.filter((r) => r.passed).length;
+  const strengthPercent = (passedCount / PASSWORD_RULES.length) * 100;
+  const strengthColor =
+    strengthPercent <= 40
+      ? "bg-red-500"
+      : strengthPercent <= 80
+      ? "bg-yellow-500"
+      : "bg-green-500";
+  const strengthLabel =
+    strengthPercent <= 40
+      ? "Weak"
+      : strengthPercent <= 80
+      ? "Medium"
+      : "Strong";
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,6 +61,12 @@ const LoginPage = () => {
     setPhone("");
   };
 
+  const handlePhoneChange = (e) => {
+    // Only allow digits and common phone chars
+    const val = e.target.value.replace(/[^0-9+\-() ]/g, "");
+    setPhone(val);
+  };
+
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -39,6 +74,22 @@ const LoginPage = () => {
       if (!email || !password || (!isLogin && (!name || !phone))) {
         toast.error("All fields are required!");
         return;
+      }
+
+      // Register-specific validations
+      if (!isLogin) {
+        // Phone validation (Vietnamese format or international)
+        const phoneDigits = phone.replace(/[^0-9]/g, "");
+        if (phoneDigits.length < 9 || phoneDigits.length > 15) {
+          toast.error("Please enter a valid phone number (9-15 digits)");
+          return;
+        }
+
+        // Password strength validation
+        if (!allPasswordRulesPassed) {
+          toast.error("Password does not meet all security requirements");
+          return;
+        }
       }
 
       let response;
@@ -93,7 +144,7 @@ const LoginPage = () => {
             <>
               <div>
                 <label htmlFor="name" className="block text-md font-medium text-stone-900 dark:text-stone-100">
-                  Full Name
+                  Full Name <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -102,21 +153,21 @@ const LoginPage = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
-                  placeholder="Enter your full name"
+                  placeholder="e.g. Nguyen Van A"
                 />
               </div>
               <div>
                 <label htmlFor="phone" className="block text-md font-medium text-stone-900 dark:text-stone-100">
-                  Phone
+                  Phone Number <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type="text"
+                  type="tel"
                   id="phone"
                   name="phone"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={handlePhoneChange}
                   className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
-                  placeholder="Enter your phone number"
+                  placeholder="e.g. 0901 234 567"
                 />
               </div>
             </>
@@ -124,7 +175,7 @@ const LoginPage = () => {
 
           <div>
             <label htmlFor="email" className="block text-md font-medium text-stone-900 dark:text-stone-100">
-              Email
+              Email <span className="text-red-500">*</span>
             </label>
             <input
               type="email"
@@ -133,12 +184,12 @@ const LoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
-              placeholder="Enter your email"
+              placeholder="e.g. yourname@gmail.com"
             />
           </div>
           <div>
             <label htmlFor="password" className="block text-md font-medium text-stone-900 dark:text-stone-100">
-              Password
+              Password <span className="text-red-500">*</span>
             </label>
             <input
               type="password"
@@ -146,9 +197,56 @@ const LoginPage = () => {
               name="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => !isLogin && setShowPasswordRules(true)}
+              onBlur={() => setShowPasswordRules(false)}
               className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
-              placeholder="Enter your password"
+              placeholder={isLogin ? "Enter your password" : "Min 8 chars, uppercase, number & special char"}
             />
+
+            {/* Password Strength Indicator - only on Register */}
+            {!isLogin && password.length > 0 && (
+              <div className="mt-3 space-y-2">
+                {/* Strength bar */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-2 bg-stone-200 dark:bg-stone-700 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${strengthColor}`}
+                      style={{ width: `${strengthPercent}%` }}
+                    />
+                  </div>
+                  <span className={`text-xs font-medium min-w-[52px] text-right ${
+                    strengthPercent <= 40
+                      ? "text-red-500"
+                      : strengthPercent <= 80
+                      ? "text-yellow-500"
+                      : "text-green-500"
+                  }`}>
+                    {strengthLabel}
+                  </span>
+                </div>
+
+                {/* Requirement checklist */}
+                {(showPasswordRules || !allPasswordRulesPassed) && (
+                  <ul className="space-y-1">
+                    {passwordChecks.map((rule) => (
+                      <li
+                        key={rule.key}
+                        className={`flex items-center gap-2 text-xs transition-colors duration-200 ${
+                          rule.passed
+                            ? "text-green-500"
+                            : "text-stone-400 dark:text-stone-500"
+                        }`}
+                      >
+                        <span className="text-sm">
+                          {rule.passed ? "✓" : "○"}
+                        </span>
+                        {rule.label}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
           </div>
           {isLogin && (
             <div className="flex justify-end">
