@@ -1,12 +1,49 @@
 // controllers/tourController.js
 import Tour from "../models/tour.js";
+import bookingModel from "../models/bookingModel.js";
 import fs from "fs";
 import path from "path";
+
+const attachRemainingSlots = async (toursArray) => {
+  const tourIds = toursArray.map((t) => t._id);
+  const bookings = await bookingModel.find({
+    tourId: { $in: tourIds },
+    status: { $ne: "cancelled" },
+  }).lean();
+
+  const bookedSlotsMap = {};
+  bookings.forEach((b) => {
+    const key = `${b.tourId}_${b.startDate}`;
+    if (!bookedSlotsMap[key]) bookedSlotsMap[key] = 0;
+    bookedSlotsMap[key] += b.travelers;
+  });
+
+  return toursArray.map((tour) => {
+    if (tour.availableDates && tour.availableDates.length > 0) {
+      tour.availableDates = tour.availableDates.map((d) => {
+        // Handle old string format if any sneak in
+        const dateStr = typeof d === "string" ? d : d.date;
+        const maxSlots = typeof d === "string" ? tour.maxGroupSize : d.maxSlots;
+        
+        const key = `${tour._id}_${dateStr}`;
+        const booked = bookedSlotsMap[key] || 0;
+        return {
+          date: dateStr,
+          maxSlots: maxSlots,
+          bookedSlots: booked,
+          remainingSlots: Math.max(0, maxSlots - booked),
+        };
+      });
+    }
+    return tour;
+  });
+};
 
 // [GET] /api/tours
 export const getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    let tours = await Tour.find().lean();
+    tours = await attachRemainingSlots(tours);
     res.status(200).json(tours);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -16,9 +53,10 @@ export const getAllTours = async (req, res) => {
 // [GET] /api/tours/:id
 export const getTourById = async (req, res) => {
   try {
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).lean();
     if (!tour) return res.status(404).json({ message: "Tour not found" });
-    res.status(200).json(tour);
+    const [updatedTour] = await attachRemainingSlots([tour]);
+    res.status(200).json(updatedTour);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

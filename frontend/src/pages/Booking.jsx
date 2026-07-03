@@ -139,9 +139,16 @@ const Booking = () => {
               required
             >
               <option value="" disabled>Select an available date</option>
-              {tour.availableDates.map((date, index) => (
-                <option key={index} value={date}>{date}</option>
-              ))}
+              {tour.availableDates.map((d, index) => {
+                const dateStr = typeof d === "string" ? d : d.date;
+                const remaining = typeof d === "string" ? null : d.remainingSlots;
+                const isSoldOut = remaining !== null && remaining <= 0;
+                return (
+                  <option key={index} value={dateStr} disabled={isSoldOut}>
+                    {dateStr} {remaining !== null ? `(${remaining} slots left)` : ""}
+                  </option>
+                );
+              })}
             </select>
           ) : (
             <motion.input
@@ -158,14 +165,25 @@ const Booking = () => {
           <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">
             Number of Travelers
           </label>
-          <motion.input
-            type="number"
-            name="travelers"
-            min="1"
-            value={formData.travelers}
-            onChange={handleChange}
-            className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
-          />
+          {(() => {
+            const selectedDateObj = tour.availableDates?.find(d => (typeof d === 'string' ? d : d.date) === formData.startDate);
+            const maxTravelers = selectedDateObj?.remainingSlots ?? tour.maxGroupSize;
+            return (
+              <motion.input
+                type="number"
+                name="travelers"
+                min="1"
+                max={formData.startDate ? maxTravelers : undefined}
+                value={formData.travelers}
+                onChange={(e) => {
+                  let val = parseInt(e.target.value, 10);
+                  if (formData.startDate && val > maxTravelers) val = maxTravelers;
+                  handleChange({ target: { name: 'travelers', value: val }});
+                }}
+                className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100"
+              />
+            );
+          })()}
         </div>
         <div>
           <label className="block text-lg font-semibold text-stone-900 dark:text-stone-100">

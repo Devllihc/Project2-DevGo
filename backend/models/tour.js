@@ -32,7 +32,10 @@ const tourSchema = new mongoose.Schema({
     default: false,
   },
   availableDates: {
-    type: [String], // Mảng chuỗi ngày dạng "5-1-2025"
+    type: [{
+      date: String,
+      maxSlots: { type: Number, default: 0 }
+    }],
     default: [],
   },
   reviews: [

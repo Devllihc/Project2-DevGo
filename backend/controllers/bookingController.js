@@ -31,8 +31,31 @@ export const createBooking = async (req, res) => {
       });
     }
 
+    // Check availability
+    const dateObj = tour.availableDates?.find(d => (typeof d === 'string' ? d : d.date) === startDate);
+    if (!dateObj) {
+      return res.status(400).json({ success: false, message: "Selected date is not available for this tour." });
+    }
+
+    const maxSlots = typeof dateObj === 'string' ? tour.maxGroupSize : dateObj.maxSlots;
+    const existingBookings = await bookingModel.find({
+      tourId,
+      startDate,
+      status: { $ne: "cancelled" }
+    });
+    
+    const bookedTravelers = existingBookings.reduce((sum, b) => sum + b.travelers, 0);
+    const requestedTravelers = parseInt(travelers, 10);
+
+    if (bookedTravelers + requestedTravelers > maxSlots) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `Not enough slots. Only ${Math.max(0, maxSlots - bookedTravelers)} slots left for this date.` 
+      });
+    }
+
     // Tính tổng giá
-    const totalPrice = tour.price * parseInt(travelers, 10);
+    const totalPrice = tour.price * requestedTravelers;
 
     const userId = req.user._id;
 
@@ -191,8 +214,33 @@ export const editBooking = async (req, res) => {
     const tour = await Tour.findById(booking.tourId);
     let details = [];
 
+    const newTravelers = travelers ? parseInt(travelers, 10) : booking.travelers;
+    const newStartDate = startDate || booking.startDate;
+
+    if (newTravelers !== booking.travelers || newStartDate !== booking.startDate) {
+      const dateObj = tour.availableDates?.find(d => (typeof d === 'string' ? d : d.date) === newStartDate);
+      if (!dateObj) {
+        return res.status(400).json({ success: false, message: "Selected date is not available" });
+      }
+
+      const maxSlots = typeof dateObj === 'string' ? tour.maxGroupSize : dateObj.maxSlots;
+      const existingBookings = await bookingModel.find({
+        tourId: booking.tourId,
+        startDate: newStartDate,
+        status: { $ne: "cancelled" },
+        _id: { $ne: booking._id }
+      });
+      const bookedTravelers = existingBookings.reduce((sum, b) => sum + b.travelers, 0);
+
+      if (bookedTravelers + newTravelers > maxSlots) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Not enough slots. Only ${Math.max(0, maxSlots - bookedTravelers)} slots left for this date.` 
+        });
+      }
+    }
+
     if (travelers && parseInt(travelers, 10) !== booking.travelers) {
-      const newTravelers = parseInt(travelers, 10);
       booking.travelers = newTravelers;
       booking.totalPrice = tour.price * newTravelers;
       details.push(`Travelers changed to ${newTravelers}`);

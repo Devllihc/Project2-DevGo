@@ -19,7 +19,7 @@ const AdminTourManagement = () => {
     distance: "",
     maxGroupSize: "",
     photo: null,
-    availableDates: "",
+    availableDates: [],
     featured: false,
   });
 
@@ -53,9 +53,8 @@ const AdminTourManagement = () => {
 
     const data = new FormData();
     for (const key in formData) {
-      if (key === "availableDates" && formData[key]) {
-        const datesArray = formData[key].split(",").map((d) => d.trim());
-        data.append("availableDates", JSON.stringify(datesArray));
+      if (key === "availableDates") {
+        data.append("availableDates", JSON.stringify(formData[key]));
       } else if (formData[key] !== null) {
         data.append(key, formData[key]);
       }
@@ -91,7 +90,7 @@ const AdminTourManagement = () => {
   const resetForm = () => {
     setFormData({
       title: "", desc: "", price: "", city: "", distance: "",
-      maxGroupSize: "", photo: null, availableDates: "", featured: false,
+      maxGroupSize: "", photo: null, availableDates: [], featured: false,
     });
     setEditId(null);
     setShowForm(false);
@@ -106,7 +105,7 @@ const AdminTourManagement = () => {
       distance: tour.distance,
       maxGroupSize: tour.maxGroupSize,
       photo: null,
-      availableDates: tour.availableDates?.join(", "),
+      availableDates: tour.availableDates || [],
       featured: tour.featured || false,
     });
     setEditId(tour._id);
@@ -209,18 +208,60 @@ const AdminTourManagement = () => {
                   </div>
                 ))}
 
-                <div className="relative">
+                <div className="col-span-1 md:col-span-2 lg:col-span-3">
                   <label className="block text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4" /> Available Dates
+                    <Calendar className="w-4 h-4" /> Available Dates & Slots
                   </label>
-                  <input
-                    type="text"
-                    name="availableDates"
-                    value={formData.availableDates}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 bg-stone-50/50 dark:bg-stone-950/50 border border-stone-200 dark:border-stone-800 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none text-stone-900 dark:text-stone-100 transition-all"
-                    placeholder="e.g. 5-1-2025, 10-2-2025"
-                  />
+                  {formData.availableDates.map((dateObj, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={dateObj.date}
+                        onChange={(e) => {
+                          const newDates = [...formData.availableDates];
+                          newDates[index].date = e.target.value;
+                          setFormData({ ...formData, availableDates: newDates });
+                        }}
+                        placeholder="Date (e.g. 5-1-2025)"
+                        className="w-1/2 px-4 py-3 bg-stone-50/50 dark:bg-stone-950/50 border border-stone-200 dark:border-stone-800 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none text-stone-900 dark:text-stone-100 transition-all"
+                        required
+                      />
+                      <input
+                        type="number"
+                        value={dateObj.maxSlots}
+                        onChange={(e) => {
+                          const newDates = [...formData.availableDates];
+                          newDates[index].maxSlots = e.target.value;
+                          setFormData({ ...formData, availableDates: newDates });
+                        }}
+                        placeholder="Max Slots"
+                        className="w-1/3 px-4 py-3 bg-stone-50/50 dark:bg-stone-950/50 border border-stone-200 dark:border-stone-800 rounded-xl focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none text-stone-900 dark:text-stone-100 transition-all"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newDates = formData.availableDates.filter((_, i) => i !== index);
+                          setFormData({ ...formData, availableDates: newDates });
+                        }}
+                        className="p-3 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        availableDates: [...formData.availableDates, { date: "", maxSlots: formData.maxGroupSize || "" }]
+                      });
+                    }}
+                    className="mt-2 flex items-center gap-1 text-sm text-accent-500 font-semibold hover:text-accent-600 transition-colors"
+                  >
+                    <Plus className="w-4 h-4" /> Add Date
+                  </button>
                 </div>
 
                 <div className="col-span-1 md:col-span-2 lg:col-span-3">
