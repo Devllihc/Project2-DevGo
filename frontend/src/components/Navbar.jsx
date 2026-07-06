@@ -4,6 +4,7 @@ import { List, X } from "@phosphor-icons/react";
 import { AppContext } from "../context/AppContext.jsx";
 import { assets } from "../assets/assets.js";
 import ThemeToggle from "./ThemeToggle.jsx";
+import NotificationDropdown from "./NotificationDropdown.jsx";
 
 const Navbar = () => {
   const { user, logout } = useContext(AppContext);
@@ -42,7 +43,8 @@ const Navbar = () => {
 
         {/* Controls */}
         <div className="flex items-center gap-3 sm:gap-4 mr-1 sm:mr-2">
-          <div className="hidden sm:block">
+          <div className="hidden sm:flex items-center gap-2">
+            <NotificationDropdown />
             <ThemeToggle />
           </div>
           
