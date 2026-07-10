@@ -1,20 +1,11 @@
 import express from 'express';
 import { getNotifications, markAsRead, markAllAsRead } from '../controllers/notificationController.js';
 import { createAndSendNotification } from '../services/notificationService.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-// Mock auth middleware for demonstration in plan. In actual execution, use the real one.
-// Replace this with your actual auth middleware `protect` from your app
-const protect = (req, res, next) => {
-  // Try to use req.user if it exists, otherwise provide a mock
-  if (!req.user) {
-    req.user = { _id: '60d21b4667d0d8992e610c85' }; // Mock ObjectId for testing
-  }
-  next();
-};
-
-router.use(protect); // Require auth for all notification routes
+router.use(verifyToken); // Require auth for all notification routes
 router.get('/', getNotifications);
 router.put('/read-all', markAllAsRead);
 router.put('/:id/read', markAsRead);

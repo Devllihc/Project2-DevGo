@@ -1,39 +1,37 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import { AppContext } from './AppContext';
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
+  const { user, token, backendUrl } = useContext(AppContext);
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [socket, setSocket] = useState(null);
 
-  // MOCK USER for plan - replace with real auth user later
-  const user = { _id: '60d21b4667d0d8992e610c85' };
-  const token = 'mock_token';
-
   useEffect(() => {
-    if (user && token) {
-      const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:4000');
-      setSocket(newSocket);
+    if (!user?._id || !token) return;
 
-      newSocket.emit('join', user._id);
+    const newSocket = io(backendUrl);
+    setSocket(newSocket);
 
-      newSocket.on('new_notification', (notification) => {
-        setNotifications((prev) => [notification, ...prev]);
-        setUnreadCount((prev) => prev + 1);
-      });
+    newSocket.emit('join', user._id);
 
-      fetchNotifications();
+    newSocket.on('new_notification', (notification) => {
+      setNotifications((prev) => [notification, ...prev]);
+      setUnreadCount((prev) => prev + 1);
+    });
 
-      return () => newSocket.close();
-    }
-  }, []);
+    fetchNotifications();
+
+    return () => newSocket.close();
+  }, [user?._id, token, backendUrl]);
 
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get('http://localhost:4000/api/notifications', {
+      const res = await axios.get(`${backendUrl}/api/notifications`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(res.data.notifications);
@@ -50,7 +48,7 @@ export const NotificationProvider = ({ children }) => {
     setUnreadCount((prev) => Math.max(0, prev - 1));
 
     try {
-      await axios.put(`http://localhost:4000/api/notifications/${id}/read`, {}, {
+      await axios.put(`${backendUrl}/api/notifications/${id}/read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {
@@ -62,7 +60,7 @@ export const NotificationProvider = ({ children }) => {
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setUnreadCount(0);
     try {
-      await axios.put('http://localhost:4000/api/notifications/read-all', {}, {
+      await axios.put(`${backendUrl}/api/notifications/read-all`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {

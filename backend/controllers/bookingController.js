@@ -1,5 +1,13 @@
 import bookingModel from "../models/bookingModel.js";
 import Tour from "../models/tour.js";
+import { createAndSendNotification } from "../services/notificationService.js";
+
+const BOOKING_STATUS_LABEL = {
+  pending: "đang chờ xử lý",
+  confirmed: "đã được xác nhận",
+  completed: "đã hoàn thành",
+  cancelled: "đã bị hủy",
+};
 
 // Create a new booking
 export const createBooking = async (req, res) => {
@@ -278,7 +286,8 @@ export const updateBookingStatus = async (req, res) => {
     }
 
     let details = [];
-    if (status && status !== booking.status) {
+    const statusChanged = status && status !== booking.status;
+    if (statusChanged) {
       details.push(`Status changed from ${booking.status} to ${status}`);
       booking.status = status;
     }
@@ -294,6 +303,20 @@ export const updateBookingStatus = async (req, res) => {
         details: details.join(", "),
       });
       await booking.save();
+    }
+
+    if (statusChanged) {
+      const tour = await Tour.findById(booking.tourId);
+      const tourName = tour?.title || "tour của bạn";
+      const statusLabel = BOOKING_STATUS_LABEL[status] || status;
+
+      await createAndSendNotification({
+        recipientId: booking.userId,
+        type: "BOOKING_STATUS",
+        title: "Cập nhật trạng thái đặt tour",
+        body: `Đặt chỗ "${tourName}" của bạn ${statusLabel}.`,
+        actionUrl: "/my-bookings",
+      });
     }
 
     res.status(200).json({ success: true, message: "Booking status updated", booking });
