@@ -46,6 +46,7 @@ const ParallaxSection = ({ bgImage, children, id }) => {
           ref={imgRef}
           src={bgImage}
           alt="Parallax Background"
+          onLoad={() => ScrollTrigger.refresh()}
           // We use w-full and h-auto to maintain the original aspect ratio.
           // min-h-screen ensures it never falls short of the viewport height.
           // object-top ensures the scroll starts from the very top of the image.
