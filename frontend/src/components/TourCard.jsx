@@ -29,7 +29,7 @@ const TourCard = ({ tour }) => {
 
   return (
     <motion.div
-      className="group flex flex-col bg-white dark:bg-stone-900 rounded-[2rem] overflow-hidden border border-stone-200 dark:border-stone-800 hover:border-accent-200 dark:hover:border-accent-800 transition-colors duration-300"
+      className="group h-full flex flex-col bg-white dark:bg-stone-900 rounded-[2rem] overflow-hidden border border-stone-200 dark:border-stone-800 hover:border-accent-200 dark:hover:border-accent-800 transition-colors duration-300"
       whileHover={hoverEffect}
       initial="hidden"
       whileInView="visible"

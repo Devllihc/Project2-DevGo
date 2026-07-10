@@ -5,11 +5,14 @@ const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "smooth"
-    });
+    // We use setTimeout to ensure it runs after GSAP ScrollTrigger cleans up and new DOM mounts
+    setTimeout(() => {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "smooth"
+      });
+    }, 50);
   }, [pathname]);
 
   return null;

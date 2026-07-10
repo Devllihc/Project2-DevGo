@@ -3,7 +3,7 @@ import { FacebookLogo, TwitterLogo, InstagramLogo } from "@phosphor-icons/react"
 
 const Footer = () => {
   return (
-    <footer className="w-full py-24 mt-24 border-t border-stone-200/50 dark:border-stone-800/50 bg-stone-50 dark:bg-stone-950">
+    <footer className="w-full py-12 mt-0 border-t border-stone-200/50 dark:border-white/10">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-10 lg:px-22 grid grid-cols-1 md:grid-cols-12 gap-16">
         
         <div className="md:col-span-5 flex flex-col items-start">

@@ -11,7 +11,7 @@ const NewsLetterBox = () => {
   };
 
   return (
-    <section className="py-24 max-w-6xl mx-auto w-full relative">
+    <section className="py-12 max-w-6xl mx-auto w-full relative">
       <motion.div
         className="relative overflow-hidden rounded-[3rem] bg-stone-900 px-6 py-20 sm:px-16 sm:py-24 flex flex-col lg:flex-row items-center justify-between gap-12 shadow-2xl"
         initial={{ opacity: 0, y: 40 }}

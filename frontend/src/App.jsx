@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import { Route, Routes, Navigate } from "react-router-dom";
+import { Route, Routes, Navigate, useLocation } from "react-router-dom";
 import Tour from "./pages/Tour";
 import TourDetails from "./pages/TourDetails";
 import Login from "./pages/Login";
@@ -26,12 +26,15 @@ import BookingHistory from "./pages/BookingHistory";
 import ScrollToTop from "./components/ScrollToTop";
 
 const App = () => {
+  const location = useLocation();
+  const isFullscreenPage = ["/", "/about", "/tours"].includes(location.pathname);
+
   return (
     <div className="flex flex-col min-h-[100dvh] w-full">
       <ScrollToTop />
       <ToastContainer theme="dark" position="bottom-right" autoClose={1000} />
       <Navbar />
-      <main className="flex-1 pt-28">
+      <main className={`flex-1 ${isFullscreenPage ? "" : "pt-28"}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<Tour />} />
@@ -99,7 +102,7 @@ const App = () => {
           <Route path="/trip/:id" element={<TripDetail />} />
         </Routes>
       </main>
-      <Footer />
+      {!isFullscreenPage && <Footer />}
     </div>
   );
 };
