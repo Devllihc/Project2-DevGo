@@ -1,5 +1,6 @@
 import { KlookModel, TripadvisorModel } from "../models/crawlModel.js";
 import OpenAI from "openai";
+import logger from "../utils/logger.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -79,7 +80,7 @@ export const getCrawledContext = async (destination) => {
         return contextString;
 
     } catch (error) {
-        console.error("Lỗi Vector Search:", error.message);
+        logger.error({ err: error }, "Vector Search error");
         return ""; 
     }
 };

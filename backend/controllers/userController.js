@@ -3,11 +3,56 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import sendEmail from "../utils/sendEmail.js";
+import logger from "../utils/logger.js";
+import { sendVerificationEmail } from "../services/emailVerificationService.js";
+
+const ACCESS_TOKEN_EXPIRES = "30m";
+const REFRESH_TOKEN_EXPIRES = "30d";
+const REFRESH_COOKIE_NAME = "refreshToken";
+const REFRESH_COOKIE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+
+const issueAccessToken = (user) =>
+  jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXPIRES,
+    algorithm: "HS256",
+  });
+
+const issueRefreshToken = (user) =>
+  jwt.sign({ id: user._id, v: user.refreshTokenVersion }, process.env.JWT_REFRESH_SECRET, {
+    expiresIn: REFRESH_TOKEN_EXPIRES,
+    algorithm: "HS256",
+  });
+
+// The refresh cookie is scoped to /api/user (its only consumers) and never
+// exposed to JS, so a leaked access token or an XSS payload can't steal it.
+const setRefreshCookie = (res, refreshToken) => {
+  res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/api/user",
+    maxAge: REFRESH_COOKIE_MAX_AGE_MS,
+  });
+};
+
+const clearRefreshCookie = (res) => {
+  res.clearCookie(REFRESH_COOKIE_NAME, { path: "/api/user" });
+};
+
+const publicUser = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  phone: user.phone,
+  photo: user.photo,
+  role: user.role,
+  emailVerified: user.emailVerified,
+});
 
 // REGISTER
-export const registerUser = async (req, res) => {
+export const registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, phone, photo, role } = req.body;
+    const { name, email, password, phone, photo } = req.body;
 
     if (!name || !email || !password || !phone) {
       return res.json({
@@ -30,32 +75,27 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
       phone,
       photo: photo || "",
-      role: role || "user",
+      role: "user",
     });
 
     const user = await newUser.save();
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    await sendVerificationEmail(user);
+
+    const token = issueAccessToken(user);
+    setRefreshCookie(res, issueRefreshToken(user));
 
     res.json({
       success: true,
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        photo: user.photo,
-        role: user.role,
-      },
+      user: publicUser(user),
     });
   } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // LOGIN
-export const loginUser = async (req, res) => {
+export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
@@ -64,42 +104,110 @@ export const loginUser = async (req, res) => {
 
     const user = await userModel.findOne({ email });
     if (!user) {
-      return res.json({ success: false, message: "User not found" });
+      return res.json({ success: false, message: "Invalid email or password" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.json({ success: false, message: "Invalid credentials" });
+      return res.json({ success: false, message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = issueAccessToken(user);
+    setRefreshCookie(res, issueRefreshToken(user));
 
     res.json({
       success: true,
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        photo: user.photo,
-        role: user.role,
-      },
+      user: publicUser(user),
     });
   } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: error.message });
+    next(error);
+  }
+};
+
+// REFRESH ACCESS TOKEN (silent refresh via httpOnly cookie)
+export const refreshAccessToken = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+    if (!refreshToken) {
+      return res.status(401).json({ success: false, message: "No refresh token" });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, { algorithms: ["HS256"] });
+    } catch {
+      clearRefreshCookie(res);
+      return res.status(401).json({ success: false, message: "Invalid or expired refresh token" });
+    }
+
+    const user = await userModel.findById(decoded.id);
+    if (!user || user.refreshTokenVersion !== decoded.v) {
+      clearRefreshCookie(res);
+      return res.status(401).json({ success: false, message: "Session revoked, please log in again" });
+    }
+
+    const token = issueAccessToken(user);
+    res.json({ success: true, token, user: publicUser(user) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// LOGOUT — revokes every outstanding refresh token for this user
+export const logoutUser = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME];
+    if (refreshToken) {
+      try {
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, { algorithms: ["HS256"] });
+        await userModel.findByIdAndUpdate(decoded.id, { $inc: { refreshTokenVersion: 1 } });
+      } catch {
+        // Token already invalid/expired — nothing to revoke.
+      }
+    }
+    clearRefreshCookie(res);
+    res.json({ success: true, message: "Logged out" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// VERIFY EMAIL
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { token } = req.params;
+    const emailVerificationToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    const user = await userModel.findOne({
+      emailVerificationToken,
+      emailVerificationExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Invalid or expired verification link" });
+    }
+
+    user.emailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save();
+
+    res.json({ success: true, message: "Email verified successfully" });
+  } catch (error) {
+    next(error);
   }
 };
 
 // FORGOT PASSWORD
-export const forgotPassword = async (req, res) => {
+export const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
     const user = await userModel.findOne({ email });
+    const genericMessage = "If that email exists, a reset link has been sent";
 
     if (!user) {
-      return res.json({ success: false, message: "User with this email does not exist" });
+      return res.json({ success: true, message: genericMessage });
     }
 
     // Generate token
@@ -107,7 +215,7 @@ export const forgotPassword = async (req, res) => {
 
     // Hash token and save to user
     user.resetPasswordToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-    user.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+    user.resetPasswordExpires = Date.now() + 60 * 60 * 1000; // 60 minutes
     await user.save();
 
     // Create reset url
@@ -128,23 +236,22 @@ export const forgotPassword = async (req, res) => {
         html: htmlMessage,
       });
 
-      res.json({ success: true, message: "Email sent successfully" });
+      res.json({ success: true, message: genericMessage });
     } catch (error) {
       user.resetPasswordToken = undefined;
       user.resetPasswordExpires = undefined;
       await user.save();
 
-      console.error("Email send error:", error);
-      return res.json({ success: false, message: "Email could not be sent" });
+      logger.error({ err: error }, "Password reset email send failed");
+      return res.json({ success: true, message: genericMessage });
     }
   } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // RESET PASSWORD
-export const resetPassword = async (req, res) => {
+export const resetPassword = async (req, res, next) => {
   try {
     const { password } = req.body;
     const { token } = req.params;
@@ -165,32 +272,42 @@ export const resetPassword = async (req, res) => {
       return res.json({ success: false, message: "Invalid or expired reset token" });
     }
 
-    // Set new password
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+    // Invalidate the token before setting the new password so a leaked/raced
+    // token can't be reused to trigger a second reset.
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+    // A password change should also log out every other active session.
+    user.refreshTokenVersion += 1;
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
     await user.save();
 
     res.json({ success: true, message: "Password updated successfully" });
   } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-// GET ALL USERS (ADMIN)
-export const getAllUsers = async (req, res) => {
+// GET ALL USERS (ADMIN) — cursor-based (keyset) pagination, see getAllBookings
+// in bookingController.js for why this replaces skip/limit.
+export const getAllUsers = async (req, res, next) => {
   try {
-    const users = await userModel.find({}, "-password"); // exclude password
-    res.json({ success: true, users });
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const { cursor } = req.query;
+
+    const filter = cursor ? { _id: { $lt: cursor } } : {};
+    const users = await userModel.find(filter, "-password").sort({ _id: -1 }).limit(limit);
+
+    const nextCursor = users.length === limit ? users[users.length - 1]._id : null;
+    res.json({ success: true, users, nextCursor });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // DELETE USER (ADMIN)
-export const deleteUser = async (req, res) => {
+export const deleteUser = async (req, res, next) => {
   try {
     const userId = req.params.id;
     const deletedUser = await userModel.findByIdAndDelete(userId);
@@ -200,6 +317,6 @@ export const deleteUser = async (req, res) => {
 
     res.json({ success: true, message: "User deleted successfully" });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };

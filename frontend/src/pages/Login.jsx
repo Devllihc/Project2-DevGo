@@ -95,17 +95,17 @@ const LoginPage = () => {
       let response;
 
       if (isLogin) {
-        response = await axios.post(`${backendUrl}/api/user/login`, {
-          email,
-          password,
-        });
+        response = await axios.post(
+          `${backendUrl}/api/user/login`,
+          { email, password },
+          { withCredentials: true }
+        );
       } else {
-        response = await axios.post(`${backendUrl}/api/user/register`, {
-          name,
-          email,
-          password,
-          phone,
-        });
+        response = await axios.post(
+          `${backendUrl}/api/user/register`,
+          { name, email, password, phone },
+          { withCredentials: true }
+        );
       }
 
       if (response.data.success) {

@@ -3,6 +3,8 @@ import fetch from "node-fetch";
 import { jsonrepair } from "jsonrepair";
 import { getDestinationContext } from "../services/googlePlaceService.js";
 import { getCrawledContext } from "../services/crawlService.js";
+import { escapeRegex } from "../utils/escapeRegex.js";
+import logger from "../utils/logger.js";
 
 const AI_URL = process.env.AI_SERVICE_URL;
 
@@ -17,14 +19,14 @@ const cleanAIResponse = (text) => {
     return cleaned.trim();
 };
 
-const createItinerary = async (req, res) => {
+const createItinerary = async (req, res, next) => {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 300000); 
+    const timeoutId = setTimeout(() => controller.abort(), 300000);
 
     try {
         const userId = req.user?.id;
         const { destination, duration, budget, requirements } = req.body;
-        const parsedDuration = parseInt(duration) || 1; 
+        const parsedDuration = Math.min(Math.max(parseInt(duration) || 1, 1), 30);
 
         if (!AI_URL) return res.status(503).json({ success: false, message: "Server AI chưa cấu hình" });
         if (!destination) return res.status(400).json({ success: false, message: "Thiếu điểm đến" });
@@ -118,7 +120,7 @@ const createItinerary = async (req, res) => {
             const repaired = jsonrepair(cleanedJson);
             itineraryJson = JSON.parse(repaired);
         } catch (e) {
-            console.error("JSON Parse Error. Raw text:", rawResult);
+            logger.error({ rawResult }, "AI itinerary JSON parse error");
             return res.status(500).json({ 
                 success: false, 
                 message: "AI bị lỗi định dạng JSON.",
@@ -183,32 +185,32 @@ const createItinerary = async (req, res) => {
         if (error.name === 'AbortError') {
             return res.status(504).json({ success: false, message: "AI xử lý quá lâu (Timeout)" });
         }
-        console.error("Controller Error:", error.message);
-        res.status(500).json({ success: false, message: error.message });
+        next(error);
     } finally {
         clearTimeout(timeoutId);
     }
 };
 
-const getUserItineraries = async (req, res) => {
+const getUserItineraries = async (req, res, next) => {
   try {
     const userId = req.user?.id;
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
     const search = req.query.search; // <--- 1. Lấy từ khóa search từ URL
     const skip = (page - 1) * limit;
 
     let query = { userId: userId };
 
     if (search) {
+        const safeSearch = escapeRegex(search);
         query.$or = [
-            { trip_name: { $regex: search, $options: "i" } },
-            { prompt: { $regex: search, $options: "i" } }
+            { trip_name: { $regex: safeSearch, $options: "i" } },
+            { prompt: { $regex: safeSearch, $options: "i" } }
         ];
     }
 
     const itineraries = await itineraryModel
-      .find(query) 
+      .find(query)
       .select("trip_name total_days total_cost prompt createdAt")
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -222,11 +224,11 @@ const getUserItineraries = async (req, res) => {
       pagination: { total, page, pages: Math.ceil(total / limit) },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-const getTripDetail = async (req, res) => {
+const getTripDetail = async (req, res, next) => {
   try {
     const tripId = req.params.id;
     const userId = req.user?.id;
@@ -236,7 +238,7 @@ const getTripDetail = async (req, res) => {
 
     res.status(200).json({ success: true, data: trip });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 

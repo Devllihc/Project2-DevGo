@@ -25,10 +25,12 @@ const bookingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "user",
     required: true,
+    index: true,
   },
   tourId: {
     type: String,
     required: true,
+    index: true,
   },
   tourTitle: {
     type: String,
@@ -63,6 +65,9 @@ const bookingSchema = new mongoose.Schema({
     }
   ]
 }, { timestamps: true });
+
+bookingSchema.index({ tourId: 1, startDate: 1, status: 1 });
+bookingSchema.index({ createdAt: -1 });
 
 const bookingModel =
   mongoose.models.booking || mongoose.model("booking", bookingSchema);
