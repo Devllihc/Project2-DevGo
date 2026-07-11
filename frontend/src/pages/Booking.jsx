@@ -21,7 +21,7 @@ const Booking = () => {
     email: "",
     phone: "",
     travelers: 1,
-    startDate: "",
+    startDate: location.state?.selectedDate || "",
     specialRequests: "",
   });
   const [totalPrice, setTotalPrice] = useState(price);

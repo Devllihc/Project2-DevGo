@@ -57,7 +57,7 @@ const ParallaxSection = ({ bgImage, children, id }) => {
       </div>
 
       {/* Content that scrolls naturally over the pinned background */}
-      <div className="relative z-10 w-full min-h-screen flex flex-col justify-center py-24">
+      <div className="relative z-10 w-full min-h-screen flex flex-col justify-center pt-24 pb-8">
         {children}
       </div>
     </section>

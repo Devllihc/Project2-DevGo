@@ -21,7 +21,8 @@ const TourDetails = () => {
         const data = await res.json();
         setTour(data);
         if (data?.availableDates?.length > 0) {
-          setSelectedDate(data.availableDates[0]);
+          const firstDate = data.availableDates[0];
+          setSelectedDate(typeof firstDate === "string" ? firstDate : firstDate.date);
         }
       } catch (error) {
         console.error("Error fetching tour:", error);
@@ -126,16 +127,22 @@ const TourDetails = () => {
             onChange={handleDateChange}
             className="w-full p-3 border border-stone-200 dark:border-stone-700 rounded-2xl bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 focus:outline-none focus:ring-2 focus:ring-accent-500 transition duration-200"
           >
-            {availableDates.map((date, index) => (
-              <option key={index} value={date}>
-                {new Date(date).toLocaleDateString("en-US", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-              </option>
-            ))}
+            {availableDates.map((d, index) => {
+              const dateStr = typeof d === "string" ? d : d.date;
+              const remaining = typeof d === "string" ? null : d.remainingSlots;
+              const isSoldOut = remaining !== null && remaining <= 0;
+              return (
+                <option key={index} value={dateStr} disabled={isSoldOut}>
+                  {new Date(dateStr).toLocaleDateString("en-US", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                  {remaining !== null ? ` (${remaining} slots left)` : ""}
+                </option>
+              );
+            })}
           </select>
         </div>
 
@@ -147,7 +154,7 @@ const TourDetails = () => {
               if (!user) {
                 navigate("/login");
               } else {
-                navigate("/booking", { state: { tour } });
+                navigate("/booking", { state: { tour, selectedDate } });
               }
             }}
             className="bg-accent-500 hover:bg-accent-600 px-6 py-3 text-white text-lg font-semibold rounded-full transition duration-300"

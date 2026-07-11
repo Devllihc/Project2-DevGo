@@ -39,7 +39,7 @@ const Header = () => {
           
           <h1 className="text-6xl sm:text-7xl lg:text-[6.5rem] font-medium tracking-tighter leading-[1.05] text-stone-950 dark:text-white mb-8">
             Welcome to <br className="hidden sm:block"/>
-            <span className="text-accent-500">DevGo.</span>
+            <span className="text-accent-500">DevGo</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-stone-600 dark:text-stone-300 max-w-2xl leading-relaxed mb-12 font-normal">

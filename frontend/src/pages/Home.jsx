@@ -15,7 +15,7 @@ const Home = () => {
         Home Page with single parallax background
       */}
       <ParallaxSection id="home-section" bgImage="/tour-background.jpg">
-        <div className="flex flex-col gap-12 sm:gap-24 w-full pb-24">
+        <div className="flex flex-col gap-12 sm:gap-24 w-full pb-4">
           <Header />
           <div className="-mt-20 sm:-mt-32 relative z-20">
             <SearchBar />
