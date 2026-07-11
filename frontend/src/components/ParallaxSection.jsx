@@ -5,7 +5,7 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const ParallaxSection = ({ bgImage, children, id }) => {
+const ParallaxSection = ({ bgImage, children, id, priority = false }) => {
   const containerRef = useRef(null);
   const bgRef = useRef(null);
   const imgRef = useRef(null);
@@ -33,7 +33,7 @@ const ParallaxSection = ({ bgImage, children, id }) => {
           ease: "none" 
         }
       ),
-      scrub: true,
+      scrub: 1.5, // Changed from true to 1.5 for a smooth "catch-up" effect
       invalidateOnRefresh: true, // Recalculates value on screen resize
     });
   }, { scope: containerRef });
@@ -47,10 +47,14 @@ const ParallaxSection = ({ bgImage, children, id }) => {
           src={bgImage}
           alt="Parallax Background"
           onLoad={() => ScrollTrigger.refresh()}
+          decoding="async" // Offloads image decoding from the main thread
+          loading={priority ? "eager" : "lazy"} // Lazy load if not priority
+          fetchPriority={priority ? "high" : "auto"} // High priority fetch for hero sections
           // We use w-full and h-auto to maintain the original aspect ratio.
           // min-h-screen ensures it never falls short of the viewport height.
           // object-top ensures the scroll starts from the very top of the image.
-          className="absolute top-0 left-0 w-full min-h-screen h-auto object-cover object-top"
+          // will-change-transform tells the browser to optimize this element for animations via GPU
+          className="absolute top-0 left-0 w-full min-h-screen h-auto object-cover object-top will-change-transform"
         />
         {/* Even Clearer Overlay: reduced opacity to 30% and removed blur completely for maximum clarity */}
         <div className="absolute inset-0 bg-stone-900/30 dark:bg-stone-950/30" />

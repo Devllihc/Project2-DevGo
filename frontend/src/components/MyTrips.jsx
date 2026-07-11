@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
+import ParallaxSection from "./ParallaxSection";
 import {
   MapPin,
   ArrowRight,
@@ -122,11 +123,13 @@ const MyTrips = () => {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="p-6 max-w-7xl mx-auto min-h-screen font-sans"
-    >
+    <div className="bg-stone-950 font-sans selection:bg-accent-500/30 w-full relative">
+      <ParallaxSection id="mytrips-page" bgImage="/trip-background.webp">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-6 max-w-7xl mx-auto min-h-screen font-sans w-full"
+        >
       {/* --- HEADER SECTION --- */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
         <div>
@@ -336,6 +339,8 @@ const MyTrips = () => {
         </>
       )}
     </motion.div>
+      </ParallaxSection>
+    </div>
   );
 };
 
