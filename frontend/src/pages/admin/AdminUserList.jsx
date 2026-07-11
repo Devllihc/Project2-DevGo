@@ -117,7 +117,7 @@ const AdminUserList = () => {
                     <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => deleteUser(u._id)}
-                        className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
                         title="Delete User"
                       >
                         <Trash2 className="w-5 h-5" />

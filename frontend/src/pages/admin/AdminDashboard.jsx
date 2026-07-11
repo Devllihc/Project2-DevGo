@@ -12,7 +12,28 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="flex min-h-[calc(100vh-7rem)] bg-stone-50 dark:bg-stone-950">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-7rem)] bg-stone-50 dark:bg-stone-950">
+      {/* Mobile Top Sub-navigation Bar */}
+      <div className="md:hidden w-full bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl border-b border-stone-200 dark:border-stone-800 py-3 px-4 flex items-center justify-around shadow-sm">
+        {navItems.map((item) => {
+          const isActive = location.pathname.includes(item.path);
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-300 font-semibold text-xs sm:text-sm ${
+                isActive
+                  ? "bg-accent-50 dark:bg-accent-950/30 text-accent-600 dark:text-accent-400 shadow-sm"
+                  : "text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800/50 hover:text-stone-900 dark:hover:text-stone-100"
+              }`}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+
       {/* Sidebar */}
       <aside className="w-64 shrink-0 hidden md:block border-r border-stone-200 dark:border-stone-800 bg-white/80 dark:bg-stone-900/80 backdrop-blur-xl">
         <div className="sticky top-28 h-[calc(100vh-7rem)] p-6 shadow-sm z-10 flex flex-col overflow-y-auto">

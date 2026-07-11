@@ -397,14 +397,14 @@ const AdminTourManagement = () => {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => handleEdit(tour)}
-                          className="p-2 text-stone-400 hover:text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-xl transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                          className="p-2 text-stone-400 hover:text-accent-600 hover:bg-accent-50 dark:hover:bg-accent-500/10 rounded-xl transition-colors md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
                           title="Edit Tour"
                         >
                           <Edit2 className="w-5 h-5" />
                         </button>
                         <button
                           onClick={() => handleDelete(tour._id)}
-                          className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                          className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-colors md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
                           title="Delete Tour"
                         >
                           <Trash2 className="w-5 h-5" />

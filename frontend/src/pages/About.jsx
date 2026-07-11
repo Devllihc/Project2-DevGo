@@ -23,7 +23,7 @@ const About = () => {
   return (
     <div className="bg-stone-950 font-sans selection:bg-accent-500/30 w-full relative">
       <ParallaxSection id="about-page" bgImage="/about-background.jpg">
-        <div className="flex flex-col gap-12 sm:gap-24 w-full pb-24">
+        <div className="flex flex-col gap-12 sm:gap-24 w-full pb-4">
           
           {/* 1. HERO SECTION */}
           <section className="relative min-h-[60vh] flex items-center justify-center">

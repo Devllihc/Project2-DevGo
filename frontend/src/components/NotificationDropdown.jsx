@@ -30,20 +30,20 @@ const NotificationDropdown = () => {
     <div className="relative" ref={dropdownRef}>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 rounded-full hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors focus:outline-none"
+        className="relative p-2 rounded-full hover:bg-stone-100 dark:hover:bg-stone-900 transition-colors focus:outline-none"
       >
-        <Bell className="w-6 h-6 text-slate-700 dark:text-slate-200" />
+        <Bell className="w-6 h-6 text-stone-700 dark:text-stone-200" />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-rose-500 rounded-full border-2 border-white dark:border-slate-900 animate-pulse">
+          <span className="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-rose-500 rounded-full border-2 border-white dark:border-stone-950 animate-pulse">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white/70 dark:bg-slate-900/80 backdrop-blur-xl border border-white/20 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-50 transform origin-top-right transition-all">
-          <div className="flex justify-between items-center p-4 border-b border-slate-200/50 dark:border-slate-700/50">
-            <h3 className="font-semibold text-lg text-slate-800 dark:text-white">Notifications</h3>
+        <div className="absolute right-0 mt-3 w-80 sm:w-96 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl shadow-xl overflow-hidden z-50 transform origin-top-right transition-all">
+          <div className="flex justify-between items-center p-4 border-b border-stone-200/60 dark:border-stone-800/80">
+            <h3 className="font-semibold text-lg text-stone-900 dark:text-white">Notifications</h3>
             {unreadCount > 0 && (
               <button 
                 onClick={markAllAsRead}
@@ -56,7 +56,7 @@ const NotificationDropdown = () => {
           
           <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+              <div className="p-8 text-center text-stone-500 dark:text-stone-400">
                 <Bell className="w-12 h-12 mx-auto mb-3 opacity-20" />
                 <p>You're all caught up!</p>
               </div>
@@ -68,19 +68,19 @@ const NotificationDropdown = () => {
                     if (!notif.isRead) markAsRead(notif._id);
                     if (notif.actionUrl) window.location.href = notif.actionUrl;
                   }}
-                  className={`p-4 flex gap-3 cursor-pointer transition-all border-b border-slate-100/50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/50 ${!notif.isRead ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                  className={`p-4 flex gap-3 cursor-pointer transition-all border-b border-stone-100/80 dark:border-stone-800/50 hover:bg-stone-50 dark:hover:bg-stone-800/40 ${!notif.isRead ? 'bg-stone-50/80 dark:bg-stone-800/25' : ''}`}
                 >
                   <div className="flex-shrink-0 mt-1">
                     {getIcon(notif.type)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm ${!notif.isRead ? 'font-semibold text-slate-900 dark:text-white' : 'font-medium text-slate-700 dark:text-slate-300'}`}>
+                    <p className={`text-sm ${!notif.isRead ? 'font-semibold text-stone-900 dark:text-white' : 'font-medium text-stone-600 dark:text-stone-300'}`}>
                       {notif.title}
                     </p>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                    <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 line-clamp-2">
                       {notif.body}
                     </p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+                    <p className="text-xs text-stone-400 dark:text-stone-500 mt-2">
                       {notif.createdAt ? formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true }) : 'Just now'}
                     </p>
                   </div>
