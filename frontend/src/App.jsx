@@ -24,10 +24,11 @@ import MyTrips from "./components/MyTrips";
 import TripDetail from "./components/TripDetail";
 import BookingHistory from "./pages/BookingHistory";
 import ScrollToTop from "./components/ScrollToTop";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
   const location = useLocation();
-  const isFullscreenPage = ["/", "/about", "/tours"].includes(location.pathname);
+  const isFullscreenPage = ["/", "/about", "/tours", "/my-trips"].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-[100dvh] w-full">
@@ -100,6 +101,9 @@ const App = () => {
           <Route path="/my-trips" element={<MyTrips />} />
           <Route path="/generate" element={<Planning />} />
           <Route path="/trip/:id" element={<TripDetail />} />
+          
+          {/* Catch-all 404 Route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       {!isFullscreenPage && <Footer />}

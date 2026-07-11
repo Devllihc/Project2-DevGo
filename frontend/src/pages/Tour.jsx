@@ -38,7 +38,7 @@ const Tour = () => {
 
   return (
     <div className="bg-stone-950 font-sans selection:bg-accent-500/30 w-full relative">
-      <ParallaxSection id="tours-page" bgImage="/home-background.jpg">
+      <ParallaxSection id="tours-page" bgImage="/tour-background.webp">
         <div className="flex flex-col gap-12 sm:gap-24 w-full pb-4">
           
           {/* Hero Header */}
