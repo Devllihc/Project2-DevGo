@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
-import { Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Tour from "./pages/Tour";
 import TourDetails from "./pages/TourDetails";
 import Login from "./pages/Login";
@@ -17,7 +17,8 @@ import About from "./pages/About";
 import AdminRoute from "./components/PrivateRoute";
 import UserRoute from "./components/UserRoute";
 import AdminUserList from "./pages/admin/AdminUserList";
-import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminLayout from "./pages/admin/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
 import AdminBookingList from "./pages/admin/AdminBookingList";
 import AdminTourManagement from "./pages/admin/AdminTourManagement";
 import Planning from "./components/Planning";
@@ -29,14 +30,15 @@ import NotFound from "./pages/NotFound";
 
 const App = () => {
   const location = useLocation();
+  const isAdminRoute = location.pathname.startsWith("/admin");
   const isFullscreenPage = ["/", "/about", "/tours", "/my-trips"].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-[100dvh] w-full">
       <ScrollToTop />
       <ToastContainer theme="dark" position="bottom-right" autoClose={1000} />
-      <Navbar />
-      <main className={`flex-1 ${isFullscreenPage ? "" : "pt-28"}`}>
+      {!isAdminRoute && <Navbar />}
+      <main className={isAdminRoute ? "flex-1" : `flex-1 ${isFullscreenPage ? "" : "pt-28"}`}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/tours" element={<Tour />} />
@@ -47,32 +49,18 @@ const App = () => {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/verify-email/:token" element={<VerifyEmail />} />
           
-          <Route path="/admin" element={<AdminDashboard />}>
-            <Route index element={<Navigate to="users" replace />} />
-            <Route
-              path="users"
-              element={
-                <AdminRoute>
-                  <AdminUserList />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="bookings"
-              element={
-                <AdminRoute>
-                  <AdminBookingList />
-                </AdminRoute>
-              }
-            />
-            <Route
-              path="tours"
-              element={
-                <AdminRoute>
-                  <AdminTourManagement />
-                </AdminRoute>
-              }
-            />
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <AdminLayout />
+              </AdminRoute>
+            }
+          >
+            <Route index element={<AdminOverview />} />
+            <Route path="users" element={<AdminUserList />} />
+            <Route path="bookings" element={<AdminBookingList />} />
+            <Route path="tours" element={<AdminTourManagement />} />
           </Route>
 
           <Route
@@ -108,7 +96,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isFullscreenPage && <Footer />}
+      {!isAdminRoute && !isFullscreenPage && <Footer />}
     </div>
   );
 };
