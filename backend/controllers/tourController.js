@@ -40,30 +40,47 @@ const attachRemainingSlots = async (toursArray) => {
 };
 
 // [GET] /api/tours
-export const getAllTours = async (req, res) => {
+// Tours are an admin-curated catalog (bounded in practice, unlike user/booking
+// data), so a generous cap is enough to remove the unbounded-fetch risk
+// without breaking the existing (unpaginated) frontend catalog UI.
+const MAX_TOURS_RETURNED = 500;
+
+export const getAllTours = async (req, res, next) => {
   try {
-    let tours = await Tour.find().lean();
+    let tours = await Tour.find().sort({ createdAt: -1 }).limit(MAX_TOURS_RETURNED).lean();
     tours = await attachRemainingSlots(tours);
     res.status(200).json(tours);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };
 
 // [GET] /api/tours/:id
-export const getTourById = async (req, res) => {
+export const getTourById = async (req, res, next) => {
   try {
     const tour = await Tour.findById(req.params.id).lean();
     if (!tour) return res.status(404).json({ message: "Tour not found" });
     const [updatedTour] = await attachRemainingSlots([tour]);
     res.status(200).json(updatedTour);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
+  }
+};
+
+// Parses the multipart-form "availableDates" JSON string, returning a 400 for
+// malformed input instead of letting JSON.parse crash the request.
+const parseAvailableDates = (raw) => {
+  try {
+    return JSON.parse(raw);
+  } catch {
+    const err = new Error("Invalid availableDates: must be valid JSON");
+    err.status = 400;
+    throw err;
   }
 };
 
 // [POST] /api/tours
-export const createTour = async (req, res) => {
+export const createTour = async (req, res, next) => {
   try {
     const {
       title,
@@ -86,19 +103,19 @@ export const createTour = async (req, res) => {
       distance,
       maxGroupSize,
       photo,
-      availableDates: availableDates ? JSON.parse(availableDates) : [],
+      availableDates: availableDates ? parseAvailableDates(availableDates) : [],
       featured: featured === "true" || featured === true, // handle string or boolean
     });
 
     await newTour.save();
     res.status(201).json(newTour);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
 // [PUT] /api/tours/:id
-export const updateTour = async (req, res) => {
+export const updateTour = async (req, res, next) => {
   try {
     const {
       title,
@@ -122,7 +139,7 @@ export const updateTour = async (req, res) => {
     };
 
     if (availableDates) {
-      updateData.availableDates = JSON.parse(availableDates);
+      updateData.availableDates = parseAvailableDates(availableDates);
     }
 
     if (req.file) {
@@ -149,12 +166,12 @@ export const updateTour = async (req, res) => {
 
     res.status(200).json(updatedTour);
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    next(err);
   }
 };
 
 // [DELETE] /api/tours/:id
-export const deleteTour = async (req, res) => {
+export const deleteTour = async (req, res, next) => {
   try {
     const deleted = await Tour.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Tour not found" });
@@ -168,6 +185,6 @@ export const deleteTour = async (req, res) => {
 
     res.status(200).json({ message: "Tour deleted successfully" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    next(err);
   }
 };

@@ -1,5 +1,6 @@
 import Notification from '../models/Notification.js';
 import { getIo } from '../utils/socket.js';
+import logger from '../utils/logger.js';
 
 export const createAndSendNotification = async ({ recipientId, actorId, type, title, body, actionUrl }) => {
   try {
@@ -20,7 +21,7 @@ export const createAndSendNotification = async ({ recipientId, actorId, type, ti
 
     return notification;
   } catch (error) {
-    console.error('Error creating notification:', error);
+    logger.error({ err: error }, 'Error creating notification');
     throw error;
   }
 };

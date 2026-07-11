@@ -1,4 +1,5 @@
 import axios from "axios";
+import logger from "../utils/logger.js";
 
 const formatPlaces = (places, title) => {
     if (!places || places.length === 0) return "";
@@ -13,7 +14,7 @@ const formatPlaces = (places, title) => {
 export const getDestinationContext = async (destination) => {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     if (!apiKey) {
-        console.error("Missing Google Places API Key");
+        logger.error("Missing Google Places API Key");
         return "";
     }
 
@@ -48,7 +49,7 @@ export const getDestinationContext = async (destination) => {
         return fullContext || "";
 
     } catch (error) {
-        console.error("Google Place API Error (Critical):", error.message);
+        logger.error({ err: error }, "Google Place API Error (Critical)");
         return "";
     }
 };

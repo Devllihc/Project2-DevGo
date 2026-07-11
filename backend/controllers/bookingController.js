@@ -1,6 +1,7 @@
 import bookingModel from "../models/bookingModel.js";
 import Tour from "../models/tour.js";
 import { createAndSendNotification } from "../services/notificationService.js";
+import { escapeRegex } from "../utils/escapeRegex.js";
 
 const BOOKING_STATUS_LABEL = {
   pending: "đang chờ xử lý",
@@ -9,8 +10,21 @@ const BOOKING_STATUS_LABEL = {
   cancelled: "đã bị hủy",
 };
 
+// Sums travelers for a tour/date directly in MongoDB instead of pulling every
+// matching booking into the app and reducing in JS.
+const getBookedTravelers = async (tourId, startDate, excludeBookingId = null) => {
+  const match = { tourId, startDate, status: { $ne: "cancelled" } };
+  if (excludeBookingId) match._id = { $ne: excludeBookingId };
+
+  const [result] = await bookingModel.aggregate([
+    { $match: match },
+    { $group: { _id: null, total: { $sum: "$travelers" } } },
+  ]);
+  return result?.total || 0;
+};
+
 // Create a new booking
-export const createBooking = async (req, res) => {
+export const createBooking = async (req, res, next) => {
   try {
     const {
       name,
@@ -30,6 +44,8 @@ export const createBooking = async (req, res) => {
       });
     }
 
+    const requestedTravelers = travelers; // already validated/coerced to an int by createBookingSchema
+
     // Tìm tour từ DB
     const tour = await Tour.findById(tourId);
     if (!tour) {
@@ -46,19 +62,12 @@ export const createBooking = async (req, res) => {
     }
 
     const maxSlots = typeof dateObj === 'string' ? tour.maxGroupSize : dateObj.maxSlots;
-    const existingBookings = await bookingModel.find({
-      tourId,
-      startDate,
-      status: { $ne: "cancelled" }
-    });
-    
-    const bookedTravelers = existingBookings.reduce((sum, b) => sum + b.travelers, 0);
-    const requestedTravelers = parseInt(travelers, 10);
+    const bookedTravelers = await getBookedTravelers(tourId, startDate);
 
     if (bookedTravelers + requestedTravelers > maxSlots) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `Not enough slots. Only ${Math.max(0, maxSlots - bookedTravelers)} slots left for this date.` 
+      return res.status(400).json({
+        success: false,
+        message: `Not enough slots. Only ${Math.max(0, maxSlots - bookedTravelers)} slots left for this date.`
       });
     }
 
@@ -73,7 +82,7 @@ export const createBooking = async (req, res) => {
       name,
       email,
       phone,
-      travelers: parseInt(travelers, 10),
+      travelers: requestedTravelers,
       specialRequests,
       tourId,
       tourTitle: tour.title,
@@ -91,13 +100,12 @@ export const createBooking = async (req, res) => {
       message: "Booking created successfully",
     });
   } catch (error) {
-    console.error("Error creating booking:", error);
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // Get all bookings for the logged-in user
-export const getBookings = async (req, res) => {
+export const getBookings = async (req, res, next) => {
   try {
     const userId = req.user._id; // Lấy userId từ middleware đã gán
 
@@ -108,11 +116,12 @@ export const getBookings = async (req, res) => {
       .lean(); // Use lean to easily attach properties
 
     const tourIds = bookings.map(b => b.tourId);
-    const tours = await Tour.find({ _id: { $in: tourIds } });
-    
+    const tours = await Tour.find({ _id: { $in: tourIds } }).lean();
+    const tourById = new Map(tours.map(t => [t._id.toString(), t]));
+
     // Attach availableDates to bookings
     const bookingsWithDates = bookings.map(b => {
-      const tour = tours.find(t => t._id.toString() === b.tourId.toString());
+      const tour = tourById.get(b.tourId.toString());
       return {
         ...b,
         availableDates: tour ? tour.availableDates : []
@@ -121,13 +130,12 @@ export const getBookings = async (req, res) => {
 
     res.status(200).json({ success: true, bookings: bookingsWithDates });
   } catch (error) {
-    console.error("Error fetching bookings:", error);
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-// Search bookings by keyword (tourTitle, name, or email)
-export const searchBookings = async (req, res) => {
+// Search bookings by keyword (tourTitle, name, or email) — admin only
+export const searchBookings = async (req, res, next) => {
   try {
     const { query } = req.query;
 
@@ -138,34 +146,51 @@ export const searchBookings = async (req, res) => {
       });
     }
 
-    // Tìm kiếm theo tên tour, tên người đặt hoặc email (không phân biệt hoa thường)
-    const bookings = await bookingModel.find({
-      $or: [
-        { tourTitle: { $regex: query, $options: "i" } },
-        { name: { $regex: query, $options: "i" } },
-        { email: { $regex: query, $options: "i" } },
-      ],
-    });
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 20, 50);
+    const skip = (page - 1) * limit;
 
-    res.status(200).json({ success: true, bookings });
+    const safeQuery = escapeRegex(query);
+    const filter = {
+      $or: [
+        { tourTitle: { $regex: safeQuery, $options: "i" } },
+        { name: { $regex: safeQuery, $options: "i" } },
+        { email: { $regex: safeQuery, $options: "i" } },
+      ],
+    };
+
+    const [bookings, total] = await Promise.all([
+      bookingModel.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      bookingModel.countDocuments(filter),
+    ]);
+
+    res.status(200).json({ success: true, bookings, page, pages: Math.ceil(total / limit), total });
   } catch (error) {
-    console.error("Error searching bookings:", error);
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
-// Get all bookings (admin)
-export const getAllBookings = async (req, res) => {
+// Get all bookings (admin) — cursor-based (keyset) pagination on _id instead
+// of skip/limit: skip's cost grows with page depth (Mongo still has to walk
+// past every skipped doc), while a `_id < cursor` filter stays index-fast no
+// matter how deep an admin scrolls, even at hundreds of thousands of rows.
+export const getAllBookings = async (req, res, next) => {
   try {
-    const bookings = await bookingModel.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, bookings });
+    const limit = Math.min(parseInt(req.query.limit) || 20, 100);
+    const { cursor } = req.query;
+
+    const filter = cursor ? { _id: { $lt: cursor } } : {};
+    const bookings = await bookingModel.find(filter).sort({ _id: -1 }).limit(limit);
+
+    const nextCursor = bookings.length === limit ? bookings[bookings.length - 1]._id : null;
+    res.status(200).json({ success: true, bookings, nextCursor });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // Cancel booking (User)
-export const cancelBooking = async (req, res) => {
+export const cancelBooking = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { cancellationReason } = req.body;
@@ -194,13 +219,12 @@ export const cancelBooking = async (req, res) => {
     await booking.save();
     res.status(200).json({ success: true, message: "Booking cancelled successfully", booking });
   } catch (error) {
-    console.error("Error cancelling booking:", error);
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // Edit booking (User)
-export const editBooking = async (req, res) => {
+export const editBooking = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { travelers, startDate } = req.body;
@@ -219,10 +243,12 @@ export const editBooking = async (req, res) => {
       return res.status(400).json({ success: false, message: "Can only edit pending bookings" });
     }
 
+    // Already validated/coerced to an int by editBookingSchema when present
+    const newTravelers = travelers !== undefined ? travelers : booking.travelers;
+
     const tour = await Tour.findById(booking.tourId);
     let details = [];
 
-    const newTravelers = travelers ? parseInt(travelers, 10) : booking.travelers;
     const newStartDate = startDate || booking.startDate;
 
     if (newTravelers !== booking.travelers || newStartDate !== booking.startDate) {
@@ -232,23 +258,17 @@ export const editBooking = async (req, res) => {
       }
 
       const maxSlots = typeof dateObj === 'string' ? tour.maxGroupSize : dateObj.maxSlots;
-      const existingBookings = await bookingModel.find({
-        tourId: booking.tourId,
-        startDate: newStartDate,
-        status: { $ne: "cancelled" },
-        _id: { $ne: booking._id }
-      });
-      const bookedTravelers = existingBookings.reduce((sum, b) => sum + b.travelers, 0);
+      const bookedTravelers = await getBookedTravelers(booking.tourId, newStartDate, booking._id);
 
       if (bookedTravelers + newTravelers > maxSlots) {
-        return res.status(400).json({ 
-          success: false, 
-          message: `Not enough slots. Only ${Math.max(0, maxSlots - bookedTravelers)} slots left for this date.` 
+        return res.status(400).json({
+          success: false,
+          message: `Not enough slots. Only ${Math.max(0, maxSlots - bookedTravelers)} slots left for this date.`
         });
       }
     }
 
-    if (travelers && parseInt(travelers, 10) !== booking.travelers) {
+    if (newTravelers !== booking.travelers) {
       booking.travelers = newTravelers;
       booking.totalPrice = tour.price * newTravelers;
       details.push(`Travelers changed to ${newTravelers}`);
@@ -269,13 +289,12 @@ export const editBooking = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Booking updated successfully", booking });
   } catch (error) {
-    console.error("Error editing booking:", error);
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };
 
 // Update booking status (Admin)
-export const updateBookingStatus = async (req, res) => {
+export const updateBookingStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status, paymentStatus } = req.body;
@@ -321,7 +340,6 @@ export const updateBookingStatus = async (req, res) => {
 
     res.status(200).json({ success: true, message: "Booking status updated", booking });
   } catch (error) {
-    console.error("Error updating booking status:", error);
-    res.status(500).json({ success: false, message: error.message });
+    next(error);
   }
 };

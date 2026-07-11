@@ -1,8 +1,8 @@
 import Notification from '../models/Notification.js';
 
-export const getNotifications = async (req, res) => {
+export const getNotifications = async (req, res, next) => {
   try {
-    const userId = req.user._id; 
+    const userId = req.user._id;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
@@ -21,11 +21,11 @@ export const getNotifications = async (req, res) => {
       pages: Math.ceil(await Notification.countDocuments({ recipientId: userId }) / limit)
     });
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching notifications', error: error.message });
+    next(error);
   }
 };
 
-export const markAsRead = async (req, res) => {
+export const markAsRead = async (req, res, next) => {
   try {
     const userId = req.user._id;
     const { id } = req.params;
@@ -42,16 +42,16 @@ export const markAsRead = async (req, res) => {
 
     res.status(200).json(notification);
   } catch (error) {
-    res.status(500).json({ message: 'Error marking notification as read', error: error.message });
+    next(error);
   }
 };
 
-export const markAllAsRead = async (req, res) => {
+export const markAllAsRead = async (req, res, next) => {
   try {
     const userId = req.user._id;
     await Notification.updateMany({ recipientId: userId, isRead: false }, { isRead: true });
     res.status(200).json({ message: 'All notifications marked as read' });
   } catch (error) {
-    res.status(500).json({ message: 'Error marking all as read', error: error.message });
+    next(error);
   }
 };
