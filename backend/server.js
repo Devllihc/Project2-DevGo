@@ -12,6 +12,7 @@ import bookingRouter from "./routes/bookingRoute.js";
 import tourRouter from "./routes/tourRoutes.js";
 import plannerRouter from "./routes/plannerRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
+import adminRouter from "./routes/adminRoutes.js";
 import { initSocket } from "./utils/socket.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import logger from "./utils/logger.js";
@@ -42,6 +43,7 @@ app.use("/api/tours", tourRouter);
 app.use("/uploads", express.static("uploads"));
 app.use("/api/planner", plannerRouter);
 app.use("/api/notifications", notificationRouter);
+app.use("/api/admin", adminRouter);
 
 app.get("/", (req, res) => {
   res.send("API is Working!");
