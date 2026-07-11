@@ -3,6 +3,7 @@ import nodemailer from "nodemailer";
 const sendEmail = async (options) => {
   const transporter = nodemailer.createTransport({
     service: "Gmail", // You can use other services like SendGrid, Mailgun, etc.
+    family: 4,        // Force IPv4 to prevent ENETUNREACH errors on IPv6-only/restricted cloud environments
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
