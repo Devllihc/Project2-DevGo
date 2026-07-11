@@ -1,64 +1,64 @@
-# DevGo - Travel Agency Booking System
+# DevGo - Comprehensive Travel Agency Booking System
 
-Welcome to the DevGo repository! DevGo is a full-stack Travel Agency Booking System that helps customers explore tour packages, book trips, and plan personalized itineraries with AI-powered assistance. It features a modern UI with parallax effects, real-time notifications, an admin dashboard, and seamless deployment on Vercel.
+Welcome to the **DevGo** repository! DevGo is a Full-Stack Travel Agency Booking System designed to help customers explore tour packages, book trips, and plan personalized itineraries with the help of AI. The project features a modern user interface with parallax effects, real-time notifications, an admin dashboard, and is easily deployable on Vercel.
 
-## Project Overview
+## 🌟 Project Overview
 
-DevGo offers a feature-rich platform where customers can:
-- Browse and search through available tour packages
-- View detailed tour information with images and pricing
-- Book tour packages with a streamlined booking flow
-- Receive PDF invoices after booking
-- Plan personalized trips using an AI-powered trip planner
-- View and manage their booking history and saved trips
-- Receive real-time notifications via WebSocket
+DevGo provides a feature-rich platform where customers can:
+- Browse and explore available tour packages.
+- View detailed tour information, including images and pricing.
+- Book tours with a fast and seamless process.
+- Receive PDF invoices immediately after a successful booking.
+- Plan personalized trips using the AI Trip Planner feature.
+- View and manage booking history and saved trips.
+- Receive real-time notifications via WebSocket.
 
-### Core Features
+### 🚀 Core Features
 
-#### 1. Tour Packages
-- Browse all available tour packages with details: title, description, price, available dates, and images
-- Advanced search and filtering capabilities
-- Detailed tour page with full descriptions and booking options
-- Data dynamically fetched from MongoDB
+#### 1. Tour Packages Management
+- Explore tours with full details: title, description, price, available dates, and images.
+- Advanced search and filtering capabilities.
+- Detailed tour page with comprehensive information and booking options.
+- Dynamic data fetched from MongoDB.
 
 #### 2. Package Booking
-- "Book Now" flow with customer information form (name, email, phone, number of travelers, special requests)
-- Bookings stored in MongoDB with full audit trail
-- Booking history page for users to review past and upcoming trips
+- "Book Now" flow with a customer information form (name, email, phone, number of travelers, special requests).
+- Bookings are saved in MongoDB for tracking and management.
+- History page for users to review past or upcoming trips.
 
 #### 3. Invoice Generation
-- Automatic PDF invoice generation after booking (via `@react-pdf/renderer`)
-- Includes customer details, package information, number of travelers, and calculated total price
+- Automatically generate PDF invoices after a successful booking (using `@react-pdf/renderer`).
+- Includes customer details, tour package, number of travelers, and total cost.
 
 #### 4. AI-Powered Trip Planner
-- Generate personalized travel itineraries using AI (OpenAI integration)
-- Save and manage generated trip plans
-- Detailed trip view with day-by-day breakdown
-- AI service endpoint: [buihoang/AI_Planner on Hugging Face](https://huggingface.co/buihoang/AI_Planner)
+- Create personalized travel itineraries using AI technology (OpenAI Integration).
+- Save and manage generated trip plans.
+- Display detailed itineraries broken down day by day.
+- Backend AI service: [buihoang/AI_Planner on Hugging Face](https://huggingface.co/buihoang/AI_Planner)
 
 #### 5. Admin Dashboard
-- **User Management** – View and manage registered users
-- **Booking Management** – View and manage all bookings
-- **Tour Management** – Create, update, and delete tour packages (with image upload via Multer)
-- Role-based access control with protected admin routes
+- **User Management:** View and manage the list of registered users.
+- **Booking Management:** View and control all tour bookings.
+- **Tour Management:** Add, edit, or delete tours (supports image upload via Multer).
+- Role-based access control with secure protected routes.
 
 #### 6. Authentication & Security
-- User registration and login with JWT-based authentication
-- Forgot password / reset password flow with email support (Nodemailer)
-- Protected routes for both user and admin areas
+- Registration and Login using JWT.
+- Forgot/Reset password functionality with Email support (Nodemailer).
+- Protected routes for both regular users and admins.
 
 #### 7. Real-Time Notifications
-- WebSocket-powered notifications via Socket.IO
-- Notification dropdown in the navbar for instant updates
+- Notifications using WebSocket (Socket.IO).
+- Direct notification dropdown in the navigation bar.
 
 #### 8. Modern UI/UX
-- Parallax scrolling sections on key pages (Home, Tours, About)
-- Smooth animations with GSAP and Framer Motion
-- Dark/Light theme toggle
-- Responsive design with TailwindCSS
-- Toast notifications for user feedback (react-toastify)
+- Parallax scrolling effects on core pages (Home, Tours, About).
+- Smooth animations using GSAP and Framer Motion.
+- Light/Dark mode toggle.
+- Fully responsive design using TailwindCSS.
+- Toast notifications for user feedback (react-toastify).
 
-## Tech Stack
+## 🛠 Tech Stack
 
 | Layer        | Technologies                                            |
 |--------------|----------------------------------------------------------|
@@ -73,21 +73,21 @@ DevGo offers a feature-rich platform where customers can:
 | **Icons**    | Lucide React, Phosphor Icons                             |
 | **Deploy**   | Vercel (frontend + backend)                              |
 
-## Installation
+## ⚙️ Installation Guide
 
 ### Prerequisites
 - Node.js (v18+)
-- MongoDB (local or Atlas)
+- MongoDB (running locally or on Atlas)
 - OpenAI API key
-- Google Places API key (optional, for place data)
+- Google Places API key (Optional, used for fetching place data)
 
-### Clone the Repository
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/Devllihc/Project2-DevGo.git
 cd Project2-DevGo
 ```
 
-### Backend Setup
+### 2. Backend Setup
 1. Navigate to the backend directory:
    ```bash
    cd backend
@@ -96,25 +96,19 @@ cd Project2-DevGo
    ```bash
    npm install
    ```
-3. Create a `.env` file based on `.env.example`:
+3. Copy and rename `.env.example` to `.env`, then fill in the appropriate values:
    ```env
    PORT=8080
    MONGO_URL=mongodb+srv://<username>:<password>@<cluster>/<database_name>
-   JWT_SECRET=your_super_secret_string
-   AI_SERVICE_URL=https://your-ai-service-url
-   GOOGLE_PLACES_API_KEY=your_google_places_api_key
-   OPENAI_API_KEY=your_openai_api_key
+   # See .env.example for more details
    ```
 4. Start the server:
    ```bash
-   npm start
-   ```
-   Or for development with auto-reload:
-   ```bash
-   npm run server
+   npm run server # (For dev environment, with auto-reload)
+   # or npm start
    ```
 
-### Frontend Setup
+### 3. Frontend Setup
 1. Navigate to the frontend directory:
    ```bash
    cd frontend
@@ -123,83 +117,81 @@ cd Project2-DevGo
    ```bash
    npm install
    ```
-3. Create a `.env` file based on `.env.example`:
+3. Copy `.env.example` to `.env`:
    ```env
    VITE_BACKEND_URL=http://localhost:8080
    ```
-4. Start the development server:
+4. Start the development environment:
    ```bash
    npm run dev
    ```
 
-### Setup AI Planner Service
-Follow the instructions at: [buihoang/AI_Planner on Hugging Face](https://huggingface.co/buihoang/AI_Planner)
+### 4. AI Planner Service Setup
+If you want to run the self-hosted AI service, please follow the instructions at: [buihoang/AI_Planner on Hugging Face](https://huggingface.co/buihoang/AI_Planner)
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 Project2-DevGo/
 ├── backend/
-│   ├── config/           # Database connection config
-│   ├── controllers/      # Route handlers (booking, tour, user, planner, notification)
-│   ├── middleware/        # Auth middleware (JWT verification)
+│   ├── config/           # Database connection config, etc.
+│   ├── controllers/      # Logic handling (booking, tour, user, planner, notification)
+│   ├── middleware/       # Authentication middlewares (JWT verification)
 │   ├── models/           # Mongoose schemas (User, Tour, Booking, Plan, Notification)
 │   ├── routes/           # Express route definitions
-│   ├── scripts/          # Migration scripts
-│   ├── services/         # External services (crawl, Google Places, notifications)
-│   ├── uploads/          # Uploaded tour images
-│   ├── utils/            # Utilities (email, WebSocket)
-│   ├── server.js         # Express app entry point
-│   └── vercel.json       # Vercel deployment config
+│   ├── scripts/          # Utility scripts (e.g., verify accounts)
+│   ├── services/         # External service integrations (crawling, Google Places, email)
+│   ├── uploads/          # Uploaded image directory
+│   ├── utils/            # Utilities (WebSocket, formatting)
+│   ├── server.js         # Backend entry point file
+│   └── vercel.json       # Vercel deployment configuration
 ├── frontend/
-│   ├── public/           # Static assets (background images)
+│   ├── public/           # Static assets
 │   ├── src/
-│   │   ├── assets/       # Static assets
-│   │   ├── components/   # Reusable UI components
-│   │   ├── context/      # React Context providers
-│   │   ├── pages/        # Page components (Home, Tour, Booking, Admin, etc.)
-│   │   ├── App.jsx       # Root component with routing
-│   │   └── main.jsx      # App entry point
-│   ├── vercel.json       # Vercel SPA rewrite config
+│   │   ├── assets/       # Images, fonts, etc.
+│   │   ├── components/   # Shared UI Components
+│   │   ├── context/      # React Context (State management)
+│   │   ├── pages/        # Main pages (Home, Tour, Booking, Admin, ...)
+│   │   ├── App.jsx       # Root Component and Routing
+│   │   └── main.jsx      # React entry point
+│   ├── vercel.json       # Vercel configuration for React SPA
 │   └── vite.config.js    # Vite configuration
-├── docs/                 # Documentation
-├── package.json          # Root-level dependencies
+├── docs/                 # Project documentation
+├── package.json          # Root-level dependencies (if any)
 └── README.md
 ```
 
-## API Endpoints
+## 🌐 Basic API Endpoints
 
 | Method | Endpoint                 | Description                  |
 |--------|--------------------------|------------------------------|
 | POST   | `/api/user/register`     | Register a new user          |
 | POST   | `/api/user/login`        | User login                   |
-| GET    | `/api/tours`             | Get all tour packages        |
-| GET    | `/api/tours/:id`         | Get tour details by ID       |
-| POST   | `/api/tours`             | Create a new tour (admin)    |
-| PUT    | `/api/tours/:id`         | Update a tour (admin)        |
-| DELETE | `/api/tours/:id`         | Delete a tour (admin)        |
-| POST   | `/api/bookings`          | Create a booking             |
-| GET    | `/api/bookings`          | Get all bookings             |
-| POST   | `/api/planner/generate`  | Generate an AI trip plan     |
-| GET    | `/api/notifications`     | Get user notifications       |
+| GET    | `/api/tours`             | Get list of tours            |
+| GET    | `/api/tours/:id`         | Get tour details             |
+| POST   | `/api/tours`             | Create a new tour (Admin)    |
+| PUT    | `/api/tours/:id`         | Update a tour (Admin)        |
+| DELETE | `/api/tours/:id`         | Delete a tour (Admin)        |
+| POST   | `/api/bookings`          | Create a new booking         |
+| GET    | `/api/bookings`          | Get list of bookings         |
+| POST   | `/api/planner/generate`  | Request AI to generate plan  |
+| GET    | `/api/notifications`     | Get personal notifications   |
 
-## Deployment
+## 🚀 Deployment
 
-Both frontend and backend are configured for deployment on **Vercel**:
+The project is pre-configured for easy deployment to **Vercel**:
+- **Frontend**: Operates as a Single Page App (SPA) (automatically rewrites to `/`).
+- **Backend**: Operates as Node.js Serverless Functions via `@vercel/node`.
 
-- **Frontend**: SPA with client-side routing (rewrites all routes to `/`)
-- **Backend**: Serverless Node.js functions via `@vercel/node`
+## 🤝 Contributing
 
-## Contributing
+Any contributions to improve DevGo are welcome! Basic workflow:
+1. Fork this repository.
+2. Create a new branch (`git checkout -b feature/your-feature-name`).
+3. Make changes and commit (`git commit -m "Add feature X"`).
+4. Push to your fork (`git push origin feature/your-feature-name`).
+5. Open a Pull Request with a detailed description.
 
-We welcome contributions to enhance DevGo! To contribute:
+## 📝 License
 
-1. Fork the repository
-2. Create a new branch (`git checkout -b feature/your-feature`)
-3. Make your changes and commit them (`git commit -m "Add your feature"`)
-4. Push to your fork (`git push origin feature/your-feature`)
-5. Submit a pull request with a description of your changes
-
-## License
-
-This project is for educational purposes.
+This project is created for educational and research purposes.

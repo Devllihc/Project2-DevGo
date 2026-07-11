@@ -26,7 +26,9 @@ for (const secret of ["JWT_SECRET", "JWT_REFRESH_SECRET"]) {
 const PORT = process.env.PORT || 4000;
 const app = express();
 
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 app.use(compression());
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
