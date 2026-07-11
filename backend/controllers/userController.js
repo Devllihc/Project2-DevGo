@@ -69,6 +69,8 @@ export const registerUser = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    const isAutoVerify = process.env.AUTO_VERIFY_EMAIL === "true";
+
     const newUser = new userModel({
       name,
       email,
@@ -76,10 +78,14 @@ export const registerUser = async (req, res, next) => {
       phone,
       photo: photo || "",
       role: "user",
+      emailVerified: isAutoVerify,
     });
 
     const user = await newUser.save();
-    await sendVerificationEmail(user);
+    
+    if (!isAutoVerify) {
+      await sendVerificationEmail(user);
+    }
 
     const token = issueAccessToken(user);
     setRefreshCookie(res, issueRefreshToken(user));
@@ -229,6 +235,7 @@ export const forgotPassword = async (req, res, next) => {
     `;
 
     try {
+      logger.info({ email: user.email, resetUrl }, "Password reset link generated");
       await sendEmail({
         email: user.email,
         subject: "DevGo - Password Reset",
@@ -242,7 +249,7 @@ export const forgotPassword = async (req, res, next) => {
       user.resetPasswordExpires = undefined;
       await user.save();
 
-      logger.error({ err: error }, "Password reset email send failed");
+      logger.error({ err: error, email: user.email, resetUrl }, "Password reset email send failed");
       return res.json({ success: true, message: genericMessage });
     }
   } catch (error) {
