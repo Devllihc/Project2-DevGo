@@ -9,21 +9,74 @@ const AdminBookingList = () => {
   const { token } = useContext(AppContext);
   const [bookings, setBookings] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const isSearching = Boolean(searchTerm.trim());
 
-  const fetchBookings = async () => {
+  // "All bookings" uses cursor-based (keyset) pagination — fetching the next
+  // batch costs the same regardless of how deep an admin has scrolled, unlike
+  // skip/limit. Search results come from a separately filtered, much smaller
+  // set, so that path keeps simple page-number pagination.
+  const [nextCursor, setNextCursor] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [searchPage, setSearchPage] = useState(1);
+  const [searchPages, setSearchPages] = useState(1);
+
+  const fetchBookings = async (cursor = null) => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/bookings/all`, {
+        params: { limit: 20, ...(cursor ? { cursor } : {}) },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setBookings((prev) => (cursor ? [...prev, ...(res.data.bookings || [])] : res.data.bookings || []));
+      setNextCursor(res.data.nextCursor || null);
+    } catch (err) {
+      console.error("Failed to fetch bookings:", err);
+    }
+  };
+
+  const searchBookings = async (term, pageToLoad = 1) => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/bookings/search`, {
+        params: { query: term, page: pageToLoad, limit: 20 },
         headers: { Authorization: `Bearer ${token}` },
       });
       setBookings(res.data.bookings || []);
+      setSearchPage(res.data.page || 1);
+      setSearchPages(res.data.pages || 1);
     } catch (err) {
-      console.error("Failed to fetch bookings:", err);
+      console.error("Failed to search bookings:", err);
     }
   };
 
   useEffect(() => {
     fetchBookings();
   }, []);
+
+  // Debounce search-as-you-type against the backend instead of filtering an incomplete local page
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      if (searchTerm.trim()) {
+        searchBookings(searchTerm.trim(), 1);
+      } else {
+        fetchBookings();
+      }
+    }, 400);
+    return () => clearTimeout(handle);
+  }, [searchTerm]);
+
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    await fetchBookings(nextCursor);
+    setLoadingMore(false);
+  };
+
+  const refreshCurrentView = () => {
+    if (isSearching) {
+      searchBookings(searchTerm.trim(), searchPage);
+    } else {
+      fetchBookings();
+    }
+  };
 
   const handleUpdateStatus = async (id, newStatus, currentPaymentStatus) => {
     try {
@@ -32,23 +85,20 @@ const AdminBookingList = () => {
       if (newStatus === "cancelled" && currentPaymentStatus === "paid") {
         payload.paymentStatus = "refunded";
       }
-      
+
       const res = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/bookings/${id}/status`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.data.success) {
         toast.success("Cập nhật trạng thái thành công");
-        fetchBookings();
+        refreshCurrentView();
       }
     } catch (err) {
       toast.error("Lỗi khi cập nhật trạng thái");
     }
   };
 
-  const filteredBookings = bookings.filter((b) =>
-    [b.name, b.email, b.tourTitle]
-      .some((field) => field?.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const filteredBookings = bookings;
 
   return (
     <motion.div 
@@ -184,6 +234,36 @@ const AdminBookingList = () => {
             </tbody>
           </table>
         </div>
+        {isSearching && searchPages > 1 && (
+          <div className="flex items-center justify-between px-6 py-4 border-t border-stone-200 dark:border-stone-800">
+            <button
+              onClick={() => searchBookings(searchTerm.trim(), searchPage - 1)}
+              disabled={searchPage <= 1}
+              className="px-4 py-2 text-sm rounded-lg border border-stone-200 dark:border-stone-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <span className="text-sm text-stone-500 dark:text-stone-400">Page {searchPage} of {searchPages}</span>
+            <button
+              onClick={() => searchBookings(searchTerm.trim(), searchPage + 1)}
+              disabled={searchPage >= searchPages}
+              className="px-4 py-2 text-sm rounded-lg border border-stone-200 dark:border-stone-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        )}
+        {!isSearching && nextCursor && (
+          <div className="flex items-center justify-center px-6 py-4 border-t border-stone-200 dark:border-stone-800">
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="px-6 py-2 text-sm rounded-lg border border-stone-200 dark:border-stone-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {loadingMore ? "Loading..." : "Load more"}
+            </button>
+          </div>
+        )}
       </div>
     </motion.div>
   );

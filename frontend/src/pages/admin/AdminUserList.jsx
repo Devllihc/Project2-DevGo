@@ -8,16 +8,30 @@ const AdminUserList = () => {
   const { token } = useContext(AppContext);
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [nextCursor, setNextCursor] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
-  const fetchUsers = async () => {
+  // Cursor-based (keyset) pagination: fetching page N+1 costs the same as
+  // page 1 no matter how many rows exist, unlike skip/limit which gets
+  // slower the deeper an admin scrolls.
+  const fetchUsers = async (cursor = null) => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user`, {
+        params: { limit: 20, ...(cursor ? { cursor } : {}) },
         headers: { Authorization: `Bearer ${token}` },
       });
-      setUsers(res.data.users || []);
+      setUsers((prev) => (cursor ? [...prev, ...(res.data.users || [])] : res.data.users || []));
+      setNextCursor(res.data.nextCursor || null);
     } catch (err) {
       console.error("Failed to fetch users:", err);
     }
+  };
+
+  const loadMore = async () => {
+    if (!nextCursor || loadingMore) return;
+    setLoadingMore(true);
+    await fetchUsers(nextCursor);
+    setLoadingMore(false);
   };
 
   const deleteUser = async (id) => {
@@ -26,7 +40,7 @@ const AdminUserList = () => {
       await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/user/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      fetchUsers(); // Refresh after delete
+      setUsers((prev) => prev.filter((u) => u._id !== id));
     } catch (err) {
       console.error("Failed to delete user:", err);
     }
@@ -138,6 +152,17 @@ const AdminUserList = () => {
             </tbody>
           </table>
         </div>
+        {nextCursor && (
+          <div className="flex items-center justify-center px-6 py-4 border-t border-stone-200 dark:border-stone-800">
+            <button
+              onClick={loadMore}
+              disabled={loadingMore}
+              className="px-6 py-2 text-sm rounded-lg border border-stone-200 dark:border-stone-700 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {loadingMore ? "Loading..." : "Load more"}
+            </button>
+          </div>
+        )}
       </div>
     </motion.div>
   );
