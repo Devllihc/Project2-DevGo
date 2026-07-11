@@ -13,14 +13,13 @@ export const sendVerificationEmail = async (user) => {
   await user.save();
 
   const verifyUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/verify-email/${verificationToken}`;
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: "DevGo - Verify your email",
-      message: `Please verify your email by visiting: ${verifyUrl}`,
-      html: `<h1>Welcome to DevGo!</h1><p>Please verify your email:</p><a href="${verifyUrl}">${verifyUrl}</a>`,
-    });
-  } catch (error) {
+  // Send email in the background so it doesn't block the API response
+  sendEmail({
+    email: user.email,
+    subject: "DevGo - Verify your email",
+    message: `Please verify your email by visiting: ${verifyUrl}`,
+    html: `<h1>Welcome to DevGo!</h1><p>Please verify your email:</p><a href="${verifyUrl}">${verifyUrl}</a>`,
+  }).catch((error) => {
     logger.error({ err: error }, "Verification email send failed");
-  }
+  });
 };
