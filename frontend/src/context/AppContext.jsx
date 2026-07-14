@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState, useRef, useCallback } from "react";
+import React, { createContext, useEffect, useState, useRef, useCallback, useLayoutEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -13,7 +13,10 @@ const AppContextProvider = (props) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
+  
   const refreshTimerRef = useRef(null);
+  const isRefreshingRef = useRef(false);
+  const refreshSubscribersRef = useRef([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -48,9 +51,12 @@ const AppContextProvider = (props) => {
         setUser(res.data.user);
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data.user));
+        return res.data.token;
       }
-    } catch {
+      throw new Error("Refresh failed");
+    } catch (error) {
       logout();
+      throw error;
     }
   }, [backendUrl, logout]);
 
@@ -60,6 +66,71 @@ const AppContextProvider = (props) => {
     refreshTimerRef.current = setInterval(refreshAccessToken, SILENT_REFRESH_INTERVAL_MS);
     return () => clearInterval(refreshTimerRef.current);
   }, [token, refreshAccessToken]);
+
+  // Global Axios Interceptor to catch 401s, silently refresh the token, and retry requests
+  useLayoutEffect(() => {
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        
+        // If error is 401, we haven't retried yet, and it's not the refresh or login endpoint itself
+        if (
+          error.response?.status === 401 && 
+          originalRequest &&
+          !originalRequest._retry &&
+          !originalRequest.url.includes('/api/user/refresh') &&
+          !originalRequest.url.includes('/api/user/login')
+        ) {
+          originalRequest._retry = true;
+          
+          if (!isRefreshingRef.current) {
+            isRefreshingRef.current = true;
+            try {
+              const newToken = await refreshAccessToken();
+              
+              // Notify all queued requests that token is refreshed
+              refreshSubscribersRef.current.forEach(cb => cb(newToken));
+              refreshSubscribersRef.current = [];
+              
+              // Update the Authorization header for this request
+              if (originalRequest.headers?.Authorization) {
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              }
+              return axios(originalRequest);
+            } catch (refreshErr) {
+              // Refresh failed, notify subscribers and clear queue
+              refreshSubscribersRef.current.forEach(cb => cb(null));
+              refreshSubscribersRef.current = [];
+              return Promise.reject(refreshErr);
+            } finally {
+              isRefreshingRef.current = false;
+            }
+          } else {
+            // Wait for the active refresh to complete
+            return new Promise((resolve, reject) => {
+              refreshSubscribersRef.current.push((newToken) => {
+                if (newToken) {
+                  if (originalRequest.headers?.Authorization) {
+                    originalRequest.headers.Authorization = `Bearer ${newToken}`;
+                  }
+                  resolve(axios(originalRequest));
+                } else {
+                  reject(error);
+                }
+              });
+            });
+          }
+        }
+        
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, [refreshAccessToken]);
 
   const value = {
     user,
