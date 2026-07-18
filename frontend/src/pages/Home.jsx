@@ -1,12 +1,12 @@
 import React from "react";
 import Header from "../components/Header";
-import SearchBar from "../components/SearchBar";
-import Services from "../components/Services";
-import AllTours from "../components/AllTours";
-import Experience from "../components/Experience";
-import NewsLetterBox from "../components/NewsLetterBox";
-import ParallaxSection from "../components/ParallaxSection";
-import Footer from "../components/Footer";
+import SearchBar from "../components/tours/SearchBar";
+import Services from "../components/services/Services";
+import AllTours from "../components/tours/AllTours";
+import Experience from "../components/services/Experience";
+import NewsLetterBox from "../components/ui/NewsLetterBox";
+import ParallaxSection from "../components/ui/ParallaxSection";
+import Footer from "../components/ui/Footer";
 
 const Home = () => {
   return (

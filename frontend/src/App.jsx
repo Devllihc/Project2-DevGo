@@ -1,31 +1,32 @@
 import React from "react";
-import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Navbar from "./components/ui/Navbar";
+import Footer from "./components/ui/Footer";
 import { Route, Routes, useLocation } from "react-router-dom";
-import Tour from "./pages/Tour";
-import TourDetails from "./pages/TourDetails";
-import Login from "./pages/Login";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import VerifyEmail from "./pages/VerifyEmail";
+import Tour from "./pages/tours/Tour";
+import TourDetails from "./pages/tours/TourDetails";
+import Login from "./pages/auth/Login";
+import ForgotPassword from "./pages/auth/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword";
+import VerifyEmail from "./pages/auth/VerifyEmail";
 import Home from "./pages/Home";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import Booking from "./pages/Booking";
-import Invoice from "./pages/Invoice";
+import Booking from "./pages/bookings/Booking";
+import Invoice from "./pages/bookings/Invoice";
 import About from "./pages/About";
-import AdminRoute from "./components/PrivateRoute";
-import UserRoute from "./components/UserRoute";
+import AdminRoute from "./guards/PrivateRoute";
+import UserRoute from "./guards/UserRoute";
 import AdminUserList from "./pages/admin/AdminUserList";
 import AdminLayout from "./pages/admin/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminBookingList from "./pages/admin/AdminBookingList";
 import AdminTourManagement from "./pages/admin/AdminTourManagement";
-import Planning from "./components/Planning";
-import MyTrips from "./components/MyTrips";
-import TripDetail from "./components/TripDetail";
-import BookingHistory from "./pages/BookingHistory";
-import ScrollToTop from "./components/ScrollToTop";
+import AdminReviewManagement from "./pages/admin/AdminReviewManagement";
+import Planning from "./pages/trips/Planning";
+import MyTrips from "./pages/trips/MyTrips";
+import TripDetail from "./pages/trips/TripDetail";
+import BookingHistory from "./pages/bookings/BookingHistory";
+import ScrollToTop from "./components/ui/ScrollToTop";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -61,6 +62,7 @@ const App = () => {
             <Route path="users" element={<AdminUserList />} />
             <Route path="bookings" element={<AdminBookingList />} />
             <Route path="tours" element={<AdminTourManagement />} />
+            <Route path="reviews" element={<AdminReviewManagement />} />
           </Route>
 
           <Route

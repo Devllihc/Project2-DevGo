@@ -1,15 +1,16 @@
-import React, { useContext } from "react";
+import { useContext } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Users, CalendarDays, Map, LayoutDashboard, LogOut } from "lucide-react";
+import { Users, CalendarDays, Map, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
 import { AppContext } from "../../context/AppContext";
-import ThemeToggle from "../../components/ThemeToggle";
-import NotificationDropdown from "../../components/NotificationDropdown";
+import ThemeToggle from "../../components/ui/ThemeToggle";
+import NotificationDropdown from "../../components/ui/NotificationDropdown";
 
 const NAV_ITEMS = [
   { path: "", label: "Overview", icon: LayoutDashboard, exact: true },
   { path: "users", label: "Users", icon: Users },
   { path: "bookings", label: "Bookings", icon: CalendarDays },
   { path: "tours", label: "Tours", icon: Map },
+  { path: "reviews", label: "Reviews", icon: MessageSquare },
 ];
 
 const AdminLayout = () => {
