@@ -38,17 +38,11 @@ const tourSchema = new mongoose.Schema({
     }],
     default: [],
   },
-  reviews: [
-    {
-      name: String,
-      rating: Number,
-      comment: {
-        type: String,
-        default: "",
-      },
-    },
-  ],
   avgRating: {
+    type: Number,
+    default: 0,
+  },
+  totalReviews: {
     type: Number,
     default: 0,
   },

@@ -1,8 +1,8 @@
 import React from "react";
 import { Mail, Phone, MapPin, Globe, Award, ShieldCheck, Heart } from "lucide-react";
 import { motion } from "framer-motion";
-import ParallaxSection from "../components/ParallaxSection";
-import Footer from "../components/Footer";
+import ParallaxSection from "../components/ui/ParallaxSection";
+import Footer from "../components/ui/Footer";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
