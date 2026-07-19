@@ -28,7 +28,8 @@ const bookingSchema = new mongoose.Schema({
     index: true,
   },
   tourId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Tour",
     required: true,
     index: true,
   },

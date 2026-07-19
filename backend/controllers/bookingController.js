@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import bookingModel from "../models/bookingModel.js";
 import Tour from "../models/tour.js";
 import { createAndSendNotification } from "../services/notificationService.js";
@@ -13,7 +14,8 @@ const BOOKING_STATUS_LABEL = {
 // Sums travelers for a tour/date directly in MongoDB instead of pulling every
 // matching booking into the app and reducing in JS.
 const getBookedTravelers = async (tourId, startDate, excludeBookingId = null) => {
-  const match = { tourId, startDate, status: { $ne: "cancelled" } };
+  const tourObjectId = typeof tourId === 'string' ? new mongoose.Types.ObjectId(tourId) : tourId;
+  const match = { tourId: tourObjectId, startDate, status: { $ne: "cancelled" } };
   if (excludeBookingId) match._id = { $ne: excludeBookingId };
 
   const [result] = await bookingModel.aggregate([

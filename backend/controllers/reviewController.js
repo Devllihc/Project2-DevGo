@@ -89,19 +89,33 @@ export const createReview = async (req, res, next) => {
       return res.status(400).json({ message: "Tour ID is required." });
     }
 
-    // 1. Verify booking exists, belongs to user, matches tour, and is completed
+    if (!bookingId) {
+      return res.status(400).json({ message: "Booking ID is required." });
+    }
+
+    // 1. Verify booking exists and belongs to user
     const booking = await bookingModel.findOne({
       _id: bookingId,
       userId: userId,
-      tourId: tourId.toString(),
-      status: "completed"
     });
 
     if (!booking) {
-      return res.status(400).json({ message: "You can only review tours from completed bookings." });
+      return res.status(400).json({ message: "Booking not found for this user." });
     }
 
-    // 2. Prevent duplicate reviews for the same booking
+    // 2. Verify booking matches the tour
+    if (booking.tourId.toString() !== tourId.toString()) {
+      return res.status(400).json({ message: "Booking does not match the specified tour." });
+    }
+
+    // 3. Verify booking is completed
+    if (booking.status !== "completed") {
+      return res.status(400).json({
+        message: `Cannot review: booking status is "${booking.status}". Only completed bookings can be reviewed.`
+      });
+    }
+
+    // 4. Prevent duplicate reviews for the same booking
     const existingReview = await Review.findOne({ bookingId });
     if (existingReview) {
       return res.status(400).json({ message: "You have already reviewed this trip." });
