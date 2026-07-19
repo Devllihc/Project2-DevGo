@@ -20,6 +20,7 @@ const LoginPage = () => {
   const [phone, setPhone] = useState("");
   const [isLogin, setIsLogin] = useState(true);
   const [showPasswordRules, setShowPasswordRules] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const passwordChecks = useMemo(
     () => PASSWORD_RULES.map((rule) => ({ ...rule, passed: rule.test(password) })),
@@ -97,7 +98,7 @@ const LoginPage = () => {
       if (isLogin) {
         response = await axios.post(
           `${backendUrl}/api/user/login`,
-          { email, password },
+          { email, password, rememberMe },
           { withCredentials: true }
         );
       } else {
@@ -113,8 +114,14 @@ const LoginPage = () => {
         setToken(token);
         setUser(user);
 
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+        if (rememberMe) {
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user));
+        } else {
+          // Session-only: use sessionStorage so closing the browser clears the session
+          sessionStorage.setItem("token", token);
+          sessionStorage.setItem("user", JSON.stringify(user));
+        }
 
         toast.success(
           isLogin ? "Logged in successfully!" : "Registered successfully!"
@@ -139,7 +146,7 @@ const LoginPage = () => {
         <h2 className="text-3xl font-semibold text-center text-stone-900 dark:text-stone-100">
           {isLogin ? "Login" : "Register"}
         </h2>
-        <form onSubmit={onSubmitHandler} className="space-y-4 mt-6">
+        <form onSubmit={onSubmitHandler} className="space-y-4 mt-6" autoComplete="on">
           {!isLogin && (
             <>
               <div>
@@ -150,6 +157,7 @@ const LoginPage = () => {
                   type="text"
                   id="name"
                   name="name"
+                  autoComplete="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
@@ -164,6 +172,7 @@ const LoginPage = () => {
                   type="tel"
                   id="phone"
                   name="phone"
+                  autoComplete="tel"
                   value={phone}
                   onChange={handlePhoneChange}
                   className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
@@ -181,6 +190,7 @@ const LoginPage = () => {
               type="email"
               id="email"
               name="email"
+              autoComplete={isLogin ? "username" : "email"}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-2 mt-2 border border-stone-200 dark:border-stone-700 rounded-2xl bg-stone-50 dark:bg-stone-800 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-accent-500"
@@ -195,6 +205,7 @@ const LoginPage = () => {
               type="password"
               id="password"
               name="password"
+              autoComplete={isLogin ? "current-password" : "new-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               onFocus={() => !isLogin && setShowPasswordRules(true)}
@@ -249,7 +260,18 @@ const LoginPage = () => {
             )}
           </div>
           {isLogin && (
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between">
+              <label htmlFor="rememberMe" className="flex items-center gap-2 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  name="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-stone-300 dark:border-stone-600 text-accent-500 focus:ring-accent-500 focus:ring-2 bg-stone-50 dark:bg-stone-800 cursor-pointer"
+                />
+                <span className="text-sm text-stone-600 dark:text-stone-400">Remember me</span>
+              </label>
               <span 
                 className="text-sm text-accent-500 cursor-pointer hover:underline"
                 onClick={() => navigate("/forgot-password")}

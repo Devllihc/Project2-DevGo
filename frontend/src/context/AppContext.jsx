@@ -12,19 +12,21 @@ const AppContextProvider = (props) => {
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token"));
+  const [token, setToken] = useState(
+    localStorage.getItem("token") || sessionStorage.getItem("token")
+  );
   
   const refreshTimerRef = useRef(null);
   const isRefreshingRef = useRef(false);
   const refreshSubscribersRef = useRef([]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const storedUser = localStorage.getItem("user") || sessionStorage.getItem("user");
 
-    if (token && user) {
-      setToken(token);
-      setUser(JSON.parse(user));
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
     }
   }, []);
 
@@ -36,6 +38,8 @@ const AppContextProvider = (props) => {
     }
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     setToken(null);
     setUser(null);
     navigate("/");
@@ -49,8 +53,10 @@ const AppContextProvider = (props) => {
       if (res.data.success) {
         setToken(res.data.token);
         setUser(res.data.user);
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
+        // Persist to whichever storage is currently in use
+        const storage = localStorage.getItem("token") ? localStorage : sessionStorage;
+        storage.setItem("token", res.data.token);
+        storage.setItem("user", JSON.stringify(res.data.user));
         return res.data.token;
       }
       throw new Error("Refresh failed");

@@ -50,10 +50,14 @@ const Navbar = () => {
           
           {user ? (
             <div className="hidden md:flex items-center gap-4 border-l border-stone-200 dark:border-white/10 pl-4">
-              <div className="flex items-center gap-2">
-                <img src={assets.user} alt="profile" className="w-8 h-8 rounded-full border border-stone-200 dark:border-stone-800" />
-                <span className="text-sm font-medium text-stone-700 dark:text-stone-300 hidden lg:block">{user.name}</span>
-              </div>
+              <Link to="/profile" className="flex items-center gap-2 group cursor-pointer">
+                <img 
+                  src={user.photo ? (user.photo.startsWith("http") ? user.photo : `${import.meta.env.VITE_BACKEND_URL}${user.photo}`) : assets.user} 
+                  alt="profile" 
+                  className="w-9 h-9 object-cover rounded-full border-2 border-transparent group-hover:border-accent-500 transition-colors" 
+                />
+                <span className="text-sm font-medium text-stone-700 dark:text-stone-300 hidden lg:block group-hover:text-accent-500 transition-colors">{user.name}</span>
+              </Link>
               <button 
                 onClick={logout}
                 className="group relative flex items-center justify-center px-5 py-2 rounded-full bg-stone-100 dark:bg-stone-900 text-stone-900 dark:text-white text-sm font-medium active:scale-[0.98] transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)] hover:bg-stone-200 dark:hover:bg-stone-800"
@@ -86,6 +90,9 @@ const Navbar = () => {
           <li><Link to="/" onClick={() => setMenuOpen(false)}>Home</Link></li>
           <li><Link to="/about" onClick={() => setMenuOpen(false)}>About</Link></li>
           <li><Link to="/tours" onClick={() => setMenuOpen(false)}>Tours</Link></li>
+          {user && (
+            <li><Link to="/profile" onClick={() => setMenuOpen(false)}>Profile</Link></li>
+          )}
           {user && user.role !== "admin" && (
             <li><Link to="/my-trips" onClick={() => setMenuOpen(false)}>Trips</Link></li>
           )}

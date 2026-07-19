@@ -25,14 +25,19 @@ const issueRefreshToken = (user) =>
 
 // The refresh cookie is scoped to /api/user (its only consumers) and never
 // exposed to JS, so a leaked access token or an XSS payload can't steal it.
-const setRefreshCookie = (res, refreshToken) => {
-  res.cookie(REFRESH_COOKIE_NAME, refreshToken, {
+const setRefreshCookie = (res, refreshToken, rememberMe = true) => {
+  const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     path: "/api/user",
-    maxAge: REFRESH_COOKIE_MAX_AGE_MS,
-  });
+  };
+  // Only set maxAge for persistent sessions (remember me);
+  // omitting maxAge creates a session cookie that dies with the browser.
+  if (rememberMe) {
+    cookieOptions.maxAge = REFRESH_COOKIE_MAX_AGE_MS;
+  }
+  res.cookie(REFRESH_COOKIE_NAME, refreshToken, cookieOptions);
 };
 
 const clearRefreshCookie = (res) => {
@@ -103,7 +108,7 @@ export const registerUser = async (req, res, next) => {
 // LOGIN
 export const loginUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, rememberMe = false } = req.body;
     if (!email || !password) {
       return res.json({ success: false, message: "All fields are required" });
     }
@@ -119,7 +124,7 @@ export const loginUser = async (req, res, next) => {
     }
 
     const token = issueAccessToken(user);
-    setRefreshCookie(res, issueRefreshToken(user));
+    setRefreshCookie(res, issueRefreshToken(user), rememberMe);
 
     res.json({
       success: true,
@@ -323,6 +328,42 @@ export const deleteUser = async (req, res, next) => {
     }
 
     res.json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// UPDATE PROFILE (USER)
+export const updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+    const { name, phone } = req.body;
+    
+    // We only update what was provided
+    const updateData = {};
+    if (name) updateData.name = name;
+    if (phone) updateData.phone = phone;
+
+    // Handle photo upload
+    if (req.file) {
+      updateData.photo = `/uploads/${req.file.filename}`;
+    }
+
+    const updatedUser = await userModel.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      user: publicUser(updatedUser),
+    });
   } catch (error) {
     next(error);
   }

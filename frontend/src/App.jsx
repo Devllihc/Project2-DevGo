@@ -26,6 +26,7 @@ import Planning from "./pages/trips/Planning";
 import MyTrips from "./pages/trips/MyTrips";
 import TripDetail from "./pages/trips/TripDetail";
 import BookingHistory from "./pages/bookings/BookingHistory";
+import Profile from "./pages/user/Profile";
 import ScrollToTop from "./components/ui/ScrollToTop";
 import NotFound from "./pages/NotFound";
 
@@ -86,6 +87,14 @@ const App = () => {
             element={
               <UserRoute>
                 <BookingHistory />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <UserRoute>
+                <Profile />
               </UserRoute>
             }
           />
