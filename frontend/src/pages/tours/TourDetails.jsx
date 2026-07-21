@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Calendar, DollarSign, MapPin, Users, Star, Check } from "lucide-react";
+import { Calendar, DollarSign, MapPin, Users, Star, Check, ThumbsUp, MessageSquare, Send, Heart, Share2, Link } from "lucide-react";
 import { AppContext } from "../../context/AppContext";
 
 const TourDetails = () => {
-  const { user } = useContext(AppContext);
+  const { user, token } = useContext(AppContext);
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -15,6 +15,14 @@ const TourDetails = () => {
   const [reviewsPagination, setReviewsPagination] = useState({ page: 1, pages: 1, total: 0 });
   const [reviewsLoading, setReviewsLoading] = useState(false);
   const [distribution, setDistribution] = useState({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
+  
+  const [activeReplyReviewId, setActiveReplyReviewId] = useState(null);
+  const [replyText, setReplyText] = useState("");
+
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [relatedTours, setRelatedTours] = useState([]);
+  const [reviewSort, setReviewSort] = useState("newest");
+  const [reviewHasPhoto, setReviewHasPhoto] = useState(false);
 
   const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -28,6 +36,21 @@ const TourDetails = () => {
           const firstDate = data.availableDates[0];
           setSelectedDate(typeof firstDate === "string" ? firstDate : firstDate.date);
         }
+
+        // Save to recently viewed
+        if (data && data._id) {
+          const recent = JSON.parse(localStorage.getItem("recentlyViewedTours") || "[]");
+          const tourMeta = {
+            _id: data._id,
+            title: data.title,
+            photo: data.photo,
+            price: data.price,
+            city: data.city,
+            avgRating: data.avgRating
+          };
+          const updatedRecent = [tourMeta, ...recent.filter(t => t._id !== data._id)].slice(0, 4); // Keep last 4
+          localStorage.setItem("recentlyViewedTours", JSON.stringify(updatedRecent));
+        }
       } catch (error) {
         console.error("Error fetching tour:", error);
       } finally {
@@ -40,7 +63,7 @@ const TourDetails = () => {
   const fetchReviews = useCallback(async (pageNum, append = false) => {
     try {
       setReviewsLoading(true);
-      const res = await fetch(`${baseUrl}/api/reviews/tour/${id}?page=${pageNum}&limit=5`);
+      const res = await fetch(`${baseUrl}/api/reviews/tour/${id}?page=${pageNum}&limit=5&sort=${reviewSort}&hasPhoto=${reviewHasPhoto}`);
       const data = await res.json();
       if (data.reviews) {
         if (append) {
@@ -67,10 +90,105 @@ const TourDetails = () => {
     setReviewsPagination({ page: 1, pages: 1, total: 0 });
     setDistribution({ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 });
     fetchReviews(1, false);
-  }, [id, fetchReviews]);
+  }, [id, fetchReviews, reviewSort, reviewHasPhoto]);
+
+  useEffect(() => {
+    if (user && user.wishlist && id) {
+      setIsWishlisted(user.wishlist.includes(id));
+    }
+  }, [user, id]);
+
+  useEffect(() => {
+    const fetchRelated = async () => {
+      try {
+        const res = await fetch(`${baseUrl}/api/tours/related/${id}`);
+        const data = await res.json();
+        setRelatedTours(data);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    if (id) fetchRelated();
+  }, [id, baseUrl]);
 
   const handleDateChange = (event) => {
     setSelectedDate(event.target.value);
+  };
+
+  const handleWishlist = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    try {
+      const res = await fetch(`${baseUrl}/api/user/wishlist/${id}`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsWishlisted(data.wishlist.includes(id));
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied to clipboard!");
+  };
+
+  const handleLike = async (reviewId) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    try {
+      const res = await fetch(`${baseUrl}/api/reviews/${reviewId}/like`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (res.ok) {
+        const updatedReview = await res.json();
+        setReviewsList((prev) =>
+          prev.map((r) => (r._id === reviewId ? { ...r, likes: updatedReview.likes } : r))
+        );
+      }
+    } catch (error) {
+      console.error("Error liking review:", error);
+    }
+  };
+
+  const handleReplySubmit = async (reviewId) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    if (!replyText.trim()) return;
+
+    try {
+      const res = await fetch(`${baseUrl}/api/reviews/${reviewId}/reply`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ comment: replyText }),
+      });
+      if (res.ok) {
+        const updatedReview = await res.json();
+        setReviewsList((prev) =>
+          prev.map((r) => (r._id === reviewId ? { ...r, replies: updatedReview.replies } : r))
+        );
+        setActiveReplyReviewId(null);
+        setReplyText("");
+      }
+    } catch (error) {
+      console.error("Error replying to review:", error);
+    }
   };
 
   const renderStars = (rating, size = "w-5 h-5") => {
@@ -115,8 +233,28 @@ const TourDetails = () => {
         </div>
 
         {/* Tour Title and Description */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-extrabold text-stone-900 dark:text-stone-100 tracking-tight">
+        <div className="text-center mb-12 relative">
+          <div className="absolute top-0 right-0 flex gap-3">
+            <button
+              onClick={handleWishlist}
+              className={`p-3 rounded-full border transition-all ${
+                isWishlisted
+                  ? "bg-red-50 border-red-200 text-red-500 dark:bg-red-900/30 dark:border-red-800/50"
+                  : "bg-white border-stone-200 text-stone-500 hover:bg-stone-50 dark:bg-stone-900 dark:border-stone-800 dark:text-stone-400 dark:hover:bg-stone-800"
+              }`}
+              title="Add to Wishlist"
+            >
+              <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
+            </button>
+            <button
+              onClick={handleShare}
+              className="p-3 rounded-full border bg-white border-stone-200 text-stone-500 hover:bg-stone-50 dark:bg-stone-900 dark:border-stone-800 dark:text-stone-400 dark:hover:bg-stone-800 transition-all"
+              title="Share"
+            >
+              <Share2 className="w-5 h-5" />
+            </button>
+          </div>
+          <h2 className="text-4xl font-extrabold text-stone-900 dark:text-stone-100 tracking-tight mt-12 sm:mt-0">
             {title}
           </h2>
           <p className="text-lg sm:text-xl text-stone-600 dark:text-stone-400 mt-4 max-w-2xl mx-auto">
@@ -252,6 +390,35 @@ const TourDetails = () => {
 
             {/* Reviews List */}
             <div className="md:col-span-2 space-y-6">
+              
+              {/* Filter and Sort */}
+              <div className="flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-stone-900 p-4 border border-stone-200 dark:border-stone-800 rounded-2xl">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-stone-700 dark:text-stone-300">Sort by:</label>
+                  <select
+                    value={reviewSort}
+                    onChange={(e) => setReviewSort(e.target.value)}
+                    className="p-2 border border-stone-200 dark:border-stone-700 rounded-lg bg-stone-50 dark:bg-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-accent-500"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="highest">Highest Rating</option>
+                    <option value="lowest">Lowest Rating</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="hasPhoto"
+                    checked={reviewHasPhoto}
+                    onChange={(e) => setReviewHasPhoto(e.target.checked)}
+                    className="w-4 h-4 rounded text-accent-600 focus:ring-accent-500 border-stone-300"
+                  />
+                  <label htmlFor="hasPhoto" className="text-sm font-medium text-stone-700 dark:text-stone-300 cursor-pointer">
+                    With Photos Only
+                  </label>
+                </div>
+              </div>
+
               {reviewsLoading && reviewsList.length === 0 ? (
                 <div className="space-y-4">
                   {[1, 2].map((i) => (
@@ -334,6 +501,104 @@ const TourDetails = () => {
                             {review.comment}
                           </p>
                         )}
+                        
+                        {review.photo && (
+                          <div className="mt-3">
+                            <img 
+                              src={review.photo.startsWith("http") ? review.photo : `${baseUrl}${review.photo}`} 
+                              alt="Review attachment" 
+                              className="max-h-48 object-cover rounded-xl border border-stone-200 dark:border-stone-700"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Like & Reply Actions */}
+                        <div className="flex items-center gap-4 pt-2 border-t border-stone-100 dark:border-stone-800/60">
+                          <button
+                            onClick={() => handleLike(review._id)}
+                            className={`flex items-center gap-1.5 text-sm font-medium transition-colors ${
+                              user && review.likes?.includes(user._id)
+                                ? "text-accent-600 dark:text-accent-400"
+                                : "text-stone-500 hover:text-accent-600 dark:text-stone-400 dark:hover:text-accent-400"
+                            }`}
+                          >
+                            <ThumbsUp className={`w-4 h-4 ${user && review.likes?.includes(user._id) ? "fill-current" : ""}`} />
+                            {review.likes?.length || 0}
+                          </button>
+                          
+                          <button
+                            onClick={() => setActiveReplyReviewId(activeReplyReviewId === review._id ? null : review._id)}
+                            className="flex items-center gap-1.5 text-sm font-medium text-stone-500 hover:text-accent-600 dark:text-stone-400 dark:hover:text-accent-400 transition-colors"
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                            Reply
+                          </button>
+                        </div>
+                        
+                        {/* Reply Input Form */}
+                        {activeReplyReviewId === review._id && (
+                          <div className="mt-4 flex gap-3">
+                            <input
+                              type="text"
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              placeholder="Write a reply..."
+                              className="flex-1 px-4 py-2 text-sm bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full focus:outline-none focus:ring-2 focus:ring-accent-500 transition-all text-stone-800 dark:text-stone-200"
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleReplySubmit(review._id);
+                              }}
+                            />
+                            <button
+                              onClick={() => handleReplySubmit(review._id)}
+                              disabled={!replyText.trim()}
+                              className="bg-accent-600 hover:bg-accent-700 disabled:opacity-50 disabled:cursor-not-allowed text-white p-2 rounded-full transition-colors flex items-center justify-center w-10 h-10 shrink-0"
+                            >
+                              <Send className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                        
+                        {/* Display Replies */}
+                        {review.replies && review.replies.length > 0 && (
+                          <div className="mt-4 pl-4 sm:pl-12 border-l-2 border-stone-100 dark:border-stone-800 space-y-4">
+                            {review.replies.map((reply, idx) => {
+                              const replyAuthorName = reply.userId?.name || "User";
+                              const replyAuthorPhoto = reply.userId?.photo;
+                              const replyImgUrl = replyAuthorPhoto?.startsWith("http") ? replyAuthorPhoto : `${baseUrl}${replyAuthorPhoto}`;
+                              
+                              return (
+                                <div key={reply._id || idx} className="flex gap-3">
+                                  {replyAuthorPhoto ? (
+                                    <img
+                                      src={replyImgUrl}
+                                      alt={replyAuthorName}
+                                      className="w-8 h-8 rounded-full object-cover shrink-0 border border-stone-200 dark:border-stone-700"
+                                    />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 flex items-center justify-center font-semibold text-xs shrink-0 border border-stone-200 dark:border-stone-700">
+                                      {replyAuthorName.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <div className="flex items-baseline gap-2">
+                                      <h5 className="font-semibold text-sm text-stone-800 dark:text-stone-200">
+                                        {replyAuthorName}
+                                      </h5>
+                                      <span className="text-[10px] text-stone-500 dark:text-stone-400">
+                                        {new Date(reply.createdAt).toLocaleDateString("en-US", {
+                                          month: "short", day: "numeric"
+                                        })}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-stone-600 dark:text-stone-400 mt-0.5">
+                                      {reply.comment}
+                                    </p>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -356,6 +621,47 @@ const TourDetails = () => {
             </div>
           </div>
         </div>
+
+        {/* Related Tours */}
+        {relatedTours.length > 0 && (
+          <div className="mt-16 pt-12 border-t border-stone-200 dark:border-stone-800">
+            <h3 className="text-2xl font-bold text-stone-900 dark:text-stone-100 mb-8">
+              Similar Tours You Might Like
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {relatedTours.map((relTour) => (
+                <div
+                  key={relTour._id}
+                  onClick={() => {
+                    navigate(`/tours/${relTour._id}`);
+                    window.scrollTo(0, 0);
+                  }}
+                  className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-3xl overflow-hidden cursor-pointer hover:shadow-xl transition-all hover:-translate-y-1"
+                >
+                  <img
+                    src={relTour.photo?.startsWith("http") ? relTour.photo : `${baseUrl}${relTour.photo}`}
+                    alt={relTour.title}
+                    className="w-full h-48 object-cover"
+                  />
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-2">
+                      <h4 className="font-bold text-lg text-stone-900 dark:text-stone-100 line-clamp-1">{relTour.title}</h4>
+                      <div className="flex items-center gap-1 text-sm font-medium text-stone-600 dark:text-stone-400 bg-stone-100 dark:bg-stone-800 px-2 py-1 rounded-full shrink-0">
+                        <Star className="w-3.5 h-3.5 text-yellow-500 fill-current" />
+                        {relTour.avgRating ? relTour.avgRating.toFixed(1) : "New"}
+                      </div>
+                    </div>
+                    <p className="text-stone-500 dark:text-stone-400 text-sm mb-4 line-clamp-2">{relTour.desc}</p>
+                    <div className="flex justify-between items-center pt-4 border-t border-stone-100 dark:border-stone-800">
+                      <p className="font-bold text-accent-600 dark:text-accent-500">₹{relTour.price} <span className="text-sm font-normal text-stone-500 dark:text-stone-400">/person</span></p>
+                      <span className="text-sm text-stone-500 flex items-center gap-1"><MapPin className="w-3.5 h-3.5"/> {relTour.city}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

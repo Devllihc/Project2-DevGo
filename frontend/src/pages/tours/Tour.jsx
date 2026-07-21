@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import TourCard from "../../components/tours/TourCard";
-import { Map, Sparkles, Compass } from "lucide-react";
+import { Map, Sparkles, Compass, Filter, Search, DollarSign, Star } from "lucide-react";
 import ParallaxSection from "../../components/ui/ParallaxSection";
 import Footer from "../../components/ui/Footer";
 
@@ -18,12 +18,27 @@ const slideUp = {
 const Tour = () => {
   const [tours, setTours] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filter States
+  const [cityFilter, setCityFilter] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minRating, setMinRating] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+
   const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchTours = async () => {
+      setLoading(true);
       try {
-        const res = await fetch(`${baseUrl}/api/tours`);
+        const queryParams = new URLSearchParams();
+        if (cityFilter) queryParams.append("city", cityFilter);
+        if (minPrice) queryParams.append("minPrice", minPrice);
+        if (maxPrice) queryParams.append("maxPrice", maxPrice);
+        if (minRating) queryParams.append("minRating", minRating);
+
+        const res = await fetch(`${baseUrl}/api/tours?${queryParams.toString()}`);
         const data = await res.json();
         setTours(data);
       } catch (err) {
@@ -33,8 +48,13 @@ const Tour = () => {
       }
     };
 
-    fetchTours();
-  }, [baseUrl]);
+    // Debounce the fetch slightly to avoid rapid calls while typing
+    const timeoutId = setTimeout(() => {
+      fetchTours();
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [baseUrl, cityFilter, minPrice, maxPrice, minRating]);
 
   return (
     <div className="bg-stone-950 font-sans selection:bg-accent-500/30 w-full relative">
@@ -72,14 +92,93 @@ const Tour = () => {
           {/* Main Content */}
           <div className="max-w-7xl mx-auto px-6 w-full">
             <motion.div
-              className="flex items-center gap-3 mb-10"
+              className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-10"
               initial="hidden"
               animate="visible"
               variants={fadeIn}
             >
-              <Sparkles className="text-accent-500" size={28} />
-              <h2 className="text-3xl font-bold text-white">Featured Destinations</h2>
+              <div className="flex items-center gap-3">
+                <Sparkles className="text-accent-500" size={28} />
+                <h2 className="text-3xl font-bold text-white">Featured Destinations</h2>
+              </div>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white px-5 py-2.5 rounded-full transition-colors border border-white/10"
+              >
+                <Filter size={20} />
+                <span className="font-medium">{showFilters ? "Hide Filters" : "Show Filters"}</span>
+              </button>
             </motion.div>
+
+            {/* Filter Panel */}
+            {showFilters && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-white/10 backdrop-blur-md border border-white/20 rounded-3xl p-6 mb-10 grid grid-cols-1 md:grid-cols-4 gap-6"
+              >
+                {/* Search by City */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-stone-300 flex items-center gap-2">
+                    <Search size={16} /> Destination
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Paris"
+                    value={cityFilter}
+                    onChange={(e) => setCityFilter(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-stone-500 outline-none focus:border-accent-500 transition-colors"
+                  />
+                </div>
+
+                {/* Min Price */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-stone-300 flex items-center gap-2">
+                    <DollarSign size={16} /> Min Price
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    min="0"
+                    value={minPrice}
+                    onChange={(e) => setMinPrice(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-stone-500 outline-none focus:border-accent-500 transition-colors"
+                  />
+                </div>
+
+                {/* Max Price */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-stone-300 flex items-center gap-2">
+                    <DollarSign size={16} /> Max Price
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="1000"
+                    min="0"
+                    value={maxPrice}
+                    onChange={(e) => setMaxPrice(e.target.value)}
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white placeholder:text-stone-500 outline-none focus:border-accent-500 transition-colors"
+                  />
+                </div>
+
+                {/* Minimum Rating */}
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm font-semibold text-stone-300 flex items-center gap-2">
+                    <Star size={16} /> Minimum Rating
+                  </label>
+                  <select
+                    value={minRating}
+                    onChange={(e) => setMinRating(e.target.value)}
+                    className="w-full bg-stone-900 border border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-accent-500 transition-colors"
+                  >
+                    <option value="">All Ratings</option>
+                    <option value="5">5 Stars</option>
+                    <option value="4">4+ Stars</option>
+                    <option value="3">3+ Stars</option>
+                  </select>
+                </div>
+              </motion.div>
+            )}
 
             {/* Tour Cards Grid */}
             <motion.div

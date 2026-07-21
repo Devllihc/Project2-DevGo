@@ -5,6 +5,7 @@ import {
   createTour,
   updateTour,
   deleteTour,
+  getRelatedTours,
 } from "../controllers/tourController.js";
 import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
 import { validate } from "../middleware/validate.js";
@@ -50,6 +51,7 @@ const handleUpload = (field) => (req, res, next) => {
 // Public routes
 tourRouter.get("/", getAllTours);
 tourRouter.get("/:id", getTourById);
+tourRouter.get("/related/:id", getRelatedTours);
 
 // Admin-only routes
 tourRouter.post("/", verifyToken, isAdmin, handleUpload("photo"), validate(createTourSchema), createTour);

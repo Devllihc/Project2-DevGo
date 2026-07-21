@@ -3,6 +3,7 @@ import Header from "../components/Header";
 import SearchBar from "../components/tours/SearchBar";
 import Services from "../components/services/Services";
 import AllTours from "../components/tours/AllTours";
+import RecentlyViewed from "../components/tours/RecentlyViewed";
 import Experience from "../components/services/Experience";
 import NewsLetterBox from "../components/ui/NewsLetterBox";
 import ParallaxSection from "../components/ui/ParallaxSection";
@@ -22,6 +23,7 @@ const Home = () => {
           </div>
           <Services />
           <AllTours />
+          <RecentlyViewed />
           <Experience />
           <div className="px-4 sm:px-6">
             <NewsLetterBox />

@@ -32,6 +32,9 @@ const reviewSchema = new mongoose.Schema(
       trim: true,
       maxLength: 1000,
     },
+    photo: {
+      type: String,
+    },
     isHidden: {
       type: Boolean,
       default: false,
@@ -40,6 +43,29 @@ const reviewSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user",
+      },
+    ],
+    replies: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "user",
+          required: true,
+        },
+        comment: {
+          type: String,
+          required: true,
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

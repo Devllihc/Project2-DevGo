@@ -45,10 +45,20 @@ export const getTourReviews = async (req, res, next) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
+    
+    let query = { tourId, isHidden: false };
+    if (req.query.hasPhoto === 'true') {
+      query.photo = { $exists: true, $ne: null };
+    }
 
-    const reviews = await Review.find({ tourId, isHidden: false })
+    let sortObj = { createdAt: -1 };
+    if (req.query.sort === 'highest') sortObj = { rating: -1, createdAt: -1 };
+    if (req.query.sort === 'lowest') sortObj = { rating: 1, createdAt: -1 };
+
+    const reviews = await Review.find(query)
       .populate("userId", "name photo")
-      .sort({ createdAt: -1 })
+      .populate("replies.userId", "name photo")
+      .sort(sortObj)
       .skip(skip)
       .limit(limit);
 
@@ -126,7 +136,8 @@ export const createReview = async (req, res, next) => {
       userId,
       bookingId,
       rating,
-      comment
+      comment,
+      photo: req.file ? `/uploads/${req.file.filename}` : undefined
     });
 
     await review.save();
@@ -240,3 +251,67 @@ export const deleteReviewAdmin = async (req, res, next) => {
     next(err);
   }
 };
+
+// Toggle Like
+export const toggleLike = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const review = await Review.findById(id);
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    const likeIndex = review.likes.findIndex(
+      (likeId) => likeId.toString() === userId.toString()
+    );
+
+    if (likeIndex !== -1) {
+      // User already liked, so unlike
+      review.likes.splice(likeIndex, 1);
+    } else {
+      // Add like
+      review.likes.push(userId);
+    }
+
+    await review.save();
+    res.status(200).json(review);
+  } catch (err) {
+    next(err);
+  }
+};
+
+// Add Reply
+export const addReply = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { comment } = req.body;
+    const userId = req.user._id;
+
+    if (!comment || comment.trim().length === 0) {
+      return res.status(400).json({ message: "Reply comment is required." });
+    }
+
+    const review = await Review.findById(id);
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    const reply = {
+      userId,
+      comment: comment.trim(),
+    };
+
+    review.replies.push(reply);
+    await review.save();
+
+    // Populate userId for the new reply to return it directly
+    const updatedReview = await Review.findById(id).populate("replies.userId", "name photo");
+    
+    res.status(200).json(updatedReview);
+  } catch (err) {
+    next(err);
+  }
+};
+

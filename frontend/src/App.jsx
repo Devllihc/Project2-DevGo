@@ -27,6 +27,7 @@ import MyTrips from "./pages/trips/MyTrips";
 import TripDetail from "./pages/trips/TripDetail";
 import BookingHistory from "./pages/bookings/BookingHistory";
 import Profile from "./pages/user/Profile";
+import Wishlist from "./pages/user/Wishlist";
 import ScrollToTop from "./components/ui/ScrollToTop";
 import NotFound from "./pages/NotFound";
 
@@ -95,6 +96,14 @@ const App = () => {
             element={
               <UserRoute>
                 <Profile />
+              </UserRoute>
+            }
+          />
+          <Route
+            path="/wishlist"
+            element={
+              <UserRoute>
+                <Wishlist />
               </UserRoute>
             }
           />

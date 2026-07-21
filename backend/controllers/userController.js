@@ -52,6 +52,7 @@ const publicUser = (user) => ({
   photo: user.photo,
   role: user.role,
   emailVerified: user.emailVerified,
+  wishlist: user.wishlist || [],
 });
 
 // REGISTER
@@ -368,3 +369,42 @@ export const updateProfile = async (req, res, next) => {
     next(error);
   }
 };
+
+export const toggleWishlist = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { tourId } = req.params;
+
+    const user = await userModel.findById(userId);
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    const tourIndex = user.wishlist.indexOf(tourId);
+    if (tourIndex !== -1) {
+      user.wishlist.splice(tourIndex, 1);
+    } else {
+      user.wishlist.push(tourId);
+    }
+
+    await user.save();
+    res.status(200).json({ success: true, wishlist: user.wishlist });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getWishlist = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const user = await userModel.findById(userId).populate({
+      path: "wishlist",
+      select: "title city price distance maxGroupSize desc photo avgRating",
+    });
+    
+    if (!user) return res.status(404).json({ success: false, message: "User not found" });
+
+    res.status(200).json({ success: true, wishlist: user.wishlist });
+  } catch (err) {
+    next(err);
+  }
+};
+

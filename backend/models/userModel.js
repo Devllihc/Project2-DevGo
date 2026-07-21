@@ -34,6 +34,12 @@ const userSchema = new mongoose.Schema({
   emailVerified: { type: Boolean, default: false },
   emailVerificationToken: { type: String, index: true },
   emailVerificationExpires: Date,
+  wishlist: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Tour",
+    }
+  ],
 }, { timestamps: true });
 
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);
