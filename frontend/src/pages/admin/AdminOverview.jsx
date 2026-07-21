@@ -2,7 +2,8 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
-import { Users, Map, DollarSign, ClipboardList } from "lucide-react";
+import { Users, Map, DollarSign, ClipboardList, TrendingUp } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import AdminPageHeader from "../../components/admin/AdminPageHeader";
 import AdminCard from "../../components/admin/AdminCard";
 import StatCard from "../../components/admin/StatCard";
@@ -58,7 +59,42 @@ const AdminOverview = () => {
         </div>
       </div>
 
-      <AdminCard>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div className="lg:col-span-2">
+          <AdminCard>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 dark:border-stone-800">
+              <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-accent-500" /> Revenue Over Time
+              </h3>
+            </div>
+            <div className="p-6 h-[300px] w-full">
+              {stats.monthlyRevenue && stats.monthlyRevenue.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={stats.monthlyRevenue} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
+                    <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#8884d8' }} axisLine={false} tickLine={false} />
+                    <YAxis tick={{ fontSize: 12, fill: '#8884d8' }} axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}`} />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333" opacity={0.2} />
+                    <Tooltip 
+                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      formatter={(value) => [`$${value}`, "Revenue"]}
+                    />
+                    <Area type="monotone" dataKey="revenue" stroke="#0ea5e9" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-sm text-stone-500">Not enough data to display chart.</div>
+              )}
+            </div>
+          </AdminCard>
+        </div>
+        <div className="lg:col-span-1">
+          <AdminCard>
         <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200 dark:border-stone-800">
           <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">Recent Bookings</h3>
           <Link to="/admin/bookings" className="text-xs font-medium text-accent-600 dark:text-accent-400 hover:underline">
@@ -81,6 +117,8 @@ const AdminOverview = () => {
           )}
         </div>
       </AdminCard>
+        </div>
+      </div>
     </div>
   );
 };

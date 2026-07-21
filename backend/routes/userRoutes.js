@@ -10,6 +10,8 @@ import {
   getAllUsers,
   deleteUser,
   updateProfile,
+  toggleWishlist,
+  getWishlist,
 } from "../controllers/userController.js";
 import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
 import { authLimiter, passwordResetLimiter } from "../middleware/rateLimiters.js";
@@ -61,6 +63,8 @@ userRouter.post("/reset-password/:token", passwordResetLimiter, validate(resetPa
 
 // User protected routes
 userRouter.put("/profile", verifyToken, handleUpload("photo"), validate(updateProfileSchema), updateProfile);
+userRouter.get("/wishlist", verifyToken, getWishlist);
+userRouter.put("/wishlist/:tourId", verifyToken, toggleWishlist);
 
 // Admin-only routes
 userRouter.get("/", verifyToken, isAdmin, getAllUsers);

@@ -10,6 +10,6 @@ plannerRouter.post("/generate", verifyToken, requireEmailVerified, validate(gene
 
 plannerRouter.get("/history", verifyToken, getUserItineraries);
 
-plannerRouter.get("/trip/:id", verifyToken, getTripDetail);
+plannerRouter.get("/trip/:id", getTripDetail);
 
 export default plannerRouter;

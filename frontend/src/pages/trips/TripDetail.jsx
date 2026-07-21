@@ -126,6 +126,15 @@ const TripDetail = () => {
     }
   };
 
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toast.success("Đã copy link! Hãy gửi cho bạn bè nhé.", { position: "top-center" });
+    } catch (err) {
+      toast.error("Không thể copy link.");
+    }
+  };
+
   if (loading)
     return (
       <div className="min-h-screen flex justify-center items-center bg-stone-50 dark:bg-stone-950">
@@ -181,8 +190,9 @@ const TripDetail = () => {
             </button>
             <div className="flex gap-3">
               <button
-                className="p-3 bg-white/50 dark:bg-stone-800/50 hover:bg-white dark:hover:bg-stone-800 backdrop-blur-md rounded-xl text-stone-600 dark:text-stone-300 transition-all border border-stone-200/50 dark:border-stone-700/50 shadow-sm"
-                title="Share"
+                onClick={handleShare}
+                className="p-3 bg-white/50 dark:bg-stone-800/50 hover:bg-white dark:hover:bg-stone-800 backdrop-blur-md rounded-xl text-stone-600 dark:text-stone-300 transition-all border border-stone-200/50 dark:border-stone-700/50 shadow-sm hover:text-accent-500 hover:border-accent-500/30"
+                title="Share this itinerary"
               >
                 <Share2 size={18} />
               </button>

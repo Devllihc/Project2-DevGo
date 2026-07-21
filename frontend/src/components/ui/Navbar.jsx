@@ -34,7 +34,10 @@ const Navbar = () => {
           <li><Link to="/tours" className={isActive("/tours")}>Tours</Link></li>
           <li><Link to="/my-trips" className={isActive("/my-trips")}>Trips</Link></li>
           {user && user.role !== "admin" && (
-            <li><Link to="/my-bookings" className={isActive("/my-bookings")}>Bookings</Link></li>
+            <>
+              <li><Link to="/my-bookings" className={isActive("/my-bookings")}>Bookings</Link></li>
+              <li><Link to="/wishlist" className={isActive("/wishlist")}>Wishlist</Link></li>
+            </>
           )}
           {user?.role === "admin" && (
             <li><Link to="/admin" className={isActive("/admin")}>Dashboard</Link></li>
@@ -97,7 +100,10 @@ const Navbar = () => {
             <li><Link to="/my-trips" onClick={() => setMenuOpen(false)}>Trips</Link></li>
           )}
           {user && user.role !== "admin" && (
-            <li><Link to="/my-bookings" onClick={() => setMenuOpen(false)}>Bookings</Link></li>
+            <>
+              <li><Link to="/my-bookings" onClick={() => setMenuOpen(false)}>Bookings</Link></li>
+              <li><Link to="/wishlist" onClick={() => setMenuOpen(false)}>Wishlist</Link></li>
+            </>
           )}
           {user?.role === "admin" && (
             <li><Link to="/admin" onClick={() => setMenuOpen(false)}>Dashboard</Link></li>

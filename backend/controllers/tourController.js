@@ -47,7 +47,25 @@ const MAX_TOURS_RETURNED = 500;
 
 export const getAllTours = async (req, res, next) => {
   try {
-    let tours = await Tour.find().sort({ createdAt: -1 }).limit(MAX_TOURS_RETURNED).lean();
+    const { minPrice, maxPrice, city, minRating } = req.query;
+    
+    let query = {};
+    
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+    
+    if (city) {
+      query.city = { $regex: city, $options: "i" };
+    }
+    
+    if (minRating) {
+      query.avgRating = { $gte: Number(minRating) };
+    }
+
+    let tours = await Tour.find(query).sort({ createdAt: -1 }).limit(MAX_TOURS_RETURNED).lean();
     tours = await attachRemainingSlots(tours);
     res.status(200).json(tours);
   } catch (err) {
@@ -184,6 +202,34 @@ export const deleteTour = async (req, res, next) => {
     }
 
     res.status(200).json({ message: "Tour deleted successfully" });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// [GET] /api/tours/related/:id
+export const getRelatedTours = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const currentTour = await Tour.findById(id);
+    if (!currentTour) {
+      return res.status(404).json({ message: "Tour not found" });
+    }
+
+    // Find tours in the same city or similar price range, excluding the current tour
+    let relatedTours = await Tour.find({
+      _id: { $ne: id },
+      $or: [
+        { city: currentTour.city },
+        { price: { $gte: currentTour.price * 0.8, $lte: currentTour.price * 1.2 } }
+      ]
+    })
+    .sort({ avgRating: -1 }) // Prefer higher rated tours
+    .limit(3)
+    .lean();
+
+    relatedTours = await attachRemainingSlots(relatedTours);
+    res.status(200).json(relatedTours);
   } catch (err) {
     next(err);
   }

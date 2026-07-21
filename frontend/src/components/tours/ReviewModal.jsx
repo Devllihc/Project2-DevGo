@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Star, X } from "lucide-react";
+import { Star, X, Upload } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -8,6 +8,7 @@ const ReviewModal = ({ isOpen, onClose, tourId, bookingId, reviewData, onSuccess
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [photo, setPhoto] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -29,17 +30,26 @@ const ReviewModal = ({ isOpen, onClose, tourId, bookingId, reviewData, onSuccess
     setSubmitting(true);
     const backendUrl = import.meta.env.VITE_BACKEND_URL || "";
     try {
+      const formData = new FormData();
+      formData.append("rating", rating);
+      formData.append("comment", comment);
+      if (photo) {
+        formData.append("photo", photo);
+      }
+
       if (reviewData) {
         await axios.put(
           `${backendUrl}/api/reviews/${reviewData._id}`,
-          { rating, comment },
+          formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success("Review updated successfully!");
       } else {
+        formData.append("tourId", tourId);
+        formData.append("bookingId", bookingId);
         await axios.post(
           `${backendUrl}/api/reviews`,
-          { tourId, bookingId, rating, comment },
+          formData,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success("Review submitted successfully!");
@@ -130,6 +140,31 @@ const ReviewModal = ({ isOpen, onClose, tourId, bookingId, reviewData, onSuccess
             <span className="text-right text-xs text-stone-600 dark:text-stone-300 font-mono">
               {comment.length}/1000
             </span>
+          </div>
+
+          {/* Photo Upload */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold uppercase tracking-wider text-stone-600 dark:text-stone-300">
+              Attach a Photo (Optional)
+            </label>
+            <div className="flex items-center gap-4">
+              <label className="cursor-pointer flex items-center justify-center w-full px-4 py-3 bg-stone-50 dark:bg-stone-950/50 border border-dashed border-stone-300 dark:border-stone-700 rounded-xl hover:bg-stone-100 dark:hover:bg-stone-900 transition-colors">
+                <Upload className="w-5 h-5 text-stone-500 mr-2" />
+                <span className="text-sm text-stone-600 dark:text-stone-400">
+                  {photo ? photo.name : "Click to upload an image"}
+                </span>
+                <input
+                  type="file"
+                  accept="image/jpeg, image/png, image/webp"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setPhoto(e.target.files[0]);
+                    }
+                  }}
+                />
+              </label>
+            </div>
           </div>
 
           <div className="flex gap-4">

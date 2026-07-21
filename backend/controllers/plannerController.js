@@ -231,8 +231,7 @@ const getUserItineraries = async (req, res, next) => {
 const getTripDetail = async (req, res, next) => {
   try {
     const tripId = req.params.id;
-    const userId = req.user?.id;
-    const trip = await itineraryModel.findOne({ _id: tripId, userId: userId });
+    const trip = await itineraryModel.findById(tripId);
 
     if (!trip) return res.status(404).json({ success: false, message: "Không tìm thấy chuyến đi" });
 
