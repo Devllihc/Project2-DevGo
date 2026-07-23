@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-toastify";
-import { Edit2, Trash2, Plus, ImageIcon, MapPin, Users, Calendar, DollarSign, X, Search } from "lucide-react";
+import { Edit2, Trash2, Plus, ImageIcon, MapPin, Users, Calendar, DollarSign, X, Search, FileSpreadsheet, Upload } from "lucide-react";
 import AdminPageHeader from "../../components/admin/AdminPageHeader";
 import AdminCard from "../../components/admin/AdminCard";
 import SearchInput from "../../components/admin/SearchInput";
@@ -14,6 +14,9 @@ const AdminTourManagement = () => {
   const [editId, setEditId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showForm, setShowForm] = useState(false);
+  const [itineraryTourId, setItineraryTourId] = useState(null);
+  const [itineraryFile, setItineraryFile] = useState(null);
+  const [itineraryUploading, setItineraryUploading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     desc: "",
@@ -128,6 +131,38 @@ const AdminTourManagement = () => {
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete tour");
+    }
+  };
+
+  const handleItineraryUpload = async (e) => {
+    e.preventDefault();
+    if (!itineraryFile) {
+      toast.error("Please select an itinerary file!");
+      return;
+    }
+    setItineraryUploading(true);
+    try {
+      const data = new FormData();
+      data.append("itinerary", itineraryFile);
+      const res = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/tours/${itineraryTourId}/itinerary/upload`,
+        data,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      toast.success("Itinerary uploaded successfully!");
+      setItineraryTourId(null);
+      setItineraryFile(null);
+      fetchTours();
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Itinerary upload failed!");
+    } finally {
+      setItineraryUploading(false);
     }
   };
 
@@ -361,6 +396,13 @@ const AdminTourManagement = () => {
                           <Edit2 className="w-4 h-4" />
                         </button>
                         <button
+                          onClick={() => { setItineraryTourId(tour._id); setItineraryFile(null); }}
+                          className="p-2 text-stone-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-lg transition-colors md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
+                          title="Upload Itinerary"
+                        >
+                          <FileSpreadsheet className="w-4 h-4" />
+                        </button>
+                        <button
                           onClick={() => handleDelete(tour._id)}
                           className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100"
                           title="Delete Tour"
@@ -385,6 +427,83 @@ const AdminTourManagement = () => {
           </table>
         </div>
       </AdminCard>
+
+      {/* Itinerary Upload Modal */}
+      {itineraryTourId && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+          onClick={(e) => { if (e.target === e.currentTarget) { setItineraryTourId(null); setItineraryFile(null); } }}
+        >
+          <div className="bg-white dark:bg-stone-900 rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-800 w-full max-w-md">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-stone-100 dark:border-stone-800/60">
+              <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-emerald-500" />
+                Upload Itinerary
+              </h3>
+              <button
+                onClick={() => { setItineraryTourId(null); setItineraryFile(null); }}
+                className="p-2 rounded-lg text-stone-400 hover:text-stone-600 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleItineraryUpload} className="p-6 space-y-5">
+              {/* Template info */}
+              <div className="bg-stone-50 dark:bg-stone-950/50 border border-stone-200 dark:border-stone-800 rounded-xl p-4">
+                <p className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2">Required columns in file</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Day","DayTitle","Time","EndTime","ActivityName","Description","Transport","DistanceKm","CostVnd","Notes"].map((col) => (
+                    <span key={col} className="inline-block px-2 py-0.5 rounded-md bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-mono text-stone-600 dark:text-stone-300">
+                      {col}
+                    </span>
+                  ))}
+                </div>
+                <p className="text-xs text-stone-400 dark:text-stone-500 mt-2">Accepted formats: <span className="font-medium">.xlsx, .xls, .csv</span></p>
+              </div>
+
+              {/* File input */}
+              <div>
+                <label className="block text-xs font-semibold text-stone-500 dark:text-stone-400 mb-1.5 uppercase tracking-wider">Select file</label>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={(e) => setItineraryFile(e.target.files[0] || null)}
+                  className="w-full px-4 py-2.5 bg-stone-50 dark:bg-stone-950/50 border border-stone-200 dark:border-stone-800 rounded-lg focus:ring-2 focus:ring-accent-500 focus:border-accent-500 outline-none text-stone-900 dark:text-stone-100 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 dark:file:bg-emerald-900/30 dark:file:text-emerald-400 hover:file:bg-emerald-100 dark:hover:file:bg-emerald-900/50 cursor-pointer"
+                  required
+                />
+                {itineraryFile && (
+                  <p className="text-xs text-stone-500 dark:text-stone-400 mt-1.5 flex items-center gap-1">
+                    <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" />
+                    {itineraryFile.name}
+                  </p>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={itineraryUploading || !itineraryFile}
+                  className="flex-1 flex items-center justify-center gap-2 bg-emerald-500 text-white py-2.5 px-5 rounded-lg font-semibold shadow hover:bg-emerald-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Upload className="w-4 h-4" />
+                  {itineraryUploading ? "Uploading..." : "Upload"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setItineraryTourId(null); setItineraryFile(null); }}
+                  className="px-5 py-2.5 bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-semibold rounded-lg hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
