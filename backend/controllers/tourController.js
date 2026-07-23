@@ -3,6 +3,7 @@ import Tour from "../models/tour.js";
 import bookingModel from "../models/bookingModel.js";
 import fs from "fs";
 import path from "path";
+import XLSX from "xlsx";
 
 const attachRemainingSlots = async (toursArray) => {
   const tourIds = toursArray.map((t) => t._id);
@@ -232,5 +233,131 @@ export const getRelatedTours = async (req, res, next) => {
     res.status(200).json(relatedTours);
   } catch (err) {
     next(err);
+  }
+};
+
+// [POST] /api/tours/:id/itinerary/upload
+// [POST] /api/tours/:id/itinerary/upload
+// Admin uploads an Excel/CSV file to set the itinerary for a tour.
+// Expected columns: Day, DayTitle, Time, EndTime, ActivityName, Description, Transport, DistanceKm, CostVnd, Notes
+export const uploadItinerary = async (req, res, next) => {
+  const filePath = req.file?.path;
+  try {
+    console.log("[uploadItinerary] req.file:", req.file);
+
+    if (!req.file || !filePath) {
+      return res.status(400).json({ success: false, message: "No file uploaded (field name must be 'itinerary')" });
+    }
+
+    console.log("[uploadItinerary] Reading file:", filePath, "size:", req.file.size);
+
+    let workbook;
+    try {
+      workbook = XLSX.readFile(filePath);
+    } catch (xlsxErr) {
+      console.error("[uploadItinerary] XLSX.readFile failed:", xlsxErr.message);
+      return res.status(400).json({ success: false, message: `Cannot read Excel file: ${xlsxErr.message}` });
+    }
+
+    const sheetName = workbook.SheetNames[0];
+    console.log("[uploadItinerary] Sheets:", workbook.SheetNames, "→ using:", sheetName);
+
+    const worksheet = workbook.Sheets[sheetName];
+
+    // Auto-detect the real header row (the row containing 'Day' and 'ActivityName').
+    // Some files have 1-2 extra title rows at the top before the column header row.
+    const rawRows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+    let headerRowIndex = 0;
+    for (let i = 0; i < Math.min(10, rawRows.length); i++) {
+      const rowStr = rawRows[i].map(String).join("|").toLowerCase();
+      if (rowStr.includes("day") && (rowStr.includes("activityname") || rowStr.includes("activity_name"))) {
+        headerRowIndex = i;
+        console.log(`[uploadItinerary] Header row detected at index ${i}:`, rawRows[i]);
+        break;
+      }
+    }
+
+    const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "", range: headerRowIndex });
+
+    console.log("[uploadItinerary] Parsed rows:", rows.length);
+    if (rows.length > 0) console.log("[uploadItinerary] First row keys:", Object.keys(rows[0]));
+
+    if (!rows || rows.length === 0) {
+      return res.status(400).json({ success: false, message: "File is empty or has no data rows" });
+    }
+
+    // Group rows by day number
+    const dayMap = new Map();
+    for (const row of rows) {
+      const rawDay = row["Day"] || row["day"] || row["NGÀ Y"] || row["Ngày"] || "";
+      // Support both numeric (1) and text forms ("Ngày 1", "Day 1", "D1")
+      const dayMatch = String(rawDay).match(/(\d+)/);
+      const dayNum = dayMatch ? parseInt(dayMatch[1], 10) : 0;
+      if (!dayNum || dayNum < 1) {
+        console.log("[uploadItinerary] Skipping row (no valid Day):", JSON.stringify(row).slice(0, 120));
+        continue;
+      }
+
+      if (!dayMap.has(dayNum)) {
+        dayMap.set(dayNum, {
+          day: dayNum,
+          title: String(row["DayTitle"] || row["day_title"] || row["Tiêu đề ngày"] || `Day ${dayNum}`).trim(),
+          activities: [],
+        });
+      }
+
+      const activityName = String(
+        row["ActivityName"] || row["activity_name"] || row["Hoạt động"] || row["Tên hoạt động"] || ""
+      ).trim();
+      if (!activityName) {
+        console.log("[uploadItinerary] Skipping row (no ActivityName), day:", dayNum);
+        continue;
+      }
+
+      dayMap.get(dayNum).activities.push({
+        time: String(row["Time"] || row["time"] || row["Giờ bắt đầu"] || "").trim(),
+        endTime: String(row["EndTime"] || row["end_time"] || row["Giờ kết thúc"] || "").trim(),
+        name: activityName,
+        description: String(row["Description"] || row["description"] || row["Mô tả"] || "").trim(),
+        transport: String(row["Transport"] || row["transport"] || row["Phương tiện"] || "").trim(),
+        distanceKm: parseFloat(row["DistanceKm"] || row["distance_km"] || row["Khoảng cách (km)"] || 0) || 0,
+        costVnd: parseFloat(row["CostVnd"] || row["cost_vnd"] || row["Chi phí (VNĐ)"] || 0) || 0,
+        notes: String(row["Notes"] || row["notes"] || row["Ghi chú"] || "").trim(),
+      });
+    }
+
+    const itinerary = Array.from(dayMap.values()).sort((a, b) => a.day - b.day);
+    console.log("[uploadItinerary] Itinerary days built:", itinerary.length);
+
+    if (itinerary.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Could not parse itinerary. Check that the file has 'Day' and 'ActivityName' columns.",
+      });
+    }
+
+    const updatedTour = await Tour.findByIdAndUpdate(
+      req.params.id,
+      { itinerary },
+      { new: true }
+    );
+
+    if (!updatedTour) {
+      return res.status(404).json({ success: false, message: "Tour not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Itinerary updated successfully: ${itinerary.length} days, ${rows.length} rows`,
+      itinerary: updatedTour.itinerary,
+    });
+  } catch (err) {
+    console.error("[uploadItinerary] Unexpected error:", err);
+    next(err);
+  } finally {
+    // Always clean up temp file
+    if (filePath && fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
   }
 };

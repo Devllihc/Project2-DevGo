@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Calendar, DollarSign, MapPin, Users, Star, Check, ThumbsUp, MessageSquare, Send, Heart, Share2, Link } from "lucide-react";
+import { Calendar, DollarSign, MapPin, Users, Star, Check, ThumbsUp, MessageSquare, Send, Heart, Share2, Link, Route, Bus, PersonStanding, Clock } from "lucide-react";
 import { AppContext } from "../../context/AppContext";
 
 const TourDetails = () => {
@@ -9,6 +9,7 @@ const TourDetails = () => {
   const { id } = useParams();
 
   const [tour, setTour] = useState(null);
+  const [activeDay, setActiveDay] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState("");
   const [reviewsList, setReviewsList] = useState([]);
@@ -336,6 +337,117 @@ const TourDetails = () => {
             Book This Tour
           </button>
         </div>
+
+        {/* Itinerary Section */}
+        {tour.itinerary && tour.itinerary.length > 0 && (
+          <div className="mt-12 pt-12 border-t border-stone-200 dark:border-stone-800">
+            <h3 className="text-2xl font-semibold text-stone-900 dark:text-stone-100 mb-6 flex items-center gap-2">
+              <Route className="w-6 h-6 text-accent-500" />
+              Suggested Itinerary
+            </h3>
+
+            {/* Day Tabs */}
+            <div className="flex overflow-x-auto gap-2 pb-2 mb-6">
+              {tour.itinerary.map((dayObj, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveDay(idx)}
+                  className={`flex-shrink-0 flex flex-col items-center px-5 py-3 rounded-2xl border transition-all duration-200 ${
+                    activeDay === idx
+                      ? "bg-accent-500 text-white border-accent-500 shadow-md"
+                      : "bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-800 hover:border-accent-300 dark:hover:border-accent-700"
+                  }`}
+                >
+                  <span className="font-semibold text-sm">Day {dayObj.day}</span>
+                  <span className={`text-xs mt-0.5 max-w-[120px] text-center leading-tight line-clamp-2 ${
+                    activeDay === idx ? "text-accent-100" : "text-stone-400 dark:text-stone-500"
+                  }`}>
+                    {dayObj.title}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Activities Timeline */}
+            {tour.itinerary[activeDay] && (
+              <div className="space-y-0">
+                {tour.itinerary[activeDay].activities.map((activity, actIdx) => (
+                  <div key={actIdx} className="flex gap-4 relative">
+                    {/* Time column */}
+                    <div className="flex flex-col items-center w-20 shrink-0">
+                      <span className="text-sm font-mono text-accent-600 dark:text-accent-400 mt-4 text-right w-full">
+                        {activity.time}
+                      </span>
+                      {activity.endTime && (
+                        <span className="text-xs font-mono text-stone-400 dark:text-stone-500 text-right w-full">
+                          – {activity.endTime}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Vertical line + dot connector */}
+                    <div className="flex flex-col items-center">
+                      <div className="w-3 h-3 rounded-full bg-accent-500 border-2 border-white dark:border-stone-950 mt-5 shrink-0 z-10" />
+                      {actIdx < tour.itinerary[activeDay].activities.length - 1 && (
+                        <div className="w-0.5 flex-1 bg-stone-200 dark:bg-stone-700 mt-1" />
+                      )}
+                    </div>
+
+                    {/* Activity Card */}
+                    <div className="flex-1 pb-6">
+                      <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200 dark:border-stone-800 p-4 shadow-sm">
+                        {/* Name + transport badge */}
+                        <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
+                          <h4 className="font-semibold text-stone-900 dark:text-stone-100">{activity.name}</h4>
+                          {activity.transport && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-700 shrink-0">
+                              {activity.transport.toLowerCase().includes("walk") || activity.transport.toLowerCase().includes("foot") ? (
+                                <PersonStanding className="w-3 h-3" />
+                              ) : (
+                                <Bus className="w-3 h-3" />
+                              )}
+                              {activity.transport}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Description */}
+                        {activity.description && (
+                          <p className="text-sm text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">{activity.description}</p>
+                        )}
+
+                        {/* Meta: distance + cost */}
+                        {(activity.distanceKm > 0 || activity.costVnd > 0) && (
+                          <div className="flex flex-wrap gap-3 mt-2">
+                            {activity.distanceKm > 0 && (
+                              <span className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {activity.distanceKm} km
+                              </span>
+                            )}
+                            {activity.costVnd > 0 && (
+                              <span className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1">
+                                <DollarSign className="w-3 h-3" />
+                                {activity.costVnd.toLocaleString("vi-VN")} ₫
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Notes */}
+                        {activity.notes && (
+                          <p className="text-xs italic text-stone-400 dark:text-stone-500 mt-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                            📝 {activity.notes}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Reviews Section */}
         <div className="mt-16 pt-12 border-t border-stone-200 dark:border-stone-800">
