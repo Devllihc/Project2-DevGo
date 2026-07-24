@@ -14,6 +14,7 @@ import plannerRouter from "./routes/plannerRoutes.js";
 import notificationRouter from "./routes/notificationRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import reviewRouter from "./routes/reviewRoutes.js";
+import bookingConfigRouter from "./routes/bookingConfigRoute.js";
 import { initSocket } from "./utils/socket.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import logger from "./utils/logger.js";
@@ -48,6 +49,7 @@ app.use("/api/planner", plannerRouter);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/reviews", reviewRouter);
+app.use("/api/booking-config", bookingConfigRouter);
 
 app.get("/", (req, res) => {
   res.send("API is Working!");
