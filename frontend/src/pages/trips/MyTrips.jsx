@@ -284,7 +284,7 @@ const MyTrips = () => {
                         <span className="text-stone-900 dark:text-stone-100 font-bold text-lg truncate block">
                           {trip.total_cost
                             ? formatCurrency(trip.total_cost).replace('₫', '').trim()
-                            : "N/A"} <span className="text-sm font-medium text-stone-500 dark:text-stone-400">{trip.total_cost ? '₫' : ''}</span>
+                            : "N/A"} <span className="text-sm font-medium text-stone-500 dark:text-stone-400">{trip.total_cost ? '$' : ''}</span>
                         </span>
                       </div>
                     </div>

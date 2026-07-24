@@ -22,6 +22,7 @@ import AdminOverview from "./pages/admin/AdminOverview";
 import AdminBookingList from "./pages/admin/AdminBookingList";
 import AdminTourManagement from "./pages/admin/AdminTourManagement";
 import AdminReviewManagement from "./pages/admin/AdminReviewManagement";
+import AdminBookingSettings from "./pages/admin/AdminBookingSettings";
 import Planning from "./pages/trips/Planning";
 import MyTrips from "./pages/trips/MyTrips";
 import TripDetail from "./pages/trips/TripDetail";
@@ -65,6 +66,7 @@ const App = () => {
             <Route path="bookings" element={<AdminBookingList />} />
             <Route path="tours" element={<AdminTourManagement />} />
             <Route path="reviews" element={<AdminReviewManagement />} />
+            <Route path="settings" element={<AdminBookingSettings />} />
           </Route>
 
           <Route

@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { Users, CalendarDays, Map, LayoutDashboard, LogOut, MessageSquare } from "lucide-react";
+import { Users, CalendarDays, Map, LayoutDashboard, LogOut, MessageSquare, Settings } from "lucide-react";
 import { AppContext } from "../../context/AppContext";
 import ThemeToggle from "../../components/ui/ThemeToggle";
 import NotificationDropdown from "../../components/ui/NotificationDropdown";
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { path: "bookings", label: "Bookings", icon: CalendarDays },
   { path: "tours", label: "Tours", icon: Map },
   { path: "reviews", label: "Reviews", icon: MessageSquare },
+  { path: "settings", label: "Settings", icon: Settings },
 ];
 
 const AdminLayout = () => {

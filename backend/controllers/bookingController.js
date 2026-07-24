@@ -102,7 +102,7 @@ export const createBooking = async (req, res, next) => {
       depositAmount,
       depositStatus: "pending",
       policyAcceptedAt: req.body.policyAcceptedAt,
-      history: [{ action: "Created", details: `Booking created. Deposit: ${depositAmount.toLocaleString("vi-VN")} ₫` }],
+      history: [{ action: "Created", details: `Booking created. Deposit: $${depositAmount.toLocaleString("en-US")}` }],
     });
 
     const savedBooking = await newBooking.save();

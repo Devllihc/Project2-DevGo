@@ -52,7 +52,7 @@ const RecentlyViewed = () => {
               </div>
               <div className="pt-4 border-t border-stone-100 dark:border-stone-800 flex justify-between items-center">
                 <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">Starting from</span>
-                <span className="font-black text-lg text-accent-600 dark:text-accent-500">₹{tour.price}</span>
+                <span className="font-black text-lg text-accent-600 dark:text-accent-500">${tour.price}</span>
               </div>
             </div>
           </div>

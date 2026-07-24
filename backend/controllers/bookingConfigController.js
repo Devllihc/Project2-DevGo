@@ -27,3 +27,24 @@ export const updateBookingConfig = async (req, res, next) => {
     next(error);
   }
 };
+
+// POST /api/admin/booking-config/qr — admin only
+export const uploadQrCode = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: "No file uploaded" });
+    }
+
+    const qrCodeImage = `/uploads/${req.file.filename}`;
+
+    const config = await BookingConfig.findOneAndUpdate(
+      {},
+      { $set: { qrCodeImage } },
+      { new: true, upsert: true }
+    );
+
+    res.json({ success: true, config });
+  } catch (error) {
+    next(error);
+  }
+};
