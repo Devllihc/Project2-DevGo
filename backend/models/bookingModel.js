@@ -58,6 +58,19 @@ const bookingSchema = new mongoose.Schema({
   cancellationReason: {
     type: String,
   },
+  depositAmount: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  depositStatus: {
+    type: String,
+    enum: ["pending", "confirmed", "rejected"],
+    default: "pending",
+  },
+  policyAcceptedAt: {
+    type: Date,
+  },
   history: [
     {
       action: String,
