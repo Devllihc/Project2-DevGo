@@ -101,6 +101,20 @@ const AdminBookingList = () => {
       toast.error("Lỗi khi cập nhật trạng thái");
     }
   };
+  const handleUpdateDepositStatus = async (id, newDepositStatus) => {
+    try {
+      const res = await axios.put(`${import.meta.env.VITE_BACKEND_URL}/api/bookings/${id}/status`,
+        { depositStatus: newDepositStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (res.data.success) {
+        toast.success("Deposit status updated");
+        refreshCurrentView();
+      }
+    } catch (err) {
+      toast.error("Failed to update deposit status");
+    }
+  };
 
   return (
     <div>
@@ -121,6 +135,7 @@ const AdminBookingList = () => {
                 <th className="px-6 py-3">Tour Information</th>
                 <th className="px-6 py-3">Departure</th>
                 <th className="px-6 py-3">Payment</th>
+                <th className="px-6 py-3">Deposit</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3">Booked On</th>
                 <th className="px-6 py-3 text-right">Actions</th>
@@ -158,6 +173,18 @@ const AdminBookingList = () => {
                       </div>
                     </td>
                     <td className="px-6 py-3">
+                      {b.depositAmount > 0 ? (
+                        <div>
+                          <div className="flex items-center gap-1.5 font-medium text-stone-900 dark:text-stone-100">
+                            ${b.depositAmount?.toLocaleString("en-US")}
+                          </div>
+                          <StatusBadge status={b.depositStatus || "pending"} />
+                        </div>
+                      ) : (
+                        <span className="text-stone-400 text-xs">—</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3">
                       <StatusBadge status={b.status} />
                       {b.cancellationReason && (
                         <div className="mt-2 text-xs text-red-500 max-w-[150px] truncate" title={b.cancellationReason}>
@@ -184,12 +211,23 @@ const AdminBookingList = () => {
                         <option value="completed">Completed</option>
                         <option value="cancelled">Cancelled</option>
                       </select>
+                      {b.depositAmount > 0 && (
+                        <select
+                          value={b.depositStatus || "pending"}
+                          onChange={(e) => handleUpdateDepositStatus(b._id, e.target.value)}
+                          className="bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 text-sm rounded-lg focus:ring-accent-500 focus:border-accent-500 block w-full p-2 mt-2"
+                        >
+                          <option value="pending">Deposit: Pending</option>
+                          <option value="confirmed">Deposit: Confirmed</option>
+                          <option value="rejected">Deposit: Rejected</option>
+                        </select>
+                      )}
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="7" className="text-center py-12">
+                  <td colSpan="8" className="text-center py-12">
                     <div className="inline-flex flex-col items-center justify-center text-stone-400">
                       <Search className="w-10 h-10 mb-3 opacity-20" />
                       <p className="text-sm">No bookings found matching "{searchTerm}"</p>

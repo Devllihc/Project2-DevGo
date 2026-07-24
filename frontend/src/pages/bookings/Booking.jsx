@@ -15,6 +15,7 @@ import {
   Clock,
   CheckCircle2,
   Sparkles,
+  Shield,
 } from "lucide-react";
 
 /* ─────────────────────────────────────────────
@@ -52,10 +53,11 @@ const sectionVariants = {
 ───────────────────────────────────────────── */
 const steps = ["Your Info", "Review", "Confirm"];
 
-const ProgressIndicator = () => (
+const ProgressIndicator = ({ currentStep }) => (
   <div className="flex items-center justify-center gap-0 mb-10">
     {steps.map((step, idx) => {
-      const isActive = idx === 0;
+      const isCompleted = idx < currentStep;
+      const isActive = idx === currentStep;
       return (
         <React.Fragment key={step}>
           <div className="flex flex-col items-center">
@@ -64,23 +66,29 @@ const ProgressIndicator = () => (
                 ${
                   isActive
                     ? "bg-accent-600 border-accent-600 text-white shadow-lg shadow-accent-500/30"
-                    : "bg-white dark:bg-stone-900 border-stone-300 dark:border-stone-700 text-stone-400 dark:text-stone-500"
+                    : isCompleted
+                      ? "bg-accent-100 dark:bg-accent-900/30 border-accent-400 text-accent-600 dark:text-accent-400"
+                      : "bg-white dark:bg-stone-900 border-stone-300 dark:border-stone-700 text-stone-400 dark:text-stone-500"
                 }`}
             >
-              {isActive ? <CheckCircle2 size={16} /> : idx + 1}
+              {isCompleted ? <CheckCircle2 size={16} /> : idx + 1}
             </div>
             <span
               className={`mt-1.5 text-xs font-medium ${
                 isActive
                   ? "text-accent-600 dark:text-accent-400"
-                  : "text-stone-400 dark:text-stone-500"
+                  : isCompleted
+                    ? "text-accent-500 dark:text-accent-400"
+                    : "text-stone-400 dark:text-stone-500"
               }`}
             >
               {step}
             </span>
           </div>
           {idx < steps.length - 1 && (
-            <div className="h-0.5 w-16 mx-1 mb-5 rounded-full bg-stone-200 dark:bg-stone-700" />
+            <div className={`h-0.5 w-16 mx-1 mb-5 rounded-full transition-colors ${
+              idx < currentStep ? "bg-accent-400" : "bg-stone-200 dark:bg-stone-700"
+            }`} />
           )}
         </React.Fragment>
       );
@@ -163,6 +171,58 @@ const Booking = () => {
   const [totalPrice, setTotalPrice] = useState(price);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [currentStep, setCurrentStep] = useState(0);
+  const [policyAccepted, setPolicyAccepted] = useState(false);
+  const [bookingConfig, setBookingConfig] = useState(null);
+  const [configLoading, setConfigLoading] = useState(true);
+  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+  useEffect(() => {
+    const fetchConfig = async () => {
+      try {
+        const res = await fetch(`${backendUrl}/api/booking-config`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (data.success) setBookingConfig(data.config);
+      } catch (err) {
+        console.error("Failed to load booking config:", err);
+      } finally {
+        setConfigLoading(false);
+      }
+    };
+    fetchConfig();
+  }, [token, backendUrl]);
+
+  const depositAmount = bookingConfig
+    ? bookingConfig.depositPerPerson * parseInt(formData.travelers, 10)
+    : 0;
+
+  const validateStep0 = () => {
+    if (!formData.name || !formData.email || !formData.phone || !formData.startDate) {
+      toast.error("Please fill in all required fields.");
+      return false;
+    }
+    if (parseInt(formData.travelers, 10) < 1) {
+      toast.error("At least 1 traveler is required.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleNextStep = () => {
+    if (currentStep === 0 && !validateStep0()) return;
+    if (currentStep === 1 && !policyAccepted) {
+      toast.error("Please accept the booking policy to continue.");
+      return;
+    }
+    setCurrentStep((prev) => Math.min(prev + 1, 2));
+  };
+
+  const handlePrevStep = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 0));
+  };
+
   /* ── handlers ───────────────────────────── */
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -170,29 +230,23 @@ const Booking = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (
-      !formData.name ||
-      !formData.email ||
-      !formData.phone ||
-      !formData.startDate
-    ) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
+    if (e) e.preventDefault();
 
     setIsSubmitting(true);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/bookings`,
+        `${backendUrl}/api/bookings`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({ ...formData, tourId }),
+          body: JSON.stringify({
+            ...formData,
+            tourId,
+            policyAcceptedAt: new Date().toISOString(),
+          }),
         }
       );
 
@@ -203,7 +257,7 @@ const Booking = () => {
 
       const data = await response.json();
       toast.success("Booking successful!");
-      navigate("/invoice", { state: { booking: data.booking } });
+      navigate("/invoice", { state: { booking: data.booking, bookingConfig } });
     } catch (error) {
       console.error("Booking error:", error);
       toast.error("Error: " + error.message);
@@ -224,7 +278,7 @@ const Booking = () => {
   const maxTravelers = selectedDateObj?.remainingSlots ?? tour.maxGroupSize;
 
   /* ── price formatting ───────────────────── */
-  const fmt = (n) => n?.toLocaleString("vi-VN");
+  const fmt = (n) => "$" + n?.toLocaleString("en-US");
 
   /* ─────────────────────────────────────────
      Render
@@ -269,7 +323,7 @@ const Booking = () => {
           initial="hidden"
           animate="visible"
         >
-          <ProgressIndicator />
+          <ProgressIndicator currentStep={currentStep} />
         </motion.div>
 
         {/* ── Two-column layout ── */}
@@ -283,7 +337,8 @@ const Booking = () => {
             initial="hidden"
             animate="visible"
           >
-            <form onSubmit={handleSubmit} className="space-y-6">
+            {currentStep === 0 && (
+              <form className="space-y-6">
 
               {/* Section 1 — Personal info */}
               <motion.div
@@ -458,33 +513,90 @@ const Booking = () => {
                 />
               </motion.div>
 
-              {/* Submit button */}
-              <motion.button
-                custom={3}
-                variants={sectionVariants}
-                initial="hidden"
-                animate="visible"
-                type="submit"
-                disabled={isSubmitting}
-                whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
-                whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
-                className="w-full flex items-center justify-center gap-3 bg-accent-700 hover:bg-accent-800 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold text-base py-4 rounded-xl shadow-lg shadow-accent-700/25 transition-colors"
-              >
-                {isSubmitting ? (
-                  <>
-                    <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
-                    Processing…
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={18} />
-                    Confirm Booking
-                    <ArrowRight size={18} />
-                  </>
-                )}
+              {/* Next button */}
+              <motion.button custom={3} variants={sectionVariants} initial="hidden" animate="visible"
+                type="button" onClick={handleNextStep}
+                whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+                className="w-full flex items-center justify-center gap-3 bg-accent-700 hover:bg-accent-800 text-white font-semibold text-base py-4 rounded-xl shadow-lg shadow-accent-700/25 transition-colors">
+                Continue to Policy <ArrowRight size={18} />
               </motion.button>
 
             </form>
+            )}
+
+            {currentStep === 1 && (
+              <motion.div custom={0} variants={sectionVariants} initial="hidden" animate="visible" className="space-y-6">
+                 {/* Policy & Deposit content */}
+                 <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 p-6 shadow-sm">
+                   <SectionHeader label="Booking Policy" />
+                   <div className="whitespace-pre-wrap text-sm text-stone-600 dark:text-stone-300 mb-6">{bookingConfig?.policyContent}</div>
+                   <div className="flex items-center gap-3 bg-stone-50 dark:bg-stone-800 p-4 rounded-xl border border-stone-200 dark:border-stone-700">
+                      <input type="checkbox" id="policyAccept" checked={policyAccepted} onChange={(e) => setPolicyAccepted(e.target.checked)} className="w-5 h-5 accent-accent-600 rounded" />
+                      <label htmlFor="policyAccept" className="text-sm text-stone-700 dark:text-stone-200 cursor-pointer select-none font-medium">I have read and agree to the booking policy.</label>
+                   </div>
+                 </div>
+                 <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 p-6 shadow-sm">
+                    <SectionHeader label="Deposit & Payment" />
+                    <p className="text-sm text-stone-600 dark:text-stone-400">
+                      Required deposit per person is <span className="font-semibold text-stone-900 dark:text-stone-100">{fmt(bookingConfig?.depositPerPerson)}</span>. <br/>
+                      Total deposit required for {formData.travelers} travelers: <span className="text-accent-600 dark:text-accent-400 font-bold text-lg">{fmt(depositAmount)}</span>
+                    </p>
+                    {bookingConfig?.bankInfo && (
+                       <div className="bg-stone-50 dark:bg-stone-800 p-5 rounded-2xl text-sm space-y-2 border border-stone-200 dark:border-stone-700/50">
+                         <div className="flex gap-2 items-start"><span className="text-stone-500 w-24">Bank:</span><span className="font-medium">{bookingConfig.bankInfo.bankName}</span></div>
+                         <div className="flex gap-2 items-start"><span className="text-stone-500 w-24">Account:</span><span className="font-medium text-lg text-accent-700 dark:text-accent-400">{bookingConfig.bankInfo.accountNumber}</span></div>
+                         <div className="flex gap-2 items-start"><span className="text-stone-500 w-24">Name:</span><span className="font-medium">{bookingConfig.bankInfo.accountHolder}</span></div>
+                         {bookingConfig.bankInfo.branch && <div className="flex gap-2 items-start"><span className="text-stone-500 w-24">Branch:</span><span className="font-medium">{bookingConfig.bankInfo.branch}</span></div>}
+                         <div className="flex gap-2 items-start mt-2 pt-2 border-t border-stone-200 dark:border-stone-700"><span className="text-stone-500 w-24">Transfer Note:</span><span className="font-medium italic text-stone-700 dark:text-stone-300">{bookingConfig.transferNoteTemplate}</span></div>
+                       </div>
+                    )}
+                    {bookingConfig?.qrCodeImage && (
+                       <div className="mt-6 flex flex-col items-center">
+                         <p className="text-xs text-stone-500 uppercase tracking-wide font-semibold mb-3">Scan to Pay</p>
+                         <img src={`${backendUrl}${bookingConfig.qrCodeImage}`} alt="QR" className="w-56 h-56 object-contain rounded-xl border border-stone-200 dark:border-stone-700 p-2 bg-white" />
+                       </div>
+                    )}
+                 </div>
+                 <div className="flex gap-4">
+                    <button type="button" onClick={handlePrevStep} className="w-1/3 py-4 rounded-xl font-semibold border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors">Back</button>
+                    <button type="button" onClick={handleNextStep} className="w-2/3 py-4 rounded-xl font-semibold bg-accent-700 hover:bg-accent-800 text-white shadow-lg shadow-accent-700/25 transition-colors flex items-center justify-center gap-2">
+                      Review Booking <ArrowRight size={18} />
+                    </button>
+                 </div>
+              </motion.div>
+            )}
+
+            {currentStep === 2 && (
+              <motion.div custom={0} variants={sectionVariants} initial="hidden" animate="visible" className="space-y-6">
+                 <div className="bg-white dark:bg-stone-900 rounded-3xl border border-stone-200 dark:border-stone-800 p-6 shadow-sm">
+                   <SectionHeader label="Confirm Booking" />
+                   <div className="space-y-3 text-sm">
+                     <p className="flex justify-between items-center py-2 border-b border-stone-100 dark:border-stone-800/50"><span className="text-stone-500">Name</span> <span className="font-medium text-stone-900 dark:text-stone-100">{formData.name}</span></p>
+                     <p className="flex justify-between items-center py-2 border-b border-stone-100 dark:border-stone-800/50"><span className="text-stone-500">Email</span> <span className="font-medium text-stone-900 dark:text-stone-100">{formData.email}</span></p>
+                     <p className="flex justify-between items-center py-2"><span className="text-stone-500">Phone</span> <span className="font-medium text-stone-900 dark:text-stone-100">{formData.phone}</span></p>
+                   </div>
+                 </div>
+                 <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 p-4 rounded-xl border border-amber-200 dark:border-amber-800/50 flex gap-3 text-sm items-start">
+                    <Shield size={20} className="shrink-0 mt-0.5" />
+                    <p>Please note: Your booking will remain pending until the bank transfer of <span className="font-bold">{fmt(depositAmount)}</span> is confirmed by our staff.</p>
+                 </div>
+                 <div className="flex gap-4">
+                    <button type="button" onClick={handlePrevStep} disabled={isSubmitting} className="w-1/3 py-4 rounded-xl font-semibold border border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors disabled:opacity-50">Back</button>
+                    <button type="button" onClick={handleSubmit} disabled={isSubmitting} className="w-2/3 py-4 rounded-xl font-semibold bg-accent-700 hover:bg-accent-800 text-white shadow-lg shadow-accent-700/25 transition-colors disabled:opacity-50 flex justify-center items-center gap-2">
+                      {isSubmitting ? (
+                        <>
+                          <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                          Processing…
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 size={18} /> Confirm Booking
+                        </>
+                      )}
+                    </button>
+                 </div>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* ══════════════════════════════════════
@@ -542,7 +654,7 @@ const Booking = () => {
                     </span>
                   )}
                   <span className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-700 dark:text-accent-400 bg-accent-50 dark:bg-accent-900/30 px-3 py-1.5 rounded-full">
-                    {fmt(price)} ₫ / person
+                    {fmt(price)} / person
                   </span>
                 </div>
 
@@ -579,7 +691,7 @@ const Booking = () => {
                     <span>
                       {fmt(price)} × {formData.travelers} travelers
                     </span>
-                    <span>{fmt(totalPrice)} ₫</span>
+                    <span>{fmt(totalPrice)}</span>
                   </div>
                   <hr className="border-stone-200 dark:border-stone-700" />
                   <div className="flex justify-between font-bold text-base">
@@ -587,7 +699,7 @@ const Booking = () => {
                       Total
                     </span>
                     <span className="text-accent-600 dark:text-accent-400 text-lg">
-                      {fmt(totalPrice)} ₫
+                      {fmt(totalPrice)}
                     </span>
                   </div>
                 </div>

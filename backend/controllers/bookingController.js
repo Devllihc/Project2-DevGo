@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bookingModel from "../models/bookingModel.js";
 import Tour from "../models/tour.js";
+import BookingConfig from "../models/bookingConfigModel.js";
 import { createAndSendNotification } from "../services/notificationService.js";
 import { escapeRegex } from "../utils/escapeRegex.js";
 
@@ -78,6 +79,13 @@ export const createBooking = async (req, res, next) => {
 
     const userId = req.user._id;
 
+    // Fetch deposit config
+    let depositConfig = await BookingConfig.findOne();
+    if (!depositConfig) {
+      depositConfig = await BookingConfig.create({});
+    }
+    const depositAmount = depositConfig.depositPerPerson * requestedTravelers;
+
     // Tạo booking
     const newBooking = new bookingModel({
       userId,
@@ -91,7 +99,10 @@ export const createBooking = async (req, res, next) => {
       totalPrice,
       status: "pending",
       startDate,
-      history: [{ action: "Created", details: "Booking initially created" }],
+      depositAmount,
+      depositStatus: "pending",
+      policyAcceptedAt: req.body.policyAcceptedAt,
+      history: [{ action: "Created", details: `Booking created. Deposit: $${depositAmount.toLocaleString("en-US")}` }],
     });
 
     const savedBooking = await newBooking.save();
@@ -316,6 +327,11 @@ export const updateBookingStatus = async (req, res, next) => {
     if (paymentStatus && paymentStatus !== booking.paymentStatus) {
       details.push(`Payment status changed from ${booking.paymentStatus} to ${paymentStatus}`);
       booking.paymentStatus = paymentStatus;
+    }
+
+    if (req.body.depositStatus && req.body.depositStatus !== booking.depositStatus) {
+      details.push(`Deposit status changed from ${booking.depositStatus} to ${req.body.depositStatus}`);
+      booking.depositStatus = req.body.depositStatus;
     }
 
     if (details.length > 0) {

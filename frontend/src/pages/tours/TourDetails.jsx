@@ -270,7 +270,7 @@ const TourDetails = () => {
               <DollarSign className="mr-2 text-accent-500" />
               Price
             </h3>
-            <p className="text-2xl text-stone-900 dark:text-stone-100 mt-3">₹{price}/person</p>
+            <p className="text-2xl text-stone-900 dark:text-stone-100 mt-3">${price}/person</p>
           </div>
 
           <div className="flex flex-col items-center bg-white dark:bg-stone-900 p-6 border border-stone-200 dark:border-stone-800 rounded-3xl hover:scale-105 transform transition duration-300">
@@ -428,7 +428,7 @@ const TourDetails = () => {
                             {activity.costVnd > 0 && (
                               <span className="text-xs text-stone-500 dark:text-stone-400 flex items-center gap-1">
                                 <DollarSign className="w-3 h-3" />
-                                {activity.costVnd.toLocaleString("vi-VN")} ₫
+                                ${activity.costVnd.toLocaleString("en-US")}
                               </span>
                             )}
                           </div>
@@ -765,7 +765,7 @@ const TourDetails = () => {
                     </div>
                     <p className="text-stone-500 dark:text-stone-400 text-sm mb-4 line-clamp-2">{relTour.desc}</p>
                     <div className="flex justify-between items-center pt-4 border-t border-stone-100 dark:border-stone-800">
-                      <p className="font-bold text-accent-600 dark:text-accent-500">₹{relTour.price} <span className="text-sm font-normal text-stone-500 dark:text-stone-400">/person</span></p>
+                      <p className="font-bold text-accent-600 dark:text-accent-500">${relTour.price} <span className="text-sm font-normal text-stone-500 dark:text-stone-400">/person</span></p>
                       <span className="text-sm text-stone-500 flex items-center gap-1"><MapPin className="w-3.5 h-3.5"/> {relTour.city}</span>
                     </div>
                   </div>

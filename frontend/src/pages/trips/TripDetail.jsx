@@ -236,7 +236,7 @@ const TripDetail = () => {
               </div>
               <div className="flex flex-col bg-gradient-to-br from-green-50 to-green-100/50 dark:from-green-900/20 dark:to-green-800/10 backdrop-blur-xl px-5 py-3 rounded-2xl border border-green-200/50 dark:border-green-800/50 shadow-sm">
                 <span className="text-xs font-bold text-green-600 dark:text-green-500 uppercase tracking-wider mb-1 flex items-center gap-1"><Banknote size={12}/> Estimated Cost</span>
-                <span className="text-xl font-extrabold text-green-700 dark:text-green-400">{formatCurrency(totalCost).replace('₫','').trim()} <span className="text-sm">VND</span></span>
+                <span className="text-xl font-extrabold text-green-700 dark:text-green-400">{formatCurrency(totalCost).replace('₫','').trim()} <span className="text-sm">USD</span></span>
               </div>
             </div>
           </motion.div>

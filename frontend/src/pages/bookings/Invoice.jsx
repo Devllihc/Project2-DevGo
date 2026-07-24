@@ -30,7 +30,7 @@ const InvoicePDF = ({ booking }) => (
         <Text style={styles.label}>Package Details</Text>
         <Text>Tour: {booking.tourTitle}</Text>
         <Text>Number of Travelers: {booking.travelers}</Text>
-        <Text>Total Price: ₹{booking.totalPrice}</Text>
+        <Text>Total Price: ${booking.totalPrice}</Text>
       </View>
     </Page>
   </Document>
@@ -79,7 +79,7 @@ const Invoice = () => {
           {booking.travelers}
         </p>
         <p>
-          <strong>Total Price:</strong> ₹{booking.totalPrice}
+          <strong>Total Price:</strong> ${booking.totalPrice}
         </p>
       </div>
       <div className="mt-6">

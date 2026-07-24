@@ -10,6 +10,7 @@ export const createBookingSchema = z.object({
   specialRequests: z.string().trim().optional(),
   tourId: z.string().trim().min(1, "tourId is required"),
   startDate: z.string().trim().min(1, "startDate is required"),
+  policyAcceptedAt: z.coerce.date({ required_error: "Policy acceptance is required" }),
 });
 
 export const editBookingSchema = z.object({
@@ -24,4 +25,5 @@ export const cancelBookingSchema = z.object({
 export const updateBookingStatusSchema = z.object({
   status: z.enum(["pending", "confirmed", "completed", "cancelled"]).optional(),
   paymentStatus: z.enum(["unpaid", "paid", "refunded"]).optional(),
+  depositStatus: z.enum(["pending", "confirmed", "rejected"]).optional(),
 });

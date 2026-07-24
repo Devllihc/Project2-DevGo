@@ -71,7 +71,7 @@ const TourCard = ({ tour }) => {
 
         <div className="mt-auto pt-4 border-t border-stone-100 dark:border-stone-800 flex justify-between items-center">
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-stone-900 dark:text-white">₹{price}</span>
+            <span className="text-2xl font-bold text-stone-900 dark:text-white">${price}</span>
             <span className="text-sm font-medium text-stone-500 dark:text-stone-400">/ person</span>
           </div>
         </div>
