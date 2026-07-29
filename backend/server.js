@@ -17,6 +17,7 @@ import reviewRouter from "./routes/reviewRoutes.js";
 import bookingConfigRouter from "./routes/bookingConfigRoute.js";
 import { initSocket } from "./utils/socket.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
+import { xssSanitizerMiddleware } from "./middleware/xssSanitizer.js";
 import logger from "./utils/logger.js";
 
 for (const secret of ["JWT_SECRET", "JWT_REFRESH_SECRET"]) {
@@ -35,6 +36,7 @@ app.use(compression());
 app.use(express.json({ limit: "1mb" }));
 app.use(cookieParser());
 app.use(mongoSanitize());
+app.use(xssSanitizerMiddleware);
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true

@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Bell, Check, CheckCircle2, Info, AlertTriangle } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import { formatDistanceToNow } from 'date-fns';
+import { safeNavigate } from '../../lib/sanitize';
 
 const NotificationDropdown = () => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotification();
 
   useEffect(() => {
@@ -66,7 +69,7 @@ const NotificationDropdown = () => {
                   key={notif._id}
                   onClick={() => {
                     if (!notif.isRead) markAsRead(notif._id);
-                    if (notif.actionUrl) window.location.href = notif.actionUrl;
+                    if (notif.actionUrl) safeNavigate(notif.actionUrl, navigate);
                   }}
                   className={`p-4 flex gap-3 cursor-pointer transition-all border-b border-stone-100/80 dark:border-stone-800/50 hover:bg-stone-50 dark:hover:bg-stone-800/40 ${!notif.isRead ? 'bg-stone-50/80 dark:bg-stone-800/25' : ''}`}
                 >
