@@ -9,7 +9,7 @@ import {
   updateBookingStatus,
 } from "../controllers/bookingController.js";
 import { verifyToken, isAdmin, requireEmailVerified } from "../middleware/authMiddleware.js";
-import { searchLimiter } from "../middleware/rateLimiters.js";
+import { searchLimiter, bookingMutationLimiter } from "../middleware/rateLimiters.js";
 import { validate } from "../middleware/validate.js";
 import {
   createBookingSchema,
@@ -20,7 +20,7 @@ import {
 
 const bookingRouter = express.Router();
 
-bookingRouter.post("/", verifyToken, requireEmailVerified, validate(createBookingSchema), createBooking);
+bookingRouter.post("/", bookingMutationLimiter, verifyToken, requireEmailVerified, validate(createBookingSchema), createBooking);
 bookingRouter.get("/", verifyToken, getBookings);
 bookingRouter.get("/search", verifyToken, isAdmin, searchLimiter, searchBookings);
 bookingRouter.get("/all", verifyToken, isAdmin, getAllBookings);

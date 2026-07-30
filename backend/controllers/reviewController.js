@@ -2,6 +2,8 @@ import Review from "../models/review.js";
 import Tour from "../models/tour.js";
 import bookingModel from "../models/bookingModel.js";
 import mongoose from "mongoose";
+import { createAndSendNotification } from "../services/notificationService.js";
+import userModel from "../models/userModel.js";
 
 // Helper to recalculate avg rating and total reviews
 const updateTourRating = async (tourId) => {
@@ -142,6 +144,28 @@ export const createReview = async (req, res, next) => {
 
     await review.save();
     await updateTourRating(tourId);
+
+    // Send notification to all admins asynchronously
+    (async () => {
+      try {
+        const reviewer = await userModel.findById(userId).select("name");
+        const tour = await Tour.findById(tourId).select("title");
+        const admins = await userModel.find({ role: "admin" }).select("_id");
+        
+        for (const admin of admins) {
+          await createAndSendNotification({
+            recipientId: admin._id,
+            actorId: userId,
+            type: "REVIEW_CREATED",
+            title: "Đánh giá mới cho tour",
+            body: `${reviewer?.name || "Người dùng"} đã gửi đánh giá ${rating}⭐ cho tour "${tour?.title || ""}".`,
+            actionUrl: `/tours/${tourId}`,
+          });
+        }
+      } catch (notifErr) {
+        console.error("Error creating review notifications for admins:", notifErr);
+      }
+    })();
 
     res.status(201).json(review);
   } catch (err) {
@@ -305,6 +329,30 @@ export const addReply = async (req, res, next) => {
 
     review.replies.push(reply);
     await review.save();
+
+    // Send notification to review author if replier is not author
+    if (review.userId.toString() !== userId.toString()) {
+      (async () => {
+        try {
+          const replier = await userModel.findById(userId).select("name");
+          const tour = await Tour.findById(review.tourId).select("title");
+          const shortComment = comment.trim().length > 50 
+            ? `${comment.trim().substring(0, 50)}...` 
+            : comment.trim();
+
+          await createAndSendNotification({
+            recipientId: review.userId,
+            actorId: userId,
+            type: "REVIEW_REPLY",
+            title: "Phản hồi mới về đánh giá",
+            body: `${replier?.name || "Người dùng"} đã trả lời đánh giá của bạn trên tour "${tour?.title || ""}": "${shortComment}"`,
+            actionUrl: `/tours/${review.tourId}`,
+          });
+        } catch (notifErr) {
+          console.error("Error creating review reply notification:", notifErr);
+        }
+      })();
+    }
 
     // Populate userId for the new reply to return it directly
     const updatedReview = await Review.findById(id).populate("replies.userId", "name photo");

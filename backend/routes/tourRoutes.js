@@ -9,6 +9,7 @@ import {
   uploadItinerary,
 } from "../controllers/tourController.js";
 import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
+import { searchLimiter } from "../middleware/rateLimiters.js";
 import { validate } from "../middleware/validate.js";
 import { createTourSchema, updateTourSchema } from "../validators/tourValidators.js";
 import multer from "multer";
@@ -90,7 +91,7 @@ const handleItineraryUpload = (req, res, next) => {
 };
 
 // Public routes
-tourRouter.get("/", getAllTours);
+tourRouter.get("/", searchLimiter, getAllTours);
 tourRouter.get("/related/:id", getRelatedTours);
 tourRouter.get("/:id", getTourById);
 

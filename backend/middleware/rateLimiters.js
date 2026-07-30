@@ -6,12 +6,20 @@ import rateLimit from "express-rate-limit";
 // counters and the effective limit multiplies by instance count. At that
 // point swap the `store` option for a shared store (e.g. rate-limit-redis).
 
+export const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Quá nhiều yêu cầu từ IP của bạn. Vui lòng thử lại sau 15 phút." },
+});
+
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Too many attempts, please try again later" },
+  message: { success: false, message: "Thử đăng nhập/đăng ký quá nhiều lần. Vui lòng thử lại sau 15 phút." },
 });
 
 export const passwordResetLimiter = rateLimit({
@@ -19,7 +27,23 @@ export const passwordResetLimiter = rateLimit({
   max: 5,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Too many password reset requests, please try again later" },
+  message: { success: false, message: "Yêu cầu đặt lại mật khẩu quá nhiều lần. Vui lòng thử lại sau 1 giờ." },
+});
+
+export const bookingMutationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Thực hiện đặt tour quá nhiều lần liên tiếp. Vui lòng thử lại sau 15 phút." },
+});
+
+export const reviewMutationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: "Gửi đánh giá/phản hồi quá nhanh. Vui lòng thử lại sau 15 phút." },
 });
 
 export const searchLimiter = rateLimit({
@@ -27,5 +51,5 @@ export const searchLimiter = rateLimit({
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { success: false, message: "Too many search requests, please slow down" },
+  message: { success: false, message: "Tìm kiếm quá liên tục. Vui lòng làm chậm lại." },
 });

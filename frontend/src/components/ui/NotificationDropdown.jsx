@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Check, CheckCircle2, Info, AlertTriangle } from 'lucide-react';
+import { Bell, Check, CheckCircle2, Info, AlertTriangle, Star, MessageSquare } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import { formatDistanceToNow } from 'date-fns';
 import { safeNavigate } from '../../lib/sanitize';
@@ -25,6 +25,8 @@ const NotificationDropdown = () => {
     switch (type) {
       case 'SUCCESS': return <CheckCircle2 className="text-emerald-500 w-5 h-5" />;
       case 'WARNING': return <AlertTriangle className="text-amber-500 w-5 h-5" />;
+      case 'REVIEW_CREATED': return <Star className="text-amber-500 w-5 h-5 fill-amber-500" />;
+      case 'REVIEW_REPLY': return <MessageSquare className="text-indigo-500 w-5 h-5" />;
       default: return <Info className="text-blue-500 w-5 h-5" />;
     }
   };
