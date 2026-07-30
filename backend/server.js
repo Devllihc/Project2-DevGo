@@ -18,6 +18,7 @@ import bookingConfigRouter from "./routes/bookingConfigRoute.js";
 import { initSocket } from "./utils/socket.js";
 import { notFoundHandler, errorHandler } from "./middleware/errorHandler.js";
 import { xssSanitizerMiddleware } from "./middleware/xssSanitizer.js";
+import { globalLimiter } from "./middleware/rateLimiters.js";
 import logger from "./utils/logger.js";
 
 for (const secret of ["JWT_SECRET", "JWT_REFRESH_SECRET"]) {
@@ -42,6 +43,8 @@ app.use(cors({
   credentials: true
 }));
 await connectDB();
+
+app.use("/api", globalLimiter);
 
 app.use("/api/user", userRouter);
 app.use("/api/bookings", bookingRouter);

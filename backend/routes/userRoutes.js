@@ -55,7 +55,7 @@ const handleUpload = (field) => (req, res, next) => {
 // Public routes
 userRouter.post("/register", authLimiter, validate(registerSchema), registerUser);
 userRouter.post("/login", authLimiter, validate(loginSchema), loginUser);
-userRouter.post("/refresh", refreshAccessToken);
+userRouter.post("/refresh", authLimiter, refreshAccessToken);
 userRouter.post("/logout", logoutUser);
 userRouter.get("/verify-email/:token", verifyEmail);
 userRouter.post("/forgot-password", passwordResetLimiter, validate(forgotPasswordSchema), forgotPassword);
