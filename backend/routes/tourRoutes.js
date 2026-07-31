@@ -10,6 +10,7 @@ import {
 } from "../controllers/tourController.js";
 import { verifyToken, isAdmin } from "../middleware/authMiddleware.js";
 import { searchLimiter } from "../middleware/rateLimiters.js";
+import { cacheMiddleware } from "../middleware/cacheMiddleware.js";
 import { validate } from "../middleware/validate.js";
 import { createTourSchema, updateTourSchema } from "../validators/tourValidators.js";
 import multer from "multer";
@@ -91,9 +92,9 @@ const handleItineraryUpload = (req, res, next) => {
 };
 
 // Public routes
-tourRouter.get("/", searchLimiter, getAllTours);
-tourRouter.get("/related/:id", getRelatedTours);
-tourRouter.get("/:id", getTourById);
+tourRouter.get("/", searchLimiter, cacheMiddleware(300), getAllTours);
+tourRouter.get("/related/:id", cacheMiddleware(300), getRelatedTours);
+tourRouter.get("/:id", cacheMiddleware(300), getTourById);
 
 // Admin-only routes
 tourRouter.post("/", verifyToken, isAdmin, handleUpload("photo"), validate(createTourSchema), createTour);

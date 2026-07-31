@@ -15,7 +15,11 @@ import {
   AlertCircle,
   Map,
   Compass,
-  Star
+  Star,
+  FileText,
+  CalendarPlus,
+  FileSpreadsheet,
+  Printer
 } from "lucide-react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
@@ -135,6 +139,150 @@ const TripDetail = () => {
     }
   };
 
+  // --- XỬ LÝ XUẤT PDF ---
+  const handleDownloadPDF = () => {
+    if (!trip) return;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) {
+      toast.error("Vui lòng cho phép mở popup trình duyệt để tải file PDF.");
+      return;
+    }
+
+    const itinerary = trip.itinerary_details || trip.itinerary || [];
+
+    const contentHtml = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Lịch Trình Du Lịch - ${trip.trip_name || "DevGo Trip"}</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; padding: 32px; color: #1c1917; background-color: #ffffff; }
+          .header { border-bottom: 2px solid #f97316; padding-bottom: 16px; margin-bottom: 24px; }
+          .badge { display: inline-block; background-color: #fff7ed; color: #c2410c; padding: 4px 10px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+          .title { font-size: 28px; font-weight: 800; color: #0c0a09; margin: 0 0 10px 0; }
+          .meta-grid { display: flex; gap: 20px; font-size: 14px; color: #57534e; margin-bottom: 8px; }
+          .meta-item { font-weight: 600; }
+          .prompt { font-style: italic; color: #78716c; font-size: 13px; margin-top: 6px; }
+          .day-title { background: #fff7ed; border-left: 4px solid #f97316; padding: 8px 14px; font-size: 18px; font-weight: 700; color: #9a3412; margin: 24px 0 12px 0; border-radius: 4px; }
+          .activity-card { border: 1px solid #e7e5e4; padding: 14px 18px; margin-bottom: 12px; border-radius: 12px; page-break-inside: avoid; background-color: #fafaf9; }
+          .act-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+          .act-name { font-size: 16px; font-weight: 700; color: #1c1917; }
+          .act-time { font-size: 12px; font-weight: 700; color: #ea580c; background-color: #ffedd5; padding: 3px 8px; border-radius: 6px; }
+          .act-cost { font-size: 12px; font-weight: 700; color: #15803d; background-color: #dcfce7; padding: 3px 8px; border-radius: 6px; }
+          .act-notes { font-size: 13px; color: #44403c; margin-top: 6px; background-color: #ffffff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #fdba74; }
+          .act-detail { font-size: 12px; color: #78716c; margin-top: 6px; display: flex; gap: 16px; }
+          .footer { margin-top: 40px; text-align: center; font-size: 11px; color: #a8a29e; border-top: 1px solid #e7e5e4; padding-top: 16px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="badge">DevGo Travel Itinerary</div>
+          <h1 class="title">${trip.trip_name || "Lịch Trình Du Lịch"}</h1>
+          <div class="meta-grid">
+            <div class="meta-item">🗓️ Thời lượng: ${trip.total_days} ngày</div>
+            <div class="meta-item">💰 Ước tính chi phí: ${formatCurrency(trip.total_cost || 0)}</div>
+          </div>
+          ${trip.prompt ? `<div class="prompt">Yêu cầu: "${trip.prompt}"</div>` : ""}
+        </div>
+
+        ${itinerary.map((day) => `
+          <div class="day-title">Ngày ${day.day}</div>
+          ${(day.activities || []).map((act) => `
+            <div class="activity-card">
+              <div class="act-header">
+                <span class="act-time">⏰ ${act.time || `${act.start_time || "?"} - ${act.end_time || "?"}`}</span>
+                <span class="act-cost">${act.cost_vnd ? formatCurrency(act.cost_vnd) : "Miễn phí"}</span>
+              </div>
+              <div class="act-name">${act.activity_name}</div>
+              ${act.notes ? `<div class="act-notes">${act.notes}</div>` : ""}
+              <div class="act-detail">
+                ${act.address ? `<span>📍 ${act.address}</span>` : ""}
+                <span>🚗 ${act.transport || "Tự túc"}${act.distance_km ? ` (${act.distance_km} km)` : ""}</span>
+              </div>
+            </div>
+          `).join("")}
+        `).join("")}
+
+        <div class="footer">
+          Được tạo bởi DevGo Platform • ${new Date().toLocaleDateString("vi-VN")}
+        </div>
+
+        <script>
+          window.onload = function() {
+            window.print();
+          };
+        </script>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(contentHtml);
+    printWindow.document.close();
+    toast.success("Đã mở cửa sổ in/xuất PDF!");
+  };
+
+  // --- XỬ LÝ XUẤT ICAL (.ICS) ---
+  const handleDownloadICS = () => {
+    if (!trip) return;
+    try {
+      const itinerary = trip.itinerary_details || trip.itinerary || [];
+      const baseDate = new Date();
+      let eventsStr = "";
+
+      const formatICSDate = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+      itinerary.forEach((dayItem) => {
+        const dayNum = dayItem.day || 1;
+        const dayDate = new Date(baseDate);
+        dayDate.setDate(baseDate.getDate() + (dayNum - 1));
+
+        (dayItem.activities || []).forEach((act, idx) => {
+          const startTime = new Date(dayDate);
+          startTime.setHours(9 + idx * 2, 0, 0);
+          const endTime = new Date(startTime);
+          endTime.setHours(startTime.getHours() + 1);
+
+          const uid = `devgo-${trip._id || Date.now()}-${dayNum}-${idx}@devgo.com`;
+          const summary = (act.activity_name || "Hoạt động du lịch").replace(/\n/g, " ");
+          const description = (act.notes || `Chuyến đi ${trip.trip_name || ""}`).replace(/\n/g, " ");
+          const location = (act.address || "").replace(/\n/g, " ");
+
+          eventsStr += `BEGIN:VEVENT\r\nUID:${uid}\r\nSUMMARY:${summary}\r\nDESCRIPTION:${description}\r\nLOCATION:${location}\r\nDTSTART:${formatICSDate(startTime)}\r\nDTEND:${formatICSDate(endTime)}\r\nEND:VEVENT\r\n`;
+        });
+      });
+
+      const icsContent = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//DevGo Travel Planner//EN\r\nCALSCALE:GREGORIAN\r\nMETHOD:PUBLISH\r\nX-WR-CALNAME:${trip.trip_name || "Lịch Trình DevGo"}\r\n${eventsStr}END:VCALENDAR`;
+
+      const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+      saveAs(blob, `Lich_Trinh_${(trip.trip_name || "Du_Lich").replace(/\s+/g, "_")}.ics`);
+      toast.success("Đã tải file lịch (.ics) thành công!");
+    } catch (err) {
+      console.error("Lỗi xuất file .ics:", err);
+      toast.error("Có lỗi khi xuất file lịch .ics");
+    }
+  };
+
+  // --- XỬ LÝ THÊM VÀO GOOGLE CALENDAR ---
+  const handleAddToGoogleCalendar = (activity, dayNum = 1) => {
+    const baseDate = new Date();
+    baseDate.setDate(baseDate.getDate() + (dayNum - 1));
+    baseDate.setHours(9, 0, 0);
+
+    const endDate = new Date(baseDate);
+    endDate.setHours(11, 0, 0);
+
+    const formatGCalDate = (d) => d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+
+    const title = encodeURIComponent(activity.activity_name || "Hoạt động du lịch");
+    const details = encodeURIComponent(`${activity.notes || ""}\nPhương tiện: ${activity.transport || "Tự túc"}`);
+    const location = encodeURIComponent(activity.address || "");
+    const dates = `${formatGCalDate(baseDate)}/${formatGCalDate(endDate)}`;
+
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}`;
+    window.open(url, "_blank");
+  };
+
   if (loading)
     return (
       <div className="min-h-screen flex justify-center items-center bg-stone-50 dark:bg-stone-950">
@@ -188,7 +336,7 @@ const TripDetail = () => {
             >
               <ArrowLeft size={18} /> Back
             </button>
-            <div className="flex gap-3">
+            <div className="flex flex-wrap gap-2.5">
               <button
                 onClick={handleShare}
                 className="p-3 bg-white/50 dark:bg-stone-800/50 hover:bg-white dark:hover:bg-stone-800 backdrop-blur-md rounded-xl text-stone-600 dark:text-stone-300 transition-all border border-stone-200/50 dark:border-stone-700/50 shadow-sm hover:text-accent-500 hover:border-accent-500/30"
@@ -197,12 +345,28 @@ const TripDetail = () => {
                 <Share2 size={18} />
               </button>
               <button
+                onClick={handleDownloadPDF}
+                className="px-3.5 py-2.5 bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-xl text-stone-700 dark:text-stone-200 font-bold transition-all border border-stone-200 dark:border-stone-700 shadow-sm flex items-center gap-2 text-sm"
+                title="Export as PDF"
+              >
+                <FileText size={18} className="text-red-500" />
+                <span className="hidden sm:inline">Export PDF</span>
+              </button>
+              <button
+                onClick={handleDownloadICS}
+                className="px-3.5 py-2.5 bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-xl text-stone-700 dark:text-stone-200 font-bold transition-all border border-stone-200 dark:border-stone-700 shadow-sm flex items-center gap-2 text-sm"
+                title="Export .ics calendar"
+              >
+                <CalendarPlus size={18} className="text-blue-500" />
+                <span className="hidden sm:inline">iCal (.ics)</span>
+              </button>
+              <button
                 onClick={handleDownloadExcel}
-                className="px-4 py-2.5 bg-accent-500 hover:bg-accent-600 rounded-xl text-white font-bold transition-all shadow-md shadow-accent-500/20 hover:shadow-lg flex items-center gap-2"
+                className="px-4 py-2.5 bg-accent-500 hover:bg-accent-600 rounded-xl text-white font-bold transition-all shadow-md shadow-accent-500/20 hover:shadow-lg flex items-center gap-2 text-sm"
                 title="Download Excel"
               >
-                <Download size={18} />
-                <span className="hidden sm:inline">Export</span>
+                <FileSpreadsheet size={18} />
+                <span className="hidden sm:inline">Export Excel</span>
               </button>
             </div>
           </div>
@@ -394,6 +558,18 @@ const TripDetail = () => {
                                   {activity.transport || "Self-guided"}
                                   {activity.distance_km ? <span className="text-stone-400 dark:text-stone-500 font-medium ml-1">({activity.distance_km} km)</span> : ""}
                                 </span>
+                              </div>
+
+                              {/* Google Calendar Sync */}
+                              <div className="flex items-center justify-end col-span-1 md:col-span-2 mt-2">
+                                <button
+                                  onClick={() => handleAddToGoogleCalendar(activity, dayItem.day)}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl text-xs font-bold border border-blue-200/50 dark:border-blue-800/50 transition-all shadow-sm active:scale-95"
+                                  title="Thêm hoạt động này vào Google Calendar"
+                                >
+                                  <CalendarPlus size={14} />
+                                  <span>Add to Google Calendar</span>
+                                </button>
                               </div>
                             </div>
                           </div>

@@ -4,6 +4,7 @@ import bookingModel from "../models/bookingModel.js";
 import mongoose from "mongoose";
 import { createAndSendNotification } from "../services/notificationService.js";
 import userModel from "../models/userModel.js";
+import { checkProfanity } from "../utils/profanityFilter.js";
 
 // Helper to recalculate avg rating and total reviews
 const updateTourRating = async (tourId) => {
@@ -133,12 +134,20 @@ export const createReview = async (req, res, next) => {
       return res.status(400).json({ message: "You have already reviewed this trip." });
     }
 
+    const profanity = checkProfanity(comment || "");
+    const isFlagged = profanity.containsProfanity;
+    const flaggedReason = isFlagged ? `Từ ngữ nhạy cảm: ${profanity.flaggedWords.join(", ")}` : "";
+    const cleanComment = profanity.cleanText;
+
     const review = new Review({
       tourId,
       userId,
       bookingId,
       rating,
-      comment,
+      comment: cleanComment,
+      isFlagged,
+      flaggedReason,
+      isHidden: isFlagged ? true : false,
       photo: req.file ? `/uploads/${req.file.filename}` : undefined
     });
 
@@ -157,8 +166,10 @@ export const createReview = async (req, res, next) => {
             recipientId: admin._id,
             actorId: userId,
             type: "REVIEW_CREATED",
-            title: "Đánh giá mới cho tour",
-            body: `${reviewer?.name || "Người dùng"} đã gửi đánh giá ${rating}⭐ cho tour "${tour?.title || ""}".`,
+            title: isFlagged ? "⚠️ Đánh giá mới bị vi phạm từ ngữ" : "Đánh giá mới cho tour",
+            body: isFlagged 
+              ? `${reviewer?.name || "Người dùng"} đã gửi đánh giá bị ẩn do từ ngữ nhạy cảm trên tour "${tour?.title || ""}".`
+              : `${reviewer?.name || "Người dùng"} đã gửi đánh giá ${rating}⭐ cho tour "${tour?.title || ""}".`,
             actionUrl: `/tours/${tourId}`,
           });
         }
@@ -186,7 +197,15 @@ export const updateReview = async (req, res, next) => {
     }
 
     if (rating !== undefined) review.rating = rating;
-    if (comment !== undefined) review.comment = comment;
+    if (comment !== undefined) {
+      const profanity = checkProfanity(comment);
+      review.comment = profanity.cleanText;
+      if (profanity.containsProfanity) {
+        review.isFlagged = true;
+        review.flaggedReason = `Từ ngữ nhạy cảm: ${profanity.flaggedWords.join(", ")}`;
+        review.isHidden = true;
+      }
+    }
     review.isEdited = true;
 
     await review.save();
@@ -260,6 +279,39 @@ export const toggleHideReviewAdmin = async (req, res, next) => {
   }
 };
 
+// Admin: Moderate review (approve/unflag or flag)
+export const moderateReviewAdmin = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { action, isFlagged, flaggedReason, isHidden } = req.body;
+
+    const review = await Review.findById(id);
+    if (!review) {
+      return res.status(404).json({ message: "Review not found" });
+    }
+
+    if (action === "approve" || action === "unflag") {
+      review.isFlagged = false;
+      review.flaggedReason = "";
+      review.isHidden = false;
+    } else if (action === "flag") {
+      review.isFlagged = true;
+      review.flaggedReason = flaggedReason || "Bị quản trị viên đánh dấu vi phạm";
+      review.isHidden = true;
+    } else {
+      if (isFlagged !== undefined) review.isFlagged = isFlagged;
+      if (flaggedReason !== undefined) review.flaggedReason = flaggedReason;
+      if (isHidden !== undefined) review.isHidden = isHidden;
+    }
+
+    await review.save();
+    await updateTourRating(review.tourId);
+    res.status(200).json(review);
+  } catch (err) {
+    next(err);
+  }
+};
+
 // Admin: Delete review
 export const deleteReviewAdmin = async (req, res, next) => {
   try {
@@ -322,9 +374,13 @@ export const addReply = async (req, res, next) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
+    const profanity = checkProfanity(comment.trim());
+
     const reply = {
       userId,
-      comment: comment.trim(),
+      comment: profanity.cleanText,
+      isFlagged: profanity.containsProfanity,
+      flaggedReason: profanity.containsProfanity ? `Từ ngữ nhạy cảm: ${profanity.flaggedWords.join(", ")}` : "",
     };
 
     review.replies.push(reply);
@@ -336,9 +392,9 @@ export const addReply = async (req, res, next) => {
         try {
           const replier = await userModel.findById(userId).select("name");
           const tour = await Tour.findById(review.tourId).select("title");
-          const shortComment = comment.trim().length > 50 
-            ? `${comment.trim().substring(0, 50)}...` 
-            : comment.trim();
+          const shortComment = reply.comment.length > 50 
+            ? `${reply.comment.substring(0, 50)}...` 
+            : reply.comment;
 
           await createAndSendNotification({
             recipientId: review.userId,

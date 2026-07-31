@@ -1,7 +1,7 @@
 import { useEffect, useState, useContext, useCallback } from "react";
 import axios from "axios";
 import { AppContext } from "../../context/AppContext";
-import { Trash2, Star, Eye, EyeOff, MessageSquare } from "lucide-react";
+import { Trash2, Star, Eye, EyeOff, MessageSquare, ShieldAlert, CheckCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import AdminPageHeader from "../../components/admin/AdminPageHeader";
 import AdminCard from "../../components/admin/AdminCard";
@@ -57,6 +57,23 @@ const AdminReviewManagement = () => {
     }
   };
 
+  const handleModerate = async (id, action) => {
+    try {
+      const res = await axios.put(
+        `${backendUrl}/api/reviews/admin/${id}/moderate`,
+        { action },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setReviews((prev) =>
+        prev.map((r) => (r._id === id ? { ...r, ...res.data } : r))
+      );
+      toast.success(action === "approve" || action === "unflag" ? "Review approved and unflagged!" : "Review flagged");
+    } catch (err) {
+      console.error("Failed to moderate review:", err);
+      toast.error(err.response?.data?.message || "Moderation action failed");
+    }
+  };
+
   const deleteReview = async (id) => {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
     try {
@@ -77,14 +94,16 @@ const AdminReviewManagement = () => {
       r.userId?.name,
       r.userId?.email,
       r.tourId?.title,
-      r.comment
+      r.comment,
+      r.flaggedReason
     ].some((field) => field?.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesRating = filterRating === "all" || r.rating === parseInt(filterRating);
 
     const matchesVisibility = filterVisibility === "all" || 
-      (filterVisibility === "visible" && !r.isHidden) ||
-      (filterVisibility === "hidden" && r.isHidden);
+      (filterVisibility === "visible" && !r.isHidden && !r.isFlagged) ||
+      (filterVisibility === "hidden" && r.isHidden) ||
+      (filterVisibility === "flagged" && r.isFlagged);
 
     return matchesSearch && matchesRating && matchesVisibility;
   });
@@ -166,6 +185,7 @@ const AdminReviewManagement = () => {
             <option value="all">All Statuses</option>
             <option value="visible">Visible</option>
             <option value="hidden">Hidden</option>
+            <option value="flagged">🚩 Flagged</option>
           </select>
         </div>
       </AdminPageHeader>
@@ -232,6 +252,11 @@ const AdminReviewManagement = () => {
                         <p className="text-xs text-stone-600 dark:text-stone-300 max-w-[280px] whitespace-normal break-words">
                           {r.comment || <span className="italic text-stone-500 dark:text-stone-400">No comment</span>}
                         </p>
+                        {r.flaggedReason && (
+                          <div className="mt-1 text-[11px] text-red-500 dark:text-red-400 flex items-center gap-1">
+                            <ShieldAlert size={12} /> {r.flaggedReason}
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -244,7 +269,12 @@ const AdminReviewManagement = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      {r.isHidden ? (
+                      {r.isFlagged ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-900/30" title={r.flaggedReason}>
+                          <ShieldAlert size={12} />
+                          🚩 Flagged
+                        </span>
+                      ) : r.isHidden ? (
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-900/30">
                           <EyeOff size={12} />
                           Hidden
@@ -258,6 +288,16 @@ const AdminReviewManagement = () => {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
+                        {r.isFlagged && (
+                          <button
+                            onClick={() => handleModerate(r._id, "approve")}
+                            className="p-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-all active:scale-95 flex items-center gap-1 text-xs font-medium"
+                            title="Approve & Unflag Review"
+                          >
+                            <CheckCircle size={16} />
+                            <span>Approve</span>
+                          </button>
+                        )}
                         <button
                           onClick={() => toggleHide(r._id, r.isHidden)}
                           className={`p-2 rounded-lg transition-all active:scale-95 border ${

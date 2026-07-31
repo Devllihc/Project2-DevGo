@@ -4,6 +4,7 @@ import bookingModel from "../models/bookingModel.js";
 import fs from "fs";
 import path from "path";
 import XLSX from "xlsx";
+import { clearCache } from "../middleware/cacheMiddleware.js";
 
 const attachRemainingSlots = async (toursArray) => {
   const tourIds = toursArray.map((t) => t._id);
@@ -127,6 +128,7 @@ export const createTour = async (req, res, next) => {
     });
 
     await newTour.save();
+    await clearCache();
     res.status(201).json(newTour);
   } catch (err) {
     next(err);
@@ -183,6 +185,7 @@ export const updateTour = async (req, res, next) => {
     if (!updatedTour)
       return res.status(404).json({ message: "Tour not found" });
 
+    await clearCache();
     res.status(200).json(updatedTour);
   } catch (err) {
     next(err);
@@ -202,6 +205,7 @@ export const deleteTour = async (req, res, next) => {
       }
     }
 
+    await clearCache();
     res.status(200).json({ message: "Tour deleted successfully" });
   } catch (err) {
     next(err);

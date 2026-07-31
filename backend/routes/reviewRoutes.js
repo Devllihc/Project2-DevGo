@@ -60,6 +60,7 @@ router.post("/:id/reply", reviewMutationLimiter, verifyToken, addReply);
 // Admin Moderation Routes
 router.get("/admin", verifyToken, isAdmin, getAllReviewsAdmin);
 router.put("/admin/:id/hide", verifyToken, isAdmin, toggleHideReviewAdmin);
+router.put("/admin/:id/moderate", verifyToken, isAdmin, moderateReviewAdmin);
 router.delete("/admin/:id", verifyToken, isAdmin, deleteReviewAdmin);
 
 export default router;
