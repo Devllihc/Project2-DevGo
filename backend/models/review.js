@@ -39,6 +39,15 @@ const reviewSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isFlagged: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    flaggedReason: {
+      type: String,
+      default: "",
+    },
     isEdited: {
       type: Boolean,
       default: false,
@@ -60,6 +69,14 @@ const reviewSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+        isFlagged: {
+          type: Boolean,
+          default: false,
+        },
+        flaggedReason: {
+          type: String,
+          default: "",
+        },
         createdAt: {
           type: Date,
           default: Date.now,
@@ -70,6 +87,6 @@ const reviewSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-reviewSchema.index({ tourId: 1, isHidden: 1, createdAt: -1 });
+reviewSchema.index({ tourId: 1, isHidden: 1, isFlagged: 1, createdAt: -1 });
 
 export default mongoose.model("Review", reviewSchema);
