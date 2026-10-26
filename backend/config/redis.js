@@ -53,33 +53,37 @@ const memoryFallback = new MemoryCacheStore();
 let redisClient = null;
 let isRedisConnected = false;
 
-const REDIS_URL = process.env.REDIS_URL || process.env.REDIS_URI || "redis://127.0.0.1:6379";
+const REDIS_URL = process.env.REDIS_URL || process.env.REDIS_URI || (process.env.NODE_ENV !== "production" ? "redis://127.0.0.1:6379" : null);
 
-try {
-  redisClient = new Redis(REDIS_URL, {
-    maxRetriesPerRequest: 1,
-    enableOfflineQueue: false,
-    connectTimeout: 2000,
-    retryStrategy(times) {
-      if (times > 3) return null; // Stop retrying after 3 attempts, fallback to memory
-      return Math.min(times * 200, 1000);
-    },
-  });
+if (REDIS_URL) {
+  try {
+    redisClient = new Redis(REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      enableOfflineQueue: false,
+      connectTimeout: 2000,
+      retryStrategy(times) {
+        if (times > 3) return null; // Stop retrying after 3 attempts, fallback to memory
+        return Math.min(times * 200, 1000);
+      },
+    });
 
-  redisClient.on("connect", () => {
-    isRedisConnected = true;
-    console.log("🟢 Redis connected successfully.");
-  });
+    redisClient.on("connect", () => {
+      isRedisConnected = true;
+      console.log("🟢 Redis connected successfully.");
+    });
 
-  redisClient.on("error", (err) => {
-    if (isRedisConnected) {
-      console.warn("⚠️ Redis connection error, falling back to in-memory cache:", err.message);
-    }
+    redisClient.on("error", (err) => {
+      if (isRedisConnected) {
+        console.warn("⚠️ Redis connection error, falling back to in-memory cache:", err.message);
+      }
+      isRedisConnected = false;
+    });
+  } catch (err) {
+    console.warn("⚠️ Redis initialization error, using in-memory cache fallback:", err.message);
     isRedisConnected = false;
-  });
-} catch (err) {
-  console.warn("⚠️ Redis initialization error, using in-memory cache fallback:", err.message);
-  isRedisConnected = false;
+  }
+} else {
+  console.log("ℹ️ No REDIS_URL configured, using in-memory cache fallback.");
 }
 
 export const getCache = async (key) => {
