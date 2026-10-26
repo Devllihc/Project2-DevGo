@@ -6,6 +6,7 @@ import {
   getUserReviews,
   getAllReviewsAdmin,
   toggleHideReviewAdmin,
+  moderateReviewAdmin,
   deleteReviewAdmin,
   toggleLike,
   addReply

@@ -2,11 +2,23 @@ import { KlookModel, TripadvisorModel } from "../models/crawlModel.js";
 import OpenAI from "openai";
 import logger from "../utils/logger.js";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let openaiClient = null;
+const getOpenAIClient = () => {
+    if (!openaiClient && process.env.OPENAI_API_KEY) {
+        openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    }
+    return openaiClient;
+};
 
 export const getCrawledContext = async (destination) => {
     try {
         if (!destination) return "";
+
+        const openai = getOpenAIClient();
+        if (!openai) {
+            logger.warn("OpenAI API key not configured, skipping vector search context");
+            return "";
+        }
 
         console.log(`Đang Vector Search cho: ${destination}...`);
 
