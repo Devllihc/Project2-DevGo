@@ -4,15 +4,15 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  CalendarBlank,
+  CalendarDays,
   Users,
   CheckCircle,
   XCircle,
   Clock,
   X,
-  PencilSimple,
-  WarningCircle
-} from "@phosphor-icons/react";
+  Pencil,
+  AlertCircle
+} from "lucide-react";
 import ReviewModal from "../../components/tours/ReviewModal";
 
 const BookingHistory = () => {
@@ -147,25 +147,25 @@ const BookingHistory = () => {
       case "pending":
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-            <Clock weight="bold" /> Pending
+            <Clock size="1em" strokeWidth={2.5} /> Pending
           </span>
         );
       case "confirmed":
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-            <CheckCircle weight="bold" /> Confirmed
+            <CheckCircle size="1em" strokeWidth={2.5} /> Confirmed
           </span>
         );
       case "completed":
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
-            <CheckCircle weight="bold" /> Completed
+            <CheckCircle size="1em" strokeWidth={2.5} /> Completed
           </span>
         );
       case "cancelled":
         return (
           <span className="flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-            <XCircle weight="bold" /> Cancelled
+            <XCircle size="1em" strokeWidth={2.5} /> Cancelled
           </span>
         );
       default:
@@ -210,7 +210,7 @@ const BookingHistory = () => {
         </div>
       ) : filteredBookings.length === 0 ? (
         <div className="text-center py-20 bg-stone-50 dark:bg-stone-900/50 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800">
-          <CalendarBlank className="w-12 h-12 text-stone-400 mx-auto mb-4 opacity-50" />
+          <CalendarDays className="w-12 h-12 text-stone-400 mx-auto mb-4 opacity-50" />
           <h3 className="text-lg font-medium text-stone-900 dark:text-white mb-1">
             No trips found
           </h3>
@@ -246,13 +246,13 @@ const BookingHistory = () => {
                     <div>
                       <span className="block text-stone-400 text-xs mb-1 uppercase tracking-wider font-semibold">Departure</span>
                       <div className="flex items-center gap-1.5 font-medium text-stone-900 dark:text-stone-300">
-                        <CalendarBlank /> {booking.startDate || "Not selected"}
+                        <CalendarDays size="1em" /> {booking.startDate || "Not selected"}
                       </div>
                     </div>
                     <div>
                       <span className="block text-stone-400 text-xs mb-1 uppercase tracking-wider font-semibold">Travelers</span>
                       <div className="flex items-center gap-1.5 font-medium text-stone-900 dark:text-stone-300">
-                        <Users /> {booking.travelers} {booking.travelers > 1 ? "people" : "person"}
+                        <Users size="1em" /> {booking.travelers} {booking.travelers > 1 ? "people" : "person"}
                       </div>
                     </div>
                     <div>
@@ -285,7 +285,7 @@ const BookingHistory = () => {
                           className="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-900 transition-colors dark:border-stone-700 dark:text-stone-300 dark:hover:bg-stone-800 dark:hover:text-white"
                           title="Edit"
                         >
-                          <PencilSimple size={18} weight="bold" />
+                          <Pencil size={18} strokeWidth={2.5} />
                         </button>
                         <button
                           onClick={() => setCancelModal({ open: true, bookingId: booking._id })}
@@ -343,12 +343,12 @@ const BookingHistory = () => {
               <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center">
                 <h3 className="text-lg font-bold text-stone-900 dark:text-white">Confirm Cancellation</h3>
                 <button onClick={() => setCancelModal({ open: false, bookingId: null })} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300">
-                  <X size={20} weight="bold" />
+                  <X size={20} strokeWidth={2.5} />
                 </button>
               </div>
               <form onSubmit={handleCancelBooking} className="p-6">
                 <div className="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 p-4 rounded-xl flex gap-3 mb-6">
-                  <WarningCircle size={24} weight="fill" className="shrink-0" />
+                  <AlertCircle size={24} className="shrink-0" />
                   <p className="text-sm">
                     Note: Cancellations made 2 days prior to departure will be 100% refunded. Cancellations within 2 days are non-refundable.
                   </p>
@@ -399,7 +399,7 @@ const BookingHistory = () => {
               <div className="p-6 border-b border-stone-100 dark:border-stone-800 flex justify-between items-center">
                 <h3 className="text-lg font-bold text-stone-900 dark:text-white">Edit Information</h3>
                 <button onClick={() => setEditModal({ open: false, booking: null })} className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300">
-                  <X size={20} weight="bold" />
+                  <X size={20} strokeWidth={2.5} />
                 </button>
               </div>
               <form onSubmit={handleEditBooking} className="p-6">
