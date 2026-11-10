@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none" role="img" aria-label="DevGo">
+  <style>
+    :root { --logo-fg: #0B1B2B; --logo-accent: #F97316; }
+    @media (prefers-color-scheme: dark) { :root { --logo-fg: #F4F6F8; --logo-accent: #FB923C; } }
+    :root[data-theme="dark"], .dark { --logo-fg: #F4F6F8; --logo-accent: #FB923C; }
+    .ring { stroke: var(--logo-fg); }
+    .plane { fill: var(--logo-accent); }
+  </style>
+  <path class="ring" d="M52.55 25.79 A24 24 0 1 1 38.21 11.45" stroke-width="4.5" stroke-linecap="round"/>
+  <path class="plane" d="M56 8 L30 22 L41 27 Z"/>
+  <path class="plane" fill-opacity="0.55" d="M56 8 L41 27 L45 40 Z"/>
+</svg>

@@ -1,6 +1,7 @@
 import React, { useState, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { List, X } from "@phosphor-icons/react";
+import { Menu, X } from "lucide-react";
+import Logo from "./Logo";
 import { AppContext } from "../../context/AppContext.jsx";
 import { assets } from "../../assets/assets.js";
 import ThemeToggle from "./ThemeToggle.jsx";
@@ -24,7 +25,7 @@ const Navbar = () => {
         
         {/* Brand */}
         <Link to="/" className="flex items-center gap-2 group ml-2">
-          <img src="/logoTravel.png" className="w-[100px] sm:w-[120px] drop-shadow-sm group-hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]" alt="DevGo Logo" />
+          <Logo iconClassName="w-8 h-8 sm:w-9 sm:h-9" textClassName="text-lg sm:text-xl" className="group-hover:scale-105 transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]" />
         </Link>
 
         {/* Desktop Links */}
@@ -80,7 +81,7 @@ const Navbar = () => {
 
           {/* Mobile Toggle */}
           <button onClick={toggleMenu} className="md:hidden text-stone-800 dark:text-stone-200 p-2 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full transition-colors">
-            {menuOpen ? <X size={24} weight="light" /> : <List size={24} weight="light" />}
+            {menuOpen ? <X size={24} strokeWidth={1.5} /> : <Menu size={24} strokeWidth={1.5} />}
           </button>
         </div>
       </nav>

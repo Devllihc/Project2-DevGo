@@ -1,5 +1,6 @@
 import React from "react";
-import { FacebookLogo, TwitterLogo, InstagramLogo } from "@phosphor-icons/react";
+import { Facebook, Twitter, Instagram } from "lucide-react";
+import Logo from "./Logo";
 
 const Footer = () => {
   return (
@@ -7,7 +8,7 @@ const Footer = () => {
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 md:px-10 lg:px-22 grid grid-cols-1 md:grid-cols-12 gap-16">
         
         <div className="md:col-span-5 flex flex-col items-start">
-          <img src="/logoTravel.png" width={140} alt="DevGo Logo" className="mb-8 opacity-90 drop-shadow-sm" />
+          <Logo iconClassName="w-11 h-11" textClassName="text-3xl" className="mb-8" />
           <p className="text-lg text-stone-500 dark:text-stone-400 max-w-[24ch] leading-relaxed font-light">
             Powered by innovation. Crafted for the modern explorer.
           </p>
@@ -31,13 +32,13 @@ const Footer = () => {
           <h4 className="text-[10px] font-semibold tracking-[0.2em] uppercase text-stone-900 dark:text-white">Connect</h4>
           <div className="flex gap-4">
             <a href="https://facebook.com" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full border border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 hover:text-accent-600 dark:hover:text-accent-400 hover:border-accent-200 dark:hover:border-accent-500/30 hover:shadow-sm transition-all duration-300 active:scale-95">
-              <FacebookLogo size={20} weight="light" />
+              <Facebook size={20} strokeWidth={1.5} />
             </a>
             <a href="https://twitter.com" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full border border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 hover:text-accent-600 dark:hover:text-accent-400 hover:border-accent-200 dark:hover:border-accent-500/30 hover:shadow-sm transition-all duration-300 active:scale-95">
-              <TwitterLogo size={20} weight="light" />
+              <Twitter size={20} strokeWidth={1.5} />
             </a>
             <a href="https://instagram.com" target="_blank" rel="noreferrer" className="w-12 h-12 rounded-full border border-stone-200 dark:border-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-400 hover:bg-accent-50 dark:hover:bg-accent-500/10 hover:text-accent-600 dark:hover:text-accent-400 hover:border-accent-200 dark:hover:border-accent-500/30 hover:shadow-sm transition-all duration-300 active:scale-95">
-              <InstagramLogo size={20} weight="light" />
+              <Instagram size={20} strokeWidth={1.5} />
             </a>
           </div>
         </div>

@@ -4,17 +4,17 @@ import { Hotel, Plane, Pyramid } from "lucide-react";
 
 const services = [
   {
-    icon: <Plane className="w-6 h-6 text-accent-600" />,
+    icon: <Plane className="w-6 h-6" />,
     title: "Flight Booking",
     desc: "Book flights to your desired destination with ease. Our platform offers competitive prices and convenient booking options.",
   },
   {
-    icon: <Hotel className="w-6 h-6 text-accent-600" />,
+    icon: <Hotel className="w-6 h-6" />,
     title: "Hotel Booking",
     desc: "Find and book the best hotels at your destination. From budget stays to luxury accommodations, we have something for every traveler.",
   },
   {
-    icon: <Pyramid className="w-6 h-6 text-accent-600" />,
+    icon: <Pyramid className="w-6 h-6" />,
     title: "Adventure Tours",
     desc: "Embark on thrilling adventure tours to some of the most exciting and unexplored destinations. Perfect for adrenaline junkies and nature lovers.",
   },
